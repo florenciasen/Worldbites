@@ -5,6 +5,7 @@ import Login from './pages/LoginPage/Login';
 import Register from './pages/RegisterPage/Register';
 import Cart from './pages/CartPage/Cart';
 import Chat from './pages/ChatPage/Chat';
+import ForgotPassword from './pages/ForgotPasswordPage/ForgotPassword';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 
@@ -17,6 +18,7 @@ function App() {
         <Route path="/register" element={<Register />}/>
         <Route path="/cart" element={<Cart />} />
         <Route path="/chat" element={<Chat />} />
+        <Route path="/forgotpassword" element={<ForgotPassword />} />
 
       </Routes>
     </Router>
