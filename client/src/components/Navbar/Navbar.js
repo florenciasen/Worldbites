@@ -7,8 +7,10 @@ import Cartlogo from '../../assets/cartlogo.svg';
 import Profile from '../../assets/profile.svg';
 
 export default function Navbar() {
-    const [isOpen, setIsOpen] = useState(false); // State untuk mengontrol dropdown
+    const [isOpen, setIsOpen] = useState(false); 
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const navigate = useNavigate(); 
+    
 
     const toggleDropdown = () => {
         setIsOpen(!isOpen);
@@ -22,11 +24,26 @@ export default function Navbar() {
     };
     
     const handleCart = () => {
-        navigate('/cart'); 
+        if (isLoggedIn) {
+            navigate('/cart'); 
+        } else {
+            handleLogin(); // Redirect ke login jika belum login
+        }
     };
 
     const handleChat = () => {
-        navigate('/chat'); 
+        if (isLoggedIn) {
+            navigate('/chat'); 
+        } else {
+            handleLogin(); // Redirect ke login jika belum login
+        }
+    };
+    
+    const handleLogout = () => {
+        // Logika logout Anda di sini
+        setIsLoggedIn(false); 
+        // Mungkin juga redirect ke homepage atau halaman lain
+        navigate('/'); 
     };
 
     
@@ -49,9 +66,21 @@ export default function Navbar() {
                         <img src={Profile} alt='Profile' onClick={toggleDropdown} /> {}
                         {isOpen && (
                             <div className='dropdown-menu'>
-                                <div className='dropdown-item' onClick={handleLogin} >Login</div>
-                                <div className='dropdown-item' onClick={handleRegister} >Register</div>
-                            </div>
+                            {!isLoggedIn ? (
+                                <>
+                                    <div className='dropdown-item' onClick={handleLogin}>Login</div>
+                                    <div className='dropdown-item' onClick={handleRegister}>Register</div>
+                                </>
+                            ) : (
+                                <>
+                                    <div className='dropdown-item' >Edit Profile</div>
+                                    <div className='dropdown-item' >Change Password</div>
+                                    <div className='dropdown-item' >Order and History</div>
+                                    <div className='dropdown-item' >Join Jastip</div>
+                                    <div className='dropdown-item' onClick={handleLogout}>Logout</div>
+                                </>
+                            )}
+                        </div>
                         )}
                     </div>
                 </div>
