@@ -1,18 +1,47 @@
+// src/pages/Login/Login.js
+
 import React, { useState } from 'react'; 
 import './Login.css'; 
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar/Navbar';
+import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; // Import the styles
 
 export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
 
-
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
-        // Logika untuk menangani login bisa ditambahkan di sini
-        console.log("Email:", email, "Password:", password);
+
+        try {
+            const response = await axios.post('http://localhost:3011/login', {
+                email: email,
+                password: password
+            });
+
+            console.log(response.data);
+            toast.success('Login successful! Redirecting...');
+            // Redirect after a short delay to allow the toast to show
+            setTimeout(() => {
+                navigate('/');
+            }, 1000);
+        } catch (error) {
+            if (error.response) {
+                // Server responded with a status other than 2xx
+                toast.error(error.response.data.message || 'Login failed. Please try again.');
+            } else if (error.request) {
+                // Request was made but no response received
+                toast.error('No response from server. Please try again later.');
+            } else {
+                // Something else happened
+                toast.error('An error occurred. Please try again.');
+            }
+            console.error('Error logging in:', error);
+        }
+
     };
 
     const handleRegister = () => {
@@ -26,7 +55,7 @@ export default function Login() {
     return (
         <div className='container-login'>
             <Navbar />
-              <div className='login-wrapper'> 
+            <div className='login-wrapper'> 
                 <h2>LOGIN MEMBER</h2>
                 <form className='login-form' onSubmit={handleLogin}>
                     <div className='input-group'>
@@ -56,6 +85,18 @@ export default function Login() {
                     <p className='register' onClick={handleRegister}>Don’t have an account yet?</p>
                 </form>
             </div>
+            <ToastContainer 
+                position="top-center"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="colored"
+            />
         </div>
     );
 }

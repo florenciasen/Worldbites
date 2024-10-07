@@ -1,8 +1,12 @@
+// src/pages/Register/Register.js
+
 import React, { useState } from 'react'; 
 import './Register.css'; 
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar/Navbar';
 import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; // Import the styles
 
 export default function Register() {
     const [email, setEmail] = useState('');
@@ -13,39 +17,42 @@ export default function Register() {
     const [showTerms, setShowTerms] = useState(false);
     const [showPrivacy, setShowPrivacy] = useState(false);
 
-    const handleRegister = (e) => {
+    const handleRegister = async (e) => {
         e.preventDefault();
 
+        // Check if passwords match
         if (password !== confirmPassword) {
-            alert('Passwords do not match');
+            toast.error('Passwords do not match.');
             return;
-
-        } 
+        }
 
         try {
-            axios.post('http://localhost:3011/register', {
+            const response = await axios.post('http://localhost:3011/register', {
                 email,
                 phoneNumber,
                 password
-            })
-            .then((response) => {
-                console.log(response.data);
-                alert('User registered successfully!');
-                navigate('/login');
-            })
-            .catch((error) => {
-                console.error('Error registering user:', error);
-                alert('Server error');
             });
-            
-        }
-        catch (error) {
+
+            console.log(response.data);
+            toast.success('User registered successfully! Redirecting to login...');
+            // Redirect after a short delay to allow the toast to show
+            setTimeout(() => {
+                navigate('/login');
+            }, 1000);
+        } catch (error) {
+            if (error.response) {
+                // Server responded with a status other than 2xx
+                toast.error(error.response.data.message || 'Registration failed. Please try again.');
+            } else if (error.request) {
+                // Request was made but no response received
+                toast.error('No response from server. Please try again later.');
+            } else {
+                // Something else happened
+                toast.error('An error occurred. Please try again.');
+            }
             console.error('Error registering user:', error);
-            alert('Server error');
         }
 
-        // Logika untuk menangani registrasi bisa ditambahkan di sini
-        console.log("Email:", email, "Phone Number:", phoneNumber, "Password:", password, "Confirm Password:", confirmPassword);
     };
 
     const handleLogin = () => {
@@ -54,17 +61,16 @@ export default function Register() {
 
     const handleTermsClick = () => {
         setShowTerms(true);
-      };
+    };
     
-      const handlePrivacyClick = () => {
+    const handlePrivacyClick = () => {
         setShowPrivacy(true);
-      };
+    };
     
-      const closeModal = () => {
+    const closeModal = () => {
         setShowTerms(false);
         setShowPrivacy(false);
-      };
-    
+    };
 
     return (
         <div className='container-register'>
@@ -124,7 +130,7 @@ export default function Register() {
                             <span className='link' onClick={handlePrivacyClick}> Privacy Policy</span>.
                         </label>
                     </div>
-                    <button type='submit' onClick={handleRegister} className='register-button'>OK</button>
+                    <button type='submit' className='register-button'>OK</button>
                     <p className='login' onClick={handleLogin}>I already have an account</p>
                 </form>
                 {/* Modal for Terms & Conditions */}
@@ -200,6 +206,18 @@ export default function Register() {
                     </div>
                 )}
             </div>
+            <ToastContainer 
+                position="top-center"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="colored"
+            />
         </div>
     );
 }

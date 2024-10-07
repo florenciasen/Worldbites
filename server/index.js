@@ -33,6 +33,13 @@ app.post('/register', async (req, res) => {
   const { email, phoneNumber, password } = req.body;
 
   try {
+
+    const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ message: 'Email is already registered.' });
+        }
+        
+    // Create a new user
     const newUser = new User({
       email,
       phoneNumber,
@@ -47,6 +54,25 @@ app.post('/register', async (req, res) => {
     res.status(500).send('Server error');
   }
 });
+
+// Login endpoint
+app.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await User.findOne
+    ({ email, password });
+    if (user) {
+      res.status(200).send('Login successful!');
+    } else {
+      res.status(401).send('Invalid credentials');
+    }
+  } catch (error) {
+    console.error('Error logging in:', error);
+    res.status(500).send('Server error');
+  }
+});
+
 
 // Basic route for testing
 app.get('/', (req, res) => {
