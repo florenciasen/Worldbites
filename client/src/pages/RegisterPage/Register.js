@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import './Register.css'; 
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar/Navbar';
+import axios from 'axios';
 
 export default function Register() {
     const [email, setEmail] = useState('');
@@ -14,6 +15,35 @@ export default function Register() {
 
     const handleRegister = (e) => {
         e.preventDefault();
+
+        if (password !== confirmPassword) {
+            alert('Passwords do not match');
+            return;
+
+        } 
+
+        try {
+            axios.post('http://localhost:3011/register', {
+                email,
+                phoneNumber,
+                password
+            })
+            .then((response) => {
+                console.log(response.data);
+                alert('User registered successfully!');
+                navigate('/login');
+            })
+            .catch((error) => {
+                console.error('Error registering user:', error);
+                alert('Server error');
+            });
+            
+        }
+        catch (error) {
+            console.error('Error registering user:', error);
+            alert('Server error');
+        }
+
         // Logika untuk menangani registrasi bisa ditambahkan di sini
         console.log("Email:", email, "Phone Number:", phoneNumber, "Password:", password, "Confirm Password:", confirmPassword);
     };
@@ -94,7 +124,7 @@ export default function Register() {
                             <span className='link' onClick={handlePrivacyClick}> Privacy Policy</span>.
                         </label>
                     </div>
-                    <button type='submit' className='register-button'>OK</button>
+                    <button type='submit' onClick={handleRegister} className='register-button'>OK</button>
                     <p className='login' onClick={handleLogin}>I already have an account</p>
                 </form>
                 {/* Modal for Terms & Conditions */}
