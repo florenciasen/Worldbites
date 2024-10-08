@@ -23,12 +23,12 @@ export default function ForgotPassword() {
             toast.success('Reset link sent to your email! Check your inbox.');
             // Redirect after a short delay to allow the toast to show
             setTimeout(() => {
-               
+               navigate('/otp', { state: { email: email } });
             }, 1000);
         } catch (error) {
             if (error.response) {
-                // Server responded with a status other than 2xx
-                toast.error(error.response.data.message || 'Failed to send reset link. Please try again.');
+                // Server responded with a status 404
+                toast.error(error.response.data || 'Email not found. Please try again.');
             } else if (error.request) {
                 // Request was made but no response received
                 toast.error('No response from server. Please try again later.');
