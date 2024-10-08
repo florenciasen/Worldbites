@@ -7,6 +7,11 @@ const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
+const jwt = require('jsonwebtoken');
+
+
+// JWT secret key
+const JWT_SECRET = 'worldbitesthebest';
 
 
 // Create an Express app
@@ -61,21 +66,54 @@ app.post('/register', async (req, res) => {
   }
 });
 
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];  // Extract token from "Bearer TOKEN" format
+
+  if (!token) {
+    return res.status(401).json({ message: 'Token required' });
+  }
+
+  jwt.verify(token, JWT_SECRET, (err, user) => {  // Use the hardcoded JWT secret here as well
+    if (err) {
+      return res.status(403).json({ message: 'Invalid token' });
+    }
+    
+    req.user = user;  // Attach decoded user data (userId, email, phoneNumber) to request object
+    next();
+  });
+};
+
+
 // Login endpoint
 app.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const user = await User.findOne
-      ({ email, password });
+    // Find the user by email and password
+    const user = await User.findOne({ email, password });
+
     if (user) {
-      res.status(200).send('Login successful!');
+      // User found, generate JWT token with user id, email, and phoneNumber
+      const token = jwt.sign(
+        {
+          userId: user._id,         // Include user ID in the token
+          email: user.email,        // Include user email in the token
+          phoneNumber: user.phoneNumber  // Include user phoneNumber in the token
+        },
+        JWT_SECRET,                 // Use the hardcoded secret key for signing
+        { expiresIn: '1h' }         // Token expiration time (e.g., 1 hour)
+      );
+
+      // Return the token to the client
+      return res.status(200).json({ message: 'Login successful!', token });
     } else {
-      res.status(401).send('Invalid credentials');
+      // Invalid credentials
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
   } catch (error) {
     console.error('Error logging in:', error);
-    res.status(500).send('Server error');
+    return res.status(500).json({ message: 'Server error' });
   }
 });
 
@@ -93,7 +131,7 @@ app.post('/forgotpassword', async (req, res) => {
     // Generate an OTP
     const otp = crypto.randomInt(1000, 9999).toString();
     user.resetOtp = otp;
-    user.otpExpires = Date.now() + 3600000; // 1 hour expiration
+    user.otpExpires = Date.now() + 600000; // 10 minutes expiration
     await user.save();
 
     // Read the HTML template
@@ -146,7 +184,7 @@ app.post('/resendotp', async (req, res) => {
     // Generate a new OTP
     const otp = crypto.randomInt(1000, 9999).toString();
     user.resetOtp = otp;
-    user.otpExpires = Date.now() + 3600000; // 1 hour expiration
+    user.otpExpires = Date.now() + 600000; // 10 minutes expiration
     await user.save();
 
      // Read the HTML template
