@@ -56,6 +56,7 @@ body {
  }
  
  .verify-button {
+    font-family: 'Amaranth', sans-serif;
     background-color: #B4835B;
     color: white;
     border: none;

@@ -3,6 +3,10 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors'); // Import the cors package
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
 
 // Create an Express app
 const app = express();
@@ -35,9 +39,9 @@ app.post('/register', async (req, res) => {
   try {
 
     const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.status(400).json({ message: 'Email is already registered.' });
-        }
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email is already registered.' });
+    }
 
     // Create a new user
     const newUser = new User({
@@ -61,7 +65,7 @@ app.post('/login', async (req, res) => {
 
   try {
     const user = await User.findOne
-    ({ email, password });
+      ({ email, password });
     if (user) {
       res.status(200).send('Login successful!');
     } else {
@@ -78,19 +82,107 @@ app.post('/forgotpassword', async (req, res) => {
   const { email } = req.body;
 
   try {
+    // Check if the user exists
     const user = await User.findOne({ email });
-    if (user) {
-      res.status(200).send('Password reset link sent to email');
-    } else {
-      res.status(404).send('User not found');
+    if (!user) {
+      return res.status(404).send('User not found');
     }
+
+    // Generate an OTP
+    const otp = crypto.randomInt(1000, 9999).toString();
+    user.resetOtp = otp;
+    user.otpExpires = Date.now() + 3600000; // 1 hour expiration
+    await user.save();
+
+    // Read the HTML template
+    const templatePath = path.join(__dirname, 'emailTemplates', 'passwordResetEmail.html');
+    let htmlContent = fs.readFileSync(templatePath, 'utf8');
+
+    // Replace the placeholder with the actual OTP
+    htmlContent = htmlContent.replace('{{otp}}', otp);
+
+    // Send OTP via email
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'worldbitess@gmail.com',
+        pass: 'lpsq qoda rkjs rhhq',
+      },
+    });
+
+    const mailOptions = {
+      from: 'worldbitess@gmail.com',
+      to: email,
+      subject: 'Password Reset OTP',
+      html: htmlContent,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).send({
+      message: 'OTP sent to email',
+      email, // Pass the email back to use on the OTP page
+    });
+
   } catch (error) {
     console.error('Error resetting password:', error);
     res.status(500).send('Server error');
   }
 });
 
+// Resend OTP endpoint
+app.post('/resendotp', async (req, res) => {
+  const { email } = req.body;
 
+  try {
+    // Check if the user exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).send('User not found');
+    }
+
+    // Generate a new OTP
+    const otp = crypto.randomInt(1000, 9999).toString();
+    user.resetOtp = otp;
+    user.otpExpires = Date.now() + 3600000; // 1 hour expiration
+    await user.save();
+
+     // Read the HTML template
+     const templatePath = path.join(__dirname, 'emailTemplates', 'passwordResetEmail.html');
+     let htmlContent = fs.readFileSync(templatePath, 'utf8');
+ 
+     // Replace the placeholder with the actual OTP
+     htmlContent = htmlContent.replace('{{otp}}', otp);
+
+    // Send OTP via email
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'worldbitess@gmail.com',
+        pass: 'lpsq qoda rkjs rhhq',
+      },
+    })
+
+    const mailOptions = {
+      from: 'worldbitess@gmail.com',
+      to: email,
+      subject: 'Resend Password Reset OTP',
+      html: htmlContent,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).send({
+      success: true,
+      message: 'OTP resent to email',
+      email, // Pass the email back to use on the OTP page
+    });
+
+  } catch (error) {
+    console.error('Error resending OTP:', error);
+    res.status(500).send('Server error');
+  }
+});
 
 
 // Basic route for testing

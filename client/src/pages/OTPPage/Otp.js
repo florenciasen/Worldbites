@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import './Otp.css'; // Assuming you will create a CSS file for styling
 import { useNavigate, useLocation } from 'react-router-dom';
+import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; 
+
+
 
 export default function OTPPage() {
     const [otp, setOtp] = useState(['', '', '', '']);
-    const [timer, setTimer] = useState(60); // Countdown timer starts at 60 seconds
+    const [timer, setTimer] = useState(30); // Countdown timer starts at 60 seconds
     const [isResendDisabled, setIsResendDisabled] = useState(true);
     const navigate = useNavigate();
     const location = useLocation();
@@ -50,15 +55,32 @@ export default function OTPPage() {
         const otpValue = otp.join('');
         console.log('Submitted OTP:', otpValue);
         // You can add logic here to verify OTP
-        navigate('/success'); // Redirect to the success page after verification
+        navigate('/resetpassword'); // Redirect to the success page after verification
     };
 
+  
     // Handle OTP Resend
-    const handleResend = () => {
-        setTimer(60);
-        setIsResendDisabled(true);
-        console.log('OTP Resent!');
-        // Logic to resend the OTP
+    const handleResend = async () => {
+        try {
+            setTimer(30);
+            setIsResendDisabled(true);
+
+            const response = await axios.post('http://localhost:3011/resendotp', {
+                email: email
+            });
+
+            if (response.data.success) {
+                toast.success('OTP resent! Please check your email.');
+            } else {
+                toast.error(response.data.message);
+            }
+        } catch (error) {
+            if (error.response) {
+                toast.error(error.response.data.message || 'Failed to resend OTP. Please try again.');
+            } else {
+                toast.error('An error occurred. Please try again later.');
+            }
+        }
     };
 
     return (
@@ -81,7 +103,7 @@ export default function OTPPage() {
                         ))}
                     </div>
                     <button type="submit" className="verify-button">
-                        Verify Account
+                        Verify
                     </button>
                 </form>
                 <p>
@@ -101,6 +123,18 @@ export default function OTPPage() {
                     )}
                 </p>
             </div>
+            <ToastContainer 
+                position="top-center"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="colored"
+            />
         </div>
     );
 }
