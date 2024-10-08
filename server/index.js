@@ -38,7 +38,7 @@ app.post('/register', async (req, res) => {
         if (existingUser) {
             return res.status(400).json({ message: 'Email is already registered.' });
         }
-        
+
     // Create a new user
     const newUser = new User({
       email,
@@ -72,6 +72,25 @@ app.post('/login', async (req, res) => {
     res.status(500).send('Server error');
   }
 });
+
+
+app.post('/forgotpassword', async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+    if (user) {
+      res.status(200).send('Password reset link sent to email');
+    } else {
+      res.status(404).send('User not found');
+    }
+  } catch (error) {
+    console.error('Error resetting password:', error);
+    res.status(500).send('Server error');
+  }
+});
+
+
 
 
 // Basic route for testing

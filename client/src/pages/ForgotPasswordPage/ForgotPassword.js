@@ -3,8 +3,10 @@ import './ForgotPassword.css';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar/Navbar';
 import axios from 'axios';
-import { toast} from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
+
 export default function ForgotPassword() {
     const [email, setEmail] = useState('');
     const navigate = useNavigate();
@@ -21,7 +23,7 @@ export default function ForgotPassword() {
             toast.success('Reset link sent to your email! Check your inbox.');
             // Redirect after a short delay to allow the toast to show
             setTimeout(() => {
-                navigate('/login'); // Redirect to login page or another page after success
+               
             }, 1000);
         } catch (error) {
             if (error.response) {
@@ -64,6 +66,18 @@ export default function ForgotPassword() {
                 </form>
                 <button onClick={handleBack} className='back-button'>Back</button>
             </div>
+            <ToastContainer 
+                position="top-center"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="colored"
+            />
         </div>
     );
 }
