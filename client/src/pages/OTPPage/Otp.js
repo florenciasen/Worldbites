@@ -49,14 +49,37 @@ export default function OTPPage() {
         return () => clearInterval(interval);
     }, [timer]);
 
-    // Handle OTP submission
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        const otpValue = otp.join('');
-        console.log('Submitted OTP:', otpValue);
-        // You can add logic here to verify OTP
-        navigate('/resetpassword'); // Redirect to the success page after verification
-    };
+  // Handle OTP submission for verification
+const handleSubmit = async (e) => {
+    e.preventDefault();
+    const otpValue = otp.join('');
+    console.log('Submitted OTP:', otpValue);
+
+    // Call the verification endpoint
+    try {
+        const response = await axios.post('http://localhost:3011/verifyotp', {
+            email: email,
+            otp: otpValue
+        });
+
+        if (response.data.success) {
+            toast.success(response.data.message); // Show success message
+
+            setTimeout(() => {
+                navigate('/resetpassword', { state: { email: email } });
+            }
+            , 2000);
+        } else {
+            toast.error(response.data.message); // Show error message if OTP is invalid
+        }
+    } catch (error) {
+        if (error.response) {
+            toast.error(error.response.data.message || 'Failed to verify OTP. Please try again.');
+        } else {
+            toast.error('An error occurred. Please try again later.');
+        }
+    }
+};
 
   
     // Handle OTP Resend

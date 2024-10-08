@@ -8,13 +8,13 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 
+
 // Create an Express app
 const app = express();
 const port = 3011;
 
 // Middleware to parse JSON bodies
 app.use(bodyParser.json());
-
 app.use(cors()); // Enable CORS for all routes
 
 // MongoDB connection
@@ -27,7 +27,9 @@ mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
 const userSchema = new mongoose.Schema({
   email: { type: String, required: true },
   phoneNumber: { type: String, required: true },
-  password: { type: String, required: true }
+  password: { type: String, required: true },
+  resetOtp: { type: String },
+  otpExpires: { type: Date },
 });
 
 const User = mongoose.model('User', userSchema);
@@ -181,6 +183,88 @@ app.post('/resendotp', async (req, res) => {
   } catch (error) {
     console.error('Error resending OTP:', error);
     res.status(500).send('Server error');
+  }
+});
+
+// OTP Verification endpoint
+app.post('/verifyotp', async (req, res) => {
+  const { email, otp } = req.body;
+
+  try {
+      // Check if the user exists
+      const user = await User.findOne({ email });
+      if (!user) {
+          return res.status(404).send({
+              success: false,
+              message: 'User not found'
+          });
+      }
+
+      // Check if the OTP is correct and not expired
+      const isOtpValid = user.resetOtp === otp;
+      const isOtpExpired = Date.now() > user.otpExpires;
+
+      if (!isOtpValid) {
+          return res.status(400).send({
+              success: false,
+              message: 'Invalid OTP'
+          });
+      }
+
+      if (isOtpExpired) {
+          return res.status(400).send({
+              success: false,
+              message: 'OTP has expired'
+          });
+      }
+
+      // OTP is valid and not expired; proceed with your logic (e.g., allow password reset)
+      res.status(200).send({
+          success: true,
+          message: 'OTP verified successfully!'
+      });
+
+      // Optionally, clear the OTP and expiration time after successful verification
+      user.resetOtp = undefined;
+      user.otpExpires = undefined;
+      await user.save();
+
+  } catch (error) {
+      console.error('Error verifying OTP:', error);
+      res.status(500).send({
+          success: false,
+          message: 'Server error'
+      });
+  }
+});
+
+app.post('/resetpassword', async (req, res) => {
+  console.log(req.body); // Log the request body to see what's being sent
+  const { email, newPassword } = req.body;
+
+  try {
+      // Validate input
+      if (!email || !newPassword) {
+          return res.status(400).json({ success: false, message: 'Email and new password are required.' });
+      }
+
+      // Find user by email
+      const user = await User.findOne({ email: email });
+      if (!user) {
+          return res.status(404).json({ success: false, message: 'User not found.' });
+      }
+
+      // Update the user's password without hashing
+      user.password = newPassword;
+
+      // Save the updated user
+      await user.save();
+
+      // Send success response
+      res.json({ success: true, message: 'Password has been reset successfully.' });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ success: false, message: 'An error occurred. Please try again later.' });
   }
 });
 
