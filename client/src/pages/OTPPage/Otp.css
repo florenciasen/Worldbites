@@ -1,0 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Jersey+15&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Amaranth:wght@400;700&display=swap');
+
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+
+.otp-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full viewport height */
+}
+
+.otp-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 30%;
+    background-color: #F9F8F6;
+    border-radius: 1.875rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+ }
+ 
+ .otp-inputs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+ }
+ 
+ .otp-inputs input {
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+    text-align: center;
+ }
+ 
+ .verify-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+ }
+ 
+ .verify-button:disabled {
+    background-color: #ccc;
+ }
+ 
+ .resend-button {
+    background: none;
+    color: #007bff;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+ }
+ 
+ .verify-button button{
+    color: B4835B;
+ }
