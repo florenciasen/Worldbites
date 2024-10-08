@@ -8,10 +8,25 @@ body {
 }
 
 .otp-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh; /* Full viewport height */
+   min-height: 100vh;
+   width: 100%;
+   
+   background-image: url('../../assets/Wallpaper.svg'); 
+   background-size: cover;        
+   background-position: center;  
+   background-repeat: no-repeat; 
+   
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
+   align-items: center;
+}
+
+.titleotp {
+   font-family: 'Jersey 15', sans-serif; 
+   color: #B4835B;
+   font-size: 28px; 
+   margin-top: 1.825rem;
 }
 
 .otp-container {
@@ -41,7 +56,7 @@ body {
  }
  
  .verify-button {
-    background-color: #007bff;
+    background-color: #B4835B;
     color: white;
     border: none;
     padding: 10px 20px;
@@ -49,19 +64,21 @@ body {
     cursor: pointer;
     border-radius: 5px;
  }
+
  
  .verify-button:disabled {
     background-color: #ccc;
  }
+
  
  .resend-button {
     background: none;
-    color: #007bff;
+    color: #B4835B;
     border: none;
     cursor: pointer;
     font-size: 14px;
  }
  
- .verify-button button{
-    color: B4835B;
- }
+ .resend-button:hover {
+   color: #8C6A4F; 
+}

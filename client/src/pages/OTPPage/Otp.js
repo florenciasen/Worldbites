@@ -64,7 +64,7 @@ export default function OTPPage() {
     return (
         <div className='otp-wrapper'>
             <div className="otp-container">
-                <h2>Email Verification</h2>
+                <h2 className='titleotp'>Email Verification</h2>
                 <p>We have sent a code to your email {email}</p> {/* Display dynamic email */}
                 <form onSubmit={handleSubmit}>
                     <div className="otp-inputs">
