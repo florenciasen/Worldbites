@@ -46,7 +46,7 @@ export default function LandingPage (){
                         <img src={Carousel3} alt="Slide 3" />
                     </div>
                     <div className="carousel-slide">
-                        <img src={Carousel3} alt="Slide 4" />
+                        <img src={Carousel4} alt="Slide 4" />
                     </div>
                 </Slider>
             </div>
