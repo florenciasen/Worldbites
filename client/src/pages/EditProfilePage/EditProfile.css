@@ -62,6 +62,8 @@ body {
 }
 
 .change-photo-btn {
+    font-family: 'Jersey 15', sans-serif; /* Menggunakan font Jersey 15 */
+    font-size: 20px;
     background-color: #B4835B; /* Ganti dengan warna sesuai keinginan */
     color: white;
     border: none;
@@ -88,6 +90,9 @@ body {
 }
 
 .save-btn {
+    font-family: 'Jersey 15', sans-serif;
+    font-size: 20px;
+    width: 15%; /* Agar tombol mengisi lebar form */
     background-color: #B4835B; /* Ganti dengan warna sesuai keinginan */
     color: white;
     border: none;
