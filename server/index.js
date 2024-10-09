@@ -8,6 +8,7 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const jwt = require('jsonwebtoken');
+const multer = require('multer');
 
 
 // JWT secret key
@@ -305,6 +306,61 @@ app.post('/resetpassword', async (req, res) => {
       res.status(500).json({ success: false, message: 'An error occurred. Please try again later.' });
   }
 });
+
+// Endpoint untuk mendapatkan data pengguna
+app.get('/user', authenticateToken, async (req, res) => {
+  try {
+    // Ambil data pengguna dari MongoDB berdasarkan userId yang ada di token
+    const user = await User.findById(req.user.userId).select('-password'); // Hindari mengirimkan password
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json({
+      email: user.email,
+      phoneNumber: user.phoneNumber,
+      // tambahkan data lain yang ingin Anda kirim jika perlu
+    });
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/'); // Tentukan folder penyimpanan
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`); // Ganti nama file agar unik
+  },
+});
+
+const upload = multer({ storage });
+
+// Endpoint untuk meng-upload foto
+app.post('/upload', upload.single('photo'), (req, res) => {
+  res.json({ message: 'File uploaded successfully!', file: req.file });
+});
+
+// Endpoint untuk mengubah foto pengguna
+app.post('/user/photo', authenticateToken, async (req, res) => {
+  const { photo } = req.body; // Ambil foto dari body permintaan
+
+  try {
+    // Misalnya, simpan foto di direktori lokal (atau Anda bisa menggunakan cloud storage)
+    const photoPath = path.join(__dirname, 'uploads', `${req.user.userId}-photo.jpg`);
+    fs.writeFileSync(photoPath, photo, 'base64'); // Simpan foto dalam format base64
+
+    // Update foto pengguna di database (tambahkan field untuk foto jika belum ada)
+    await User.findByIdAndUpdate(req.user.userId, { photo: photoPath });
+
+    res.status(200).json({ message: 'Photo updated successfully!' });
+  } catch (error) {
+    console.error('Error updating photo:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 
 
 // Basic route for testing
