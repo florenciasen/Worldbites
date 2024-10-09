@@ -10,6 +10,7 @@ import ResetPassword from './pages/ResetPasswordPage/ResetPassword';
 import OtpPage from './pages/OTPPage/Otp';
 import EditProfile from './pages/EditProfilePage/EditProfile';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import ChangePassword from './pages/ChangePasswordPage/ChangePassword';
 
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
         <Route path="/resetpassword" element={<ResetPassword />} />
         <Route path="/otp" element={<OtpPage />} />
         <Route path="/editprofile" element={<EditProfile/>} />
+        <Route path="/changepassword" element={<ChangePassword/>} />
       </Routes>
     </Router>
   );
