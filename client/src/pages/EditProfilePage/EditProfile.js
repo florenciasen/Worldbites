@@ -56,7 +56,7 @@ export default function EditProfile() {
     }
   };
 
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -133,10 +133,11 @@ export default function EditProfile() {
               <label>Address</label>
               <textarea name="address" value={profile.address} onChange={handleChange}></textarea>
             </div>
-            <div className="button-section">
-              <button type="submit" className="save-btn">SAVE</button>
-            </div>
+
           </form>
+        </div>
+        <div className="button-section">
+          <button type="submit" className="save-btn">SAVE</button>
         </div>
       </div>
       <ToastContainer
