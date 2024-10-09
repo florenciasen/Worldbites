@@ -6,6 +6,9 @@ import Chatlogo from '../../assets/chatlogo.svg';
 import Cartlogo from '../../assets/cartlogo.svg';
 import Profile from '../../assets/profile.svg';
 import { jwtDecode } from 'jwt-decode';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import axios from 'axios';
 
 
 export default function Navbar() {
@@ -66,13 +69,24 @@ export default function Navbar() {
         }
     };
     
-    const handleLogout = () => {
-        // Clear the token from local storage
-        localStorage.removeItem('token');
-        setIsLoggedIn(false); 
-        setUser(null);
-        // Redirect to homepage or another page
-        navigate('/'); 
+    const handleLogout = async () => {
+        try {
+            await axios.post('http://localhost:3011/logout', {}, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+    
+            // Clear the token from local storage
+            localStorage.removeItem('token');
+            setIsLoggedIn(false);
+            setUser(null);
+            navigate('/');
+            toast.success('Logout successful');
+        } catch (error) {
+            console.error('Error during logout:', error);
+            toast.error('Logout failed. Please try again.');
+        }
     };
 
     return (
@@ -112,6 +126,18 @@ export default function Navbar() {
                     </div>
                 </div>
             </div>
+            <ToastContainer 
+                position="top-center"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="colored"
+            />
         </div>
     );
 }

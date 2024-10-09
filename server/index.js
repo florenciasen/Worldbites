@@ -117,6 +117,21 @@ app.post('/login', async (req, res) => {
   }
 });
 
+// Logout endpoint for invalidating token
+app.post('/logout', authenticateToken, (req, res) => {
+  // Add the token to a blacklist (or handle refresh token invalidation)
+
+  // Example: If you're using refresh tokens, invalidate the refresh token here
+
+  if(req.user) {
+    res.status(200).json({ message: 'Logout successful' });
+  } else {
+    res.status(401).json({ message: 'Invalid token' });
+  }
+
+
+});
+
 
 app.post('/forgotpassword', async (req, res) => {
   const { email } = req.body;
