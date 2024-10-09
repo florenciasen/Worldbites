@@ -15,19 +15,26 @@ export default function Login() {
 
     const handleLogin = async (e) => {
         e.preventDefault();
-
+    
         try {
             const response = await axios.post('http://localhost:3011/login', {
                 email: email,
                 password: password
             });
-
-            console.log(response.data);
-            toast.success('Login successful! Redirecting...');
-            // Redirect after a short delay to allow the toast to show
-            setTimeout(() => {
-                navigate('/');
-            }, 1000);
+    
+            // If login is successful, store the JWT token in localStorage
+            if (response.data.token) {
+                localStorage.setItem('token', response.data.token);
+                toast.success('Login successful!');
+                
+                // Redirect after a short delay to allow the toast to show
+                setTimeout(() => {
+                    navigate('/');
+                }, 1000);
+            } else {
+                // If for some reason no token is returned (edge case)
+                toast.error('No token received. Please contact support.');
+            }
         } catch (error) {
             if (error.response) {
                 // Server responded with a status other than 2xx
@@ -36,13 +43,13 @@ export default function Login() {
                 // Request was made but no response received
                 toast.error('No response from server. Please try again later.');
             } else {
-                // Something else happened
+                // Any other error
                 toast.error('An error occurred. Please try again.');
             }
             console.error('Error logging in:', error);
         }
-
     };
+    
 
     const handleRegister = () => {
         navigate('/register'); 
