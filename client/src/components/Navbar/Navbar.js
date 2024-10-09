@@ -28,6 +28,7 @@ export default function Navbar() {
                 // Check if token is expired
                 if (decoded.exp < currentTime) {
                     console.log('Token has expired');
+                    toast.error('Session expired. Please login again.');
                     handleLogout(); // Log the user out if token is expired
                 } else {
                     setIsLoggedIn(true);
@@ -93,9 +94,9 @@ export default function Navbar() {
             setProfilePicture(Profile); // Reset to default picture on logout
             navigate('/');
             toast.success('Logout successful');
+            
         } catch (error) {
             console.error('Error during logout:', error);
-            toast.error('Logout failed. Please try again.');
         }
     };
 
