@@ -8,6 +8,7 @@ import Chat from './pages/ChatPage/Chat';
 import ForgotPassword from './pages/ForgotPasswordPage/ForgotPassword';
 import ResetPassword from './pages/ResetPasswordPage/ResetPassword';
 import OtpPage from './pages/OTPPage/Otp';
+import EditProfile from './pages/EditProfilePage/EditProfile';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 
@@ -23,6 +24,7 @@ function App() {
         <Route path="/forgotpassword" element={<ForgotPassword />} />
         <Route path="/resetpassword" element={<ResetPassword />} />
         <Route path="/otp" element={<OtpPage />} />
+        <Route path="/editprofile" element={<EditProfile/>} />
       </Routes>
     </Router>
   );
