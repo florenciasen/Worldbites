@@ -1,20 +1,47 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Navbar.css';
 import { useNavigate } from 'react-router-dom';
 import WorldbitesLogo from '../../assets/worldbites.svg';
 import Chatlogo from '../../assets/chatlogo.svg';
 import Cartlogo from '../../assets/cartlogo.svg';
 import Profile from '../../assets/profile.svg';
+import { jwtDecode } from 'jwt-decode';
+
 
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false); 
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [user, setUser] = useState(null); // Store user info
     const navigate = useNavigate(); 
     
-
+    // Check for token and decode user info when the component mounts
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            try {
+                const decoded = jwtDecode(token);
+                
+                const currentTime = Date.now() / 1000; // Current time in seconds
+                
+                // Check if token is expired
+                if (decoded.exp < currentTime) {
+                    console.log('Token has expired');
+                    handleLogout(); // Log the user out if token is expired
+                } else {
+                    setIsLoggedIn(true);
+                    setUser(decoded); // You can use this to access user details if needed
+                }
+            } catch (error) {
+                console.error('Invalid token');
+                setIsLoggedIn(false);
+            }
+        }
+    }, []);
+    
     const toggleDropdown = () => {
         setIsOpen(!isOpen);
     };
+
     const handleLogin = () => {
         navigate('/login'); 
     };
@@ -27,7 +54,7 @@ export default function Navbar() {
         if (isLoggedIn) {
             navigate('/cart'); 
         } else {
-            handleLogin(); // Redirect ke login jika belum login
+            handleLogin(); // Redirect to login if not logged in
         }
     };
 
@@ -35,20 +62,20 @@ export default function Navbar() {
         if (isLoggedIn) {
             navigate('/chat'); 
         } else {
-            handleLogin(); // Redirect ke login jika belum login
+            handleLogin(); // Redirect to login if not logged in
         }
     };
     
     const handleLogout = () => {
-        // Logika logout Anda di sini
+        // Clear the token from local storage
+        localStorage.removeItem('token');
         setIsLoggedIn(false); 
-        // Mungkin juga redirect ke homepage atau halaman lain
+        setUser(null);
+        // Redirect to homepage or another page
         navigate('/'); 
     };
 
-    
     return (
-
         <div className='container-navbar'>
             <div className='navbar'>
                 <div className='logo'>
@@ -63,33 +90,28 @@ export default function Navbar() {
                     <img src={Chatlogo} alt='Chat' className='chat-logo' onClick={handleChat}  />
                     <img src={Cartlogo} alt='Shopping Cart' onClick={handleCart} />
                     <div className='profile-dropdown'>
-                        <img src={Profile} alt='Profile' onClick={toggleDropdown} /> {}
+                        <img src={Profile} alt='Profile' onClick={toggleDropdown} />
                         {isOpen && (
                             <div className='dropdown-menu'>
-                            {!isLoggedIn ? (
-                                <>
-                                    <div className='dropdown-item' onClick={handleLogin}>Login</div>
-                                    <div className='dropdown-item' onClick={handleRegister}>Register</div>
-                                </>
-                            ) : (
-                                <>
-                                    <div className='dropdown-item' >Edit Profile</div>
-                                    <div className='dropdown-item' >Change Password</div>
-                                    <div className='dropdown-item' >Order and History</div>
-                                    <div className='dropdown-item' >Join Jastip</div>
-                                    <div className='dropdown-item' onClick={handleLogout}>Logout</div>
-                                </>
-                            )}
-                        </div>
+                                {!isLoggedIn ? (
+                                    <>
+                                        <div className='dropdown-item' onClick={handleLogin}>Login</div>
+                                        <div className='dropdown-item' onClick={handleRegister}>Register</div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className='dropdown-item'>Edit Profile</div>
+                                        <div className='dropdown-item'>Change Password</div>
+                                        <div className='dropdown-item'>Order and History</div>
+                                        <div className='dropdown-item'>Join Jastip</div>
+                                        <div className='dropdown-item' onClick={handleLogout}>Logout</div>
+                                    </>
+                                )}
+                            </div>
                         )}
                     </div>
                 </div>
             </div>
-
-           
-
-
         </div>
-    )
-
+    );
 }
