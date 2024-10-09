@@ -86,6 +86,14 @@ export default function Navbar() {
         }
     }
 
+    const handleJoinJastip = () => {
+        if (isLoggedIn) {
+            navigate('/jastip');
+        } else {
+            handleLogin(); // Redirect to login if not logged in
+        }
+    }
+
     // Handler for logging out the user
     const handleLogout = async () => {
         try {
@@ -154,7 +162,7 @@ export default function Navbar() {
                                         <div className='dropdown-item' onClick={handleEditProfile}>Edit Profile</div>
                                         <div className='dropdown-item' onClick={handleChangePassword}>Change Password</div>
                                         <div className='dropdown-item'>Order and History</div>
-                                        <div className='dropdown-item'>Join Jastip</div>
+                                        <div className='dropdown-item' onClick={handleJoinJastip}>Join Jastip</div>
                                         <div className='dropdown-item' onClick={handleLogout}>Logout</div>
                                     </>
                                 )}

@@ -9,6 +9,7 @@ import ForgotPassword from './pages/ForgotPasswordPage/ForgotPassword';
 import ResetPassword from './pages/ResetPasswordPage/ResetPassword';
 import OtpPage from './pages/OTPPage/Otp';
 import EditProfile from './pages/EditProfilePage/EditProfile';
+import JoinJastip from './pages/JoinJastipPage/JoinJastip';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ChangePassword from './pages/ChangePasswordPage/ChangePassword';
 
@@ -27,6 +28,7 @@ function App() {
         <Route path="/otp" element={<OtpPage />} />
         <Route path="/editprofile" element={<EditProfile/>} />
         <Route path="/changepassword" element={<ChangePassword/>} />
+        <Route path="/jastip" element={<JoinJastip />} />
       </Routes>
     </Router>
   );
