@@ -137,7 +137,7 @@ export default function EditProfile() {
           </form>
         </div>
         <div className="button-section">
-          <button type="submit" className="save-btn">SAVE</button>
+          <button type="submit" className="save-btn" onClick={handleSubmit}>SAVE</button>
         </div>
       </div>
       <ToastContainer
