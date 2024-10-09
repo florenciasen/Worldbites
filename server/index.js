@@ -21,7 +21,12 @@ const port = 3011;
 
 // Middleware to parse JSON bodies
 app.use(bodyParser.json());
-app.use(cors()); // Enable CORS for all routes
+app.use(cors({
+  origin: 'http://localhost:3000' // Replace with your React app's URL
+}));
+
+// Serve static files from the uploads directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // MongoDB connection
 const mongoURI = 'mongodb://localhost:27017/worldbites'; // Update with your MongoDB URI
@@ -340,10 +345,31 @@ app.get('/user', authenticateToken, async (req, res) => {
       email: user.email,
       phoneNumber: user.phoneNumber,
       address: user.address || null,
-      profilePicture: user.profilePicture || null
+      profilePicture: user.profilePicture ? `http://localhost:3011/uploads/${user.profilePicture}` : null, // Include the URL to the profile picture
     });
   } catch (error) {
     console.error('Error getting user data:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
+// Endpoint to get the user's profile picture
+app.get('/profile-picture', authenticateToken, async (req, res) => {
+  try {
+    // Find the user by ID
+    const user = await User.findById(req.user.userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Build the URL for the profile picture
+    const profilePictureUrl = user.profilePicture ? `http://localhost:3011/uploads/${user.profilePicture}` : null;
+
+    // Send the profile picture URL as response
+    res.status(200).json({ profilePicture: profilePictureUrl });
+  } catch (error) {
+    console.error('Error getting profile picture:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
@@ -357,9 +383,10 @@ const storage = multer.diskStorage({
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9); // Generate a unique filename
     const fileName = uniqueSuffix + '-' + file.originalname; // Create the complete filename
-    cb(null, fileName); // Use only the generated filename
+    cb(null, fileName); // Use only the generated filename (e.g., 1728470295679-948396911-STNK.jpeg)
   },
 });
+
 
 const upload = multer({ storage });
 
@@ -380,7 +407,7 @@ app.post('/updateprofile', authenticateToken, upload.single('profilePicture'), a
 
     // If a new profile picture is uploaded, update it; otherwise, keep the existing one
     if (req.file) {
-      user.profilePicture = req.file.filename; // Save the filename of the uploaded profile picture
+      user.profilePicture = req.file.filename; // Save just the filename
     }
 
     await user.save(); // Save the updated user information
@@ -390,6 +417,7 @@ app.post('/updateprofile', authenticateToken, upload.single('profilePicture'), a
     res.status(500).json({ message: 'Server error' });
   }
 });
+
 
 
 

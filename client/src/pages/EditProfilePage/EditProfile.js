@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import './EditProfile.css';
 import Navbar from '../../components/Navbar/Navbar';
-import profileImage from '../../assets/profile.svg'; // Default profile image
+import profileImage from '../../assets/profile.svg';
 import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css'; // Import the styles
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function EditProfile() {
 
@@ -17,7 +17,6 @@ export default function EditProfile() {
   });
   const [photo, setPhoto] = useState(null);
 
-  // Function to fetch user data from the API
   const fetchUserData = async () => {
     try {
       const response = await axios.get('http://localhost:3011/user', {
@@ -27,14 +26,12 @@ export default function EditProfile() {
       });
 
       const userData = response.data;
-
-      // Update state with user data
       setProfile({
-        name: userData.name || '', // Default to empty string if null
-        phone: userData.phoneNumber || '', // Ensure phoneNumber is mapped correctly
+        name: userData.name || '',
+        phone: userData.phoneNumber || '',
         email: userData.email,
-        address: userData.address || '', // Default to empty string if null
-        profilePicture: userData.profilePicture || null // Store fetched profile picture
+        address: userData.address || '',
+        profilePicture: userData.profilePicture || '',
       });
     } catch (error) {
       console.error('Error fetching user data', error);
@@ -42,7 +39,7 @@ export default function EditProfile() {
   };
 
   useEffect(() => {
-    fetchUserData(); // Call function on component mount
+    fetchUserData();
   }, []);
 
   const handleChange = (e) => {
@@ -50,9 +47,16 @@ export default function EditProfile() {
   };
 
   const handlePhotoChange = (e) => {
-    setPhoto(e.target.files[0]);
+    const selectedPhoto = e.target.files[0];
+    setPhoto(selectedPhoto);
+
+    if (selectedPhoto) {
+      const imageUrl = URL.createObjectURL(selectedPhoto);
+      setProfile((prevProfile) => ({ ...prevProfile, profilePicture: imageUrl }));
+    }
   };
 
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -61,9 +65,7 @@ export default function EditProfile() {
     formData.append('phone', profile.phone);
     formData.append('email', profile.email);
     formData.append('address', profile.address);
-    formData.append('profilePicture', profile.profilePicture);
-    
-    // Ensure to use 'profilePicture' to match your backend expectation
+
     if (photo) {
       formData.append('profilePicture', photo);
     }
@@ -72,11 +74,11 @@ export default function EditProfile() {
       const response = await axios.post('http://localhost:3011/updateprofile', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${localStorage.getItem('token')}` // Ensure token is included
+          Authorization: `Bearer ${localStorage.getItem('token')}`
         }
       });
       toast.success('Profile updated successfully!');
-      setProfile(response.data); // Update profile state with new data
+      setProfile(response.data);
     } catch (error) {
       console.error('Error saving profile', error);
       toast.error('Error saving profile');
@@ -90,9 +92,8 @@ export default function EditProfile() {
         <div className="edit-profile-content">
           <div className="profile-section">
             <div className="profile-pic">
-              {/* Display profile picture if it exists, otherwise show the default */}
               <img
-                src={profile.profilePicture ? `http://localhost:3011/${profile.profilePicture}` : profileImage}
+                src={profile.profilePicture || profileImage}
                 alt="Profile"
               />
             </div>
@@ -131,10 +132,10 @@ export default function EditProfile() {
               <label>Address</label>
               <textarea name="address" value={profile.address} onChange={handleChange}></textarea>
             </div>
+            <div className="button-section">
+              <button type="submit" className="save-btn">SAVE</button>
+            </div>
           </form>
-        </div>
-        <div className="button-section">
-          <button type="submit" className="save-btn" onClick={handleSubmit}>SAVE</button>
         </div>
       </div>
       <ToastContainer
