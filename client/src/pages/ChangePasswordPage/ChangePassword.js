@@ -24,28 +24,30 @@ export default function ChangePassword() {
             const response = await axios.post('http://localhost:3011/changepassword', {
                 currentPassword: currentPassword,
                 newPassword: newPassword
+            }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
             });
 
             console.log(response.data);
-            toast.success('Password successfully changed!');
-            // Redirect after a short delay
+            toast.success('Password updated successfully!');
             setTimeout(() => {
-               navigate('/login');
+                navigate('/');
             }, 1000);
         } catch (error) {
             if (error.response) {
-                toast.error(error.response.data || 'Error updating password. Please try again.');
+                toast.error(error.response.data.message || 'Password update failed. Please try again.');
             } else if (error.request) {
                 toast.error('No response from server. Please try again later.');
             } else {
                 toast.error('An error occurred. Please try again.');
             }
-            console.error('Error changing password:', error);
-        }
-    };
+            console.error('Error updating password:', error);
+    }};
 
     const handleBack = () => {
-        navigate('/profile'); 
+        navigate('/'); 
     };
 
     return (
@@ -87,8 +89,13 @@ export default function ChangePassword() {
                             required 
                         />
                     </div>
-                    <button type='submit' className='change-password-button'>Update Password</button>
+                    
                 </form>
+
+                <div className='button-group'>
+                <button type='submit' className='change-password-button' onClick={handleChangePassword}>Update Password</button>
+                </div>
+
                 <button onClick={handleBack} className='back-button'>Back</button>
             </div>
             <ToastContainer 

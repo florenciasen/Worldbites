@@ -301,6 +301,38 @@ app.post('/verifyotp', async (req, res) => {
   }
 });
 
+
+// Change Password Endpoint
+app.post('/changepassword', authenticateToken, async (req, res) => {
+  console.log('User from token:', req.user); // Log the user object for debugging
+
+  const { currentPassword, newPassword } = req.body;
+
+  try {
+      // Find user in the database
+      const user = await User.findById(req.user.userId); // Find user by ID from token
+
+      // Check if the user was found
+      if (!user) {
+          return res.status(404).json({ message: 'User not found.' }); // Return error if user not found
+      }
+
+      // Check if the current password matches
+      if (user.password !== currentPassword) {
+          return res.status(400).json({ message: 'Current password is incorrect.' });
+      }
+
+      // Update the password
+      user.password = newPassword; // Set the new password
+      await user.save(); // Save the user
+
+      res.status(200).json({ message: 'Password updated successfully!' });
+  } catch (error) {
+      console.error('Error changing password:', error);
+      res.status(500).json({ message: 'Internal server error.' });
+  }
+});
+
 app.post('/resetpassword', async (req, res) => {
   console.log(req.body); // Log the request body to see what's being sent
   const { email, newPassword } = req.body;
