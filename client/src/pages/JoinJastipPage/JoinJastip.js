@@ -9,34 +9,40 @@ import 'react-toastify/dist/ReactToastify.css';
 export default function JoinJastip() {
     const [storeName, setStoreName] = useState('');
     const [identityCard, setIdentityCard] = useState('');
-    const [address, setAddress] = useState('');
+    const [description, setDescription] = useState('');
     const [showTerms, setShowTerms] = useState(false);
     const [showPrivacy, setShowPrivacy] = useState(false);
     const navigate = useNavigate();
+
     const handleJoinJastip = async (e) => {
         e.preventDefault();
 
         try {
             const response = await axios.post('http://localhost:3011/joinjastip', {
-                storeName,
-                identityCard,
-                address
+                storeName: storeName,
+                identityCard: identityCard,
+                storeDescription: description
+            }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
             });
-
             console.log(response.data);
-            toast.success('Successfully joined Jastip!');
-            // Redirect after a short delay to allow the toast to show
+            toast.success('Registration successful!');
             setTimeout(() => {
-                navigate('/jastip'); // Ganti dengan route yang sesuai
+                navigate('/');
             }, 1000);
         } catch (error) {
             if (error.response) {
-                toast.error(error.response.data || 'Error occurred. Please try again.');
+                toast.error(error.response.data.message || 'Registration failed. Please try again.');
+            } else if (error.request) {
+                toast.error('No response from server. Please try again later.');
             } else {
                 toast.error('An error occurred. Please try again.');
             }
-            console.error('Error joining Jastip:', error);
+            console.error('Error registering:', error);
         }
+
     };
 
     const handleTermsClick = () => {
@@ -90,8 +96,8 @@ export default function JoinJastip() {
                         <textarea 
                         id='storedescription' 
                         placeholder='Enter Your Store Description' 
-                        value={address} 
-                        onChange={(e) => setAddress(e.target.value)} 
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
                         required 
                         className='description-textarea' // Menambahkan kelas untuk styling khusus
                         />

@@ -44,6 +44,9 @@ const userSchema = new mongoose.Schema({
   profilePicture: { type: String, default: null }, // Store the URL or filename of the profile picture
   resetOtp: { type: String },
   otpExpires: { type: Date },
+  storeName: { type: String, default: null },
+  identityCard: { type: String, default: null },
+  storeDescription: { type: String, default: null },
 
 });
 
@@ -451,6 +454,28 @@ app.post('/updateprofile', authenticateToken, upload.single('profilePicture'), a
 });
 
 
+app.post('/joinjastip', authenticateToken, async (req, res) => {
+  const { storeName, identityCard, storeDescription } = req.body;
+
+  try {
+    // Find the user by ID
+    const user = await User.findById(req.user.userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Update user's store information
+    user.storeName = storeName || user.storeName;
+    user.identityCard = identityCard || user.identityCard;
+    user.storeDescription = storeDescription || user.storeDescription
+
+    await user.save(); // Save the updated user information
+    res.status(200).json({ message: 'Jastip store information updated successfully', profile: user });
+  } catch (error) {
+    console.error('Error updating jastip store information:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 
 
 // Basic route for testing
