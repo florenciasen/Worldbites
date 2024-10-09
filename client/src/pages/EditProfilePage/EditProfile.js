@@ -78,6 +78,7 @@ export default function EditProfile() {
         }
       });
       toast.success('Profile updated successfully!');
+      window.location.reload();
       setProfile(response.data);
     } catch (error) {
       console.error('Error saving profile', error);
