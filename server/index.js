@@ -31,11 +31,15 @@ mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
 
 // Create a User model
 const userSchema = new mongoose.Schema({
+  name: { type: String, default: null }, // Name can be null initially
   email: { type: String, required: true },
   phoneNumber: { type: String, required: true },
   password: { type: String, required: true },
+  address: { type: String, default: null }, // Address can be null initially
+  profilePicture: { type: String, default: null }, // Store the URL or filename of the profile picture
   resetOtp: { type: String },
   otpExpires: { type: Date },
+
 });
 
 const User = mongoose.model('User', userSchema);
@@ -79,7 +83,7 @@ const authenticateToken = (req, res, next) => {
     if (err) {
       return res.status(403).json({ message: 'Invalid token' });
     }
-    
+
     req.user = user;  // Attach decoded user data (userId, email, phoneNumber) to request object
     next();
   });
@@ -124,7 +128,7 @@ app.post('/logout', authenticateToken, (req, res) => {
 
   // Example: If you're using refresh tokens, invalidate the refresh token here
 
-  if(req.user) {
+  if (req.user) {
     res.status(200).json({ message: 'Logout successful' });
   } else {
     res.status(401).json({ message: 'Invalid token' });
@@ -203,12 +207,12 @@ app.post('/resendotp', async (req, res) => {
     user.otpExpires = Date.now() + 600000; // 10 minutes expiration
     await user.save();
 
-     // Read the HTML template
-     const templatePath = path.join(__dirname, 'emailTemplates', 'passwordResetEmail.html');
-     let htmlContent = fs.readFileSync(templatePath, 'utf8');
- 
-     // Replace the placeholder with the actual OTP
-     htmlContent = htmlContent.replace('{{otp}}', otp);
+    // Read the HTML template
+    const templatePath = path.join(__dirname, 'emailTemplates', 'passwordResetEmail.html');
+    let htmlContent = fs.readFileSync(templatePath, 'utf8');
+
+    // Replace the placeholder with the actual OTP
+    htmlContent = htmlContent.replace('{{otp}}', otp);
 
     // Send OTP via email
     const transporter = nodemailer.createTransport({
@@ -245,50 +249,50 @@ app.post('/verifyotp', async (req, res) => {
   const { email, otp } = req.body;
 
   try {
-      // Check if the user exists
-      const user = await User.findOne({ email });
-      if (!user) {
-          return res.status(404).send({
-              success: false,
-              message: 'User not found'
-          });
-      }
-
-      // Check if the OTP is correct and not expired
-      const isOtpValid = user.resetOtp === otp;
-      const isOtpExpired = Date.now() > user.otpExpires;
-
-      if (!isOtpValid) {
-          return res.status(400).send({
-              success: false,
-              message: 'Invalid OTP'
-          });
-      }
-
-      if (isOtpExpired) {
-          return res.status(400).send({
-              success: false,
-              message: 'OTP has expired'
-          });
-      }
-
-      // OTP is valid and not expired; proceed with your logic (e.g., allow password reset)
-      res.status(200).send({
-          success: true,
-          message: 'OTP verified successfully!'
+    // Check if the user exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).send({
+        success: false,
+        message: 'User not found'
       });
+    }
 
-      // Optionally, clear the OTP and expiration time after successful verification
-      user.resetOtp = undefined;
-      user.otpExpires = undefined;
-      await user.save();
+    // Check if the OTP is correct and not expired
+    const isOtpValid = user.resetOtp === otp;
+    const isOtpExpired = Date.now() > user.otpExpires;
+
+    if (!isOtpValid) {
+      return res.status(400).send({
+        success: false,
+        message: 'Invalid OTP'
+      });
+    }
+
+    if (isOtpExpired) {
+      return res.status(400).send({
+        success: false,
+        message: 'OTP has expired'
+      });
+    }
+
+    // OTP is valid and not expired; proceed with your logic (e.g., allow password reset)
+    res.status(200).send({
+      success: true,
+      message: 'OTP verified successfully!'
+    });
+
+    // Optionally, clear the OTP and expiration time after successful verification
+    user.resetOtp = undefined;
+    user.otpExpires = undefined;
+    await user.save();
 
   } catch (error) {
-      console.error('Error verifying OTP:', error);
-      res.status(500).send({
-          success: false,
-          message: 'Server error'
-      });
+    console.error('Error verifying OTP:', error);
+    res.status(500).send({
+      success: false,
+      message: 'Server error'
+    });
   }
 });
 
@@ -297,81 +301,92 @@ app.post('/resetpassword', async (req, res) => {
   const { email, newPassword } = req.body;
 
   try {
-      // Validate input
-      if (!email || !newPassword) {
-          return res.status(400).json({ success: false, message: 'Email and new password are required.' });
-      }
+    // Validate input
+    if (!email || !newPassword) {
+      return res.status(400).json({ success: false, message: 'Email and new password are required.' });
+    }
 
-      // Find user by email
-      const user = await User.findOne({ email: email });
-      if (!user) {
-          return res.status(404).json({ success: false, message: 'User not found.' });
-      }
+    // Find user by email
+    const user = await User.findOne({ email: email });
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
 
-      // Update the user's password without hashing
-      user.password = newPassword;
+    // Update the user's password without hashing
+    user.password = newPassword;
 
-      // Save the updated user
-      await user.save();
+    // Save the updated user
+    await user.save();
 
-      // Send success response
-      res.json({ success: true, message: 'Password has been reset successfully.' });
+    // Send success response
+    res.json({ success: true, message: 'Password has been reset successfully.' });
   } catch (error) {
-      console.error(error);
-      res.status(500).json({ success: false, message: 'An error occurred. Please try again later.' });
+    console.error(error);
+    res.status(500).json({ success: false, message: 'An error occurred. Please try again later.' });
   }
 });
 
-// Endpoint untuk mendapatkan data pengguna
+// Endpoint to get user data
 app.get('/user', authenticateToken, async (req, res) => {
   try {
-    // Ambil data pengguna dari MongoDB berdasarkan userId yang ada di token
-    const user = await User.findById(req.user.userId).select('-password'); // Hindari mengirimkan password
+    const user = await User.findById(req.user.userId);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    res.json({
+
+    // Send only the necessary user data
+    res.status(200).json({
+      name: user.name || null,
       email: user.email,
       phoneNumber: user.phoneNumber,
-      // tambahkan data lain yang ingin Anda kirim jika perlu
+      address: user.address || null,
+      profilePicture: user.profilePicture || null
     });
   } catch (error) {
-    console.error('Error fetching user data:', error);
+    console.error('Error getting user data:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
+
+// Configure Multer for file storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/'); // Tentukan folder penyimpanan
+    cb(null, path.join(__dirname, 'uploads')); // Specify the storage directory
   },
   filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`); // Ganti nama file agar unik
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9); // Generate a unique filename
+    const fileName = uniqueSuffix + '-' + file.originalname; // Create the complete filename
+    cb(null, fileName); // Use only the generated filename
   },
 });
 
 const upload = multer({ storage });
 
-// Endpoint untuk meng-upload foto
-app.post('/upload', upload.single('photo'), (req, res) => {
-  res.json({ message: 'File uploaded successfully!', file: req.file });
-});
-
-// Endpoint untuk mengubah foto pengguna
-app.post('/user/photo', authenticateToken, async (req, res) => {
-  const { photo } = req.body; // Ambil foto dari body permintaan
-
+// Update profile endpoint
+app.post('/updateprofile', authenticateToken, upload.single('profilePicture'), async (req, res) => {
   try {
-    // Misalnya, simpan foto di direktori lokal (atau Anda bisa menggunakan cloud storage)
-    const photoPath = path.join(__dirname, 'uploads', `${req.user.userId}-photo.jpg`);
-    fs.writeFileSync(photoPath, photo, 'base64'); // Simpan foto dalam format base64
+    // Find the user by ID
+    const user = await User.findById(req.user.userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
-    // Update foto pengguna di database (tambahkan field untuk foto jika belum ada)
-    await User.findByIdAndUpdate(req.user.userId, { photo: photoPath });
+    // Update user's profile information
+    user.name = req.body.name || user.name;
+    user.phoneNumber = req.body.phone || user.phoneNumber;
+    user.email = req.body.email || user.email;
+    user.address = req.body.address || user.address;
 
-    res.status(200).json({ message: 'Photo updated successfully!' });
+    // If a new profile picture is uploaded, update it; otherwise, keep the existing one
+    if (req.file) {
+      user.profilePicture = req.file.filename; // Save the filename of the uploaded profile picture
+    }
+
+    await user.save(); // Save the updated user information
+    res.status(200).json({ message: 'Profile updated successfully', profile: user });
   } catch (error) {
-    console.error('Error updating photo:', error);
+    console.error('Error updating profile:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });

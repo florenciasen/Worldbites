@@ -2,29 +2,39 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import './EditProfile.css';
 import Navbar from '../../components/Navbar/Navbar';
-import profileImage from '../../assets/profile.svg';
+import profileImage from '../../assets/profile.svg'; // Default profile image
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; // Import the styles
 
 export default function EditProfile() {
+
   const [profile, setProfile] = useState({
     name: '',
     phone: '',
     email: '',
-    address: ''
+    address: '',
+    profilePicture: ''
   });
   const [photo, setPhoto] = useState(null);
 
-  // Fungsi untuk mendapatkan data pengguna dari API
+  // Function to fetch user data from the API
   const fetchUserData = async () => {
     try {
-      const response = await axios.get('/api/user'); // Ganti dengan endpoint yang sesuai
+      const response = await axios.get('http://localhost:3011/user', {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
       const userData = response.data;
 
-      // Mengupdate state dengan data pengguna
+      // Update state with user data
       setProfile({
-        name: userData.name,
-        phone: userData.phone,
+        name: userData.name || '', // Default to empty string if null
+        phone: userData.phoneNumber || '', // Ensure phoneNumber is mapped correctly
         email: userData.email,
-        address: userData.address || '' // Pastikan ada default value jika address kosong
+        address: userData.address || '', // Default to empty string if null
+        profilePicture: userData.profilePicture || null // Store fetched profile picture
       });
     } catch (error) {
       console.error('Error fetching user data', error);
@@ -32,7 +42,7 @@ export default function EditProfile() {
   };
 
   useEffect(() => {
-    fetchUserData(); // Memanggil fungsi saat komponen di-mount
+    fetchUserData(); // Call function on component mount
   }, []);
 
   const handleChange = (e) => {
@@ -51,36 +61,45 @@ export default function EditProfile() {
     formData.append('phone', profile.phone);
     formData.append('email', profile.email);
     formData.append('address', profile.address);
-    formData.append('photo', photo);
+    formData.append('profilePicture', profile.profilePicture);
+    
+    // Ensure to use 'profilePicture' to match your backend expectation
+    if (photo) {
+      formData.append('profilePicture', photo);
+    }
 
     try {
-      await axios.post('/api/profile', formData, {
+      const response = await axios.post('http://localhost:3011/updateprofile', formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${localStorage.getItem('token')}` // Ensure token is included
         }
       });
-      alert('Profile saved successfully!');
+      toast.success('Profile updated successfully!');
+      setProfile(response.data); // Update profile state with new data
     } catch (error) {
       console.error('Error saving profile', error);
+      toast.error('Error saving profile');
     }
   };
 
   return (
     <div className="container-editprofile">
       <Navbar />
-      <div className="edit-profile-wrapper"> {/* Wrapper Container */}
+      <div className="edit-profile-wrapper">
         <div className="edit-profile-content">
           <div className="profile-section">
             <div className="profile-pic">
+              {/* Display profile picture if it exists, otherwise show the default */}
               <img
-                src={photo ? URL.createObjectURL(photo) : profileImage} // Menggunakan gambar default
+                src={profile.profilePicture ? `http://localhost:3011/${profile.profilePicture}` : profileImage}
                 alt="Profile"
               />
             </div>
             <button
               type="button"
               className="change-photo-btn"
-              onClick={() => document.getElementById('photo-upload').click()} // Mengklik input file
+              onClick={() => document.getElementById('photo-upload').click()}
             >
               Change Photo
             </button>
@@ -88,7 +107,7 @@ export default function EditProfile() {
               id="photo-upload"
               type="file"
               onChange={handlePhotoChange}
-              style={{ display: 'none' }} // Menyembunyikan input file
+              style={{ display: 'none' }}
             />
           </div>
 
@@ -112,13 +131,24 @@ export default function EditProfile() {
               <label>Address</label>
               <textarea name="address" value={profile.address} onChange={handleChange}></textarea>
             </div>
-
           </form>
         </div>
         <div className="button-section">
-          <button type="submit" className="save-btn">SAVE</button>
+          <button type="submit" className="save-btn" onClick={handleSubmit}>SAVE</button>
         </div>
       </div>
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
     </div>
   );
 }

@@ -1,3 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Jersey+15&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Amaranth:wght@400;700&display=swap');
+
+
 
 body {
     margin: 0;
@@ -22,6 +26,7 @@ body {
 
 
 .edit-profile-wrapper {
+   
     max-width: 800px;
     margin: 0 auto;
     margin-top: 5rem;
@@ -71,6 +76,10 @@ body {
 
 .input-group {
     margin-bottom: 0.9375rem;
+}
+
+.input-group input {
+    font-family: 'Amaranth', sans-serif;
 }
 
 .input-group label {
