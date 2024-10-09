@@ -68,6 +68,15 @@ export default function Navbar() {
             handleLogin(); // Redirect to login if not logged in
         }
     };
+
+    const handleEditProfile = () => {
+        if (isLoggedIn) {
+            navigate('/editprofile'); 
+        } else {
+            handleLogin(); // Redirect to login if not logged in
+        }
+    };
+
     
     const handleLogout = async () => {
         try {
@@ -114,7 +123,7 @@ export default function Navbar() {
                                     </>
                                 ) : (
                                     <>
-                                        <div className='dropdown-item'>Edit Profile</div>
+                                        <div className='dropdown-item' onClick={handleEditProfile}>Edit Profile</div>
                                         <div className='dropdown-item'>Change Password</div>
                                         <div className='dropdown-item'>Order and History</div>
                                         <div className='dropdown-item'>Join Jastip</div>
