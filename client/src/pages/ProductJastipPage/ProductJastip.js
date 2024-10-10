@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './ProductJastip.css';
 import Navbar from '../../components/Navbar/Navbar';
+import { useNavigate } from 'react-router-dom';
 
 export default function ProductJastip() {
+    const navigate = useNavigate();
     const [storeName, setStoreName] = useState(''); // State untuk menyimpan storeName
 
 
@@ -24,12 +26,16 @@ export default function ProductJastip() {
         fetchStoreData(); // Ambil data toko saat komponen dimuat
     }, []);
 
+    const handleAddBatch = () => {
+        navigate('/addbatch'); 
+    };
+
     return (
         <div className='container-productjastip'>
             <Navbar />
             <div className="store-name">
-                <h2>{storeName ? storeName : 'Loading...'}</h2> {/* Tampilkan store name */}
-            </div>
+                    <h2>{storeName ? storeName : 'Loading...'}</h2> {/* Tampilkan store name */}
+                </div>
             <div className="content-wrapper">
                 <div className="left-container">
                     <h2>Product</h2>
@@ -37,7 +43,9 @@ export default function ProductJastip() {
                 </div>
                 <div className="right-container">
                     <h2>Batch</h2>
-                    <p>Isi konten untuk batch di sini...</p>
+                    <div className="batch-box" onClick={handleAddBatch}>
+                    <span className="plus-icon">+</span>
+                    </div>
                 </div>
             </div>
         </div>

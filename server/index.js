@@ -52,6 +52,17 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', userSchema);
 
+//Create a Batches model
+const batchSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  startDate: { type: Date, required: true },
+  endDate: { type: Date, required: true },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+});
+
+const Batch = mongoose.model('Batch', batchSchema);
+
+
 // Registration endpoint
 app.post('/register', async (req, res) => {
   const { email, phoneNumber, password } = req.body;
@@ -135,9 +146,8 @@ app.post('/login', async (req, res) => {
 
 // Logout endpoint for invalidating token
 app.post('/logout', authenticateToken, (req, res) => {
-  // Add the token to a blacklist (or handle refresh token invalidation)
 
-  // Example: If you're using refresh tokens, invalidate the refresh token here
+  
 
   if (req.user) {
     res.status(200).json({ message: 'Logout successful' });
@@ -530,6 +540,27 @@ app.get('/sellerinfo', authenticateToken, async (req, res) => {
       }
   } catch (error) {
       res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Batch creation endpoint
+app.post('/batch', authenticateToken, async (req, res) => {
+  const { batchName, startDate, endDate } = req.body;
+
+  try {
+      const newBatch = new Batch({
+          name: batchName,
+          startDate,
+          endDate,
+          createdBy: req.user.userId // Use userId from authenticated token
+      });
+
+      await newBatch.save();
+      res.status(201).json(newBatch);
+  } catch (error) {
+      console.error('Error saving batch:', error);
+      // Send a more specific error message if available
+      res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 

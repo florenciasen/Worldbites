@@ -14,6 +14,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ChangePassword from './pages/ChangePasswordPage/ChangePassword';
 import HomepageJastip from './pages/HomepageJastipPage/HomepageJastip';
 import ProductJastip from './pages/ProductJastipPage/ProductJastip';
+import AddBatch from './pages/AddBatchPage/AddBatch';
+
 
 
 function App() {
@@ -33,6 +35,7 @@ function App() {
         <Route path="/joinjastip" element={<JoinJastip />} />
         <Route path="/homepagejastip" element={<HomepageJastip />} />
         <Route path="/productjastip" element= {<ProductJastip/>} />
+        <Route path="/addbatch" element={<AddBatch />} />
       </Routes>
     </Router>
   );
