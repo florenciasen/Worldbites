@@ -40,6 +40,7 @@ body {
 }
 
 .container-small {
+    cursor: pointer;
     background-color: white;
     width: 20%; /* Adjusted to fit 4 containers */
     padding: 15px;

@@ -30,7 +30,7 @@ function App() {
         <Route path="/otp" element={<OtpPage />} />
         <Route path="/editprofile" element={<EditProfile/>} />
         <Route path="/changepassword" element={<ChangePassword/>} />
-        <Route path="/jastip" element={<JoinJastip />} />
+        <Route path="/joinjastip" element={<JoinJastip />} />
         <Route path="/homepagejastip" element={<HomepageJastip />} />
         <Route path="/productjastip" element= {<ProductJastip/>} />
       </Routes>

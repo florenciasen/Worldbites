@@ -514,6 +514,24 @@ app.get('/joinjastip/me', authenticateToken, async (req, res) => {
 });
 
 
+app.get('/sellerinfo', authenticateToken, async (req, res) => {
+  try {
+    
+      const user = await User.findById(req.user.userId);
+
+      if (user) {
+          res.json({
+              identityCard: user.identityCard,
+              storeName: user.storeName,
+              storeDescription: user.storeDescription
+          });
+      } else {
+          res.status(404).json({ message: 'User not found' });
+      }
+  } catch (error) {
+      res.status(500).json({ message: 'Server error' });
+  }
+});
 
 
 

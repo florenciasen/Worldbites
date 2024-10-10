@@ -1,20 +1,49 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './JoinJastip.css';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar/Navbar';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { jwtDecode } from 'jwt-decode';
 
 export default function JoinJastip() {
     const [storeName, setStoreName] = useState('');
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [identityCard, setIdentityCard] = useState('');
     const [description, setDescription] = useState('');
     const [showTerms, setShowTerms] = useState(false);
     const [showPrivacy, setShowPrivacy] = useState(false);
     const navigate = useNavigate();
 
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            try {
+                const decoded = jwtDecode(token);
+                const currentTime = Date.now() / 1000; // Current time in seconds
+
+                if (decoded.exp < currentTime) {
+                    console.log('Token has expired');
+                    toast.error('Session expired. Please login again.');
+                    localStorage.removeItem('token');
+                    setIsLoggedIn(false);
+                    navigate('/login');
+
+                } else {
+                    setIsLoggedIn(true);
+                }
+            }
+            catch (error) {
+                console.error('Invalid token');
+                setIsLoggedIn(false);
+            }
+        }
+    }, []);
+
+
     const handleJoinJastip = async (e) => {
+
         e.preventDefault();
 
         try {

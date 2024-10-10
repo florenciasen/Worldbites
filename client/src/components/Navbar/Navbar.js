@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './Navbar.css';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import WorldbitesLogo from '../../assets/worldbites.svg';
 import Chatlogo from '../../assets/chatlogo.svg';
 import Cartlogo from '../../assets/cartlogo.svg';
@@ -13,27 +13,25 @@ import axios from 'axios';
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false); 
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [user, setUser] = useState(null); // Store user info
-    const [profilePicture, setProfilePicture] = useState(Profile); // State for profile picture
-    const navigate = useNavigate(); 
+    const [isJastipLoggedIn, setIsJastipLoggedIn] = useState(false); // State for Jastip login
+    const [userData, setUserData] = useState(null); // Store user data here
+    const [profilePicture, setProfilePicture] = useState(Profile); 
+    const navigate = useNavigate();
+    const location = useLocation();
     
-    // Check for token and decode user info when the component mounts
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (token) {
             try {
                 const decoded = jwtDecode(token);
-                const currentTime = Date.now() / 1000; // Current time in seconds
-                
-                // Check if token is expired
+                const currentTime = Date.now() / 1000;
                 if (decoded.exp < currentTime) {
-                    console.log('Token has expired');
                     toast.error('Session expired. Please login again.');
-                    handleLogout(); // Log the user out if token is expired
+                    handleLogout(); 
                 } else {
                     setIsLoggedIn(true);
-                    setUser(decoded); // You can use this to access user details if needed
-                    fetchProfilePicture(); // Fetch the profile picture after user validation
+                    fetchUserData();
+                    fetchProfilePicture();
                 }
             } catch (error) {
                 console.error('Invalid token');
@@ -41,6 +39,15 @@ export default function Navbar() {
             }
         }
     }, []);
+
+    // Listen for location change to check if the user is on the Jastip homepage
+    useEffect(() => {
+        if (location.pathname === '/homepagejastip') {
+            setIsJastipLoggedIn(true);
+        } else {
+            setIsJastipLoggedIn(false);
+        }
+    }, [location.pathname]);
     
     const toggleDropdown = () => {
         setIsOpen(!isOpen);
@@ -58,7 +65,7 @@ export default function Navbar() {
         if (isLoggedIn) {
             navigate('/cart'); 
         } else {
-            handleLogin(); // Redirect to login if not logged in
+            handleLogin(); 
         }
     };
 
@@ -66,7 +73,7 @@ export default function Navbar() {
         if (isLoggedIn) {
             navigate('/chat'); 
         } else {
-            handleLogin(); // Redirect to login if not logged in
+            handleLogin(); 
         }
     };
 
@@ -74,7 +81,7 @@ export default function Navbar() {
         if (isLoggedIn) {
             navigate('/editprofile'); 
         } else {
-            handleLogin(); // Redirect to login if not logged in
+            handleLogin(); 
         }
     };
 
@@ -82,19 +89,23 @@ export default function Navbar() {
         if (isLoggedIn) {
             navigate('/changepassword'); 
         } else {
-            handleLogin(); // Redirect to login if not logged in
+            handleLogin(); 
         }
-    }
+    };
 
-    const handleJoinJastip = () => {
-        if (isLoggedIn) {
-            navigate('/jastip');
-        } else {
-            handleLogin(); // Redirect to login if not logged in
-        }
-    }
+    // Jastip login handler
+    const handleLoginJastip = () => {
+        setIsJastipLoggedIn(true); // Set Jastip mode before navigating
+        navigate('/homepagejastip');
+    };
 
-    // Handler for logging out the user
+    // Jastip logout handler (not total logout)
+    const handleLogoutJastip = () => {
+        setIsJastipLoggedIn(false); // Exit Jastip mode only
+        navigate('/');
+        toast.success('You have logged out from Jastip mode.');
+    };
+
     const handleLogout = async () => {
         try {
             await axios.post('http://localhost:3011/logout', {}, {
@@ -103,11 +114,11 @@ export default function Navbar() {
                 }
             });
     
-            // Clear the token from local storage
             localStorage.removeItem('token');
             setIsLoggedIn(false);
-            setUser(null);
-            setProfilePicture(Profile); // Reset to default picture on logout
+            setIsJastipLoggedIn(false); // Reset both Jastip and general login
+            setUserData(null);
+            setProfilePicture(Profile); 
             navigate('/');
             toast.success('Logout successful');
             
@@ -116,7 +127,6 @@ export default function Navbar() {
         }
     };
 
-    // Handler to fetch the user's profile picture
     const fetchProfilePicture = async () => {
         try {
             const response = await axios.get('http://localhost:3011/profile-picture', {
@@ -126,14 +136,45 @@ export default function Navbar() {
             });
     
             if (response.data && response.data.profilePicture) {
-                setProfilePicture(response.data.profilePicture); // Update profile picture
+                setProfilePicture(response.data.profilePicture); 
             }
         } catch (error) {
             console.error('Error fetching profile picture:', error);
-            toast.error('Failed to load profile picture.'); // Inform the user of the error
+            toast.error('Failed to load profile picture.'); 
         }
     };
-    
+
+    const fetchUserData = async () => {
+        try {
+            const response = await axios.get('http://localhost:3011/sellerinfo', {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+
+            if (response.data) {
+                setUserData(response.data);
+            }
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+            toast.error('Failed to load user data.'); 
+        }
+    };
+
+    // Define handleJoinJastip
+    const handleJoinJastip = () => {
+        if (!userData?.storeName || !userData?.identityCard || !userData?.storeDescription) {
+            toast.error("Incomplete Jastip details. Please complete your profile.");
+            // Redirect to the Join Jastip page to complete their profile
+            navigate('/joinjastip');
+        } else {
+            setIsJastipLoggedIn(true); // Set Jastip mode before navigating
+            navigate('/homepagejastip');
+        }
+    };
+
+    const isOnHomepageJastip = location.pathname === '/homepagejastip';
+
     return (
         <div className='container-navbar'>
             <div className='navbar'>
@@ -149,7 +190,7 @@ export default function Navbar() {
                     <img src={Chatlogo} alt='Chat' className='chat-logo' onClick={handleChat} />
                     <img src={Cartlogo} alt='Shopping Cart' onClick={handleCart} />
                     <div className='profile-dropdown'>
-                        <img src={profilePicture} alt='Profile' onClick={toggleDropdown} /> {/* Use the fetched profile picture */}
+                        <img src={profilePicture} alt='Profile' onClick={toggleDropdown} />
                         {isOpen && (
                             <div className='dropdown-menu'>
                                 {!isLoggedIn ? (
@@ -162,7 +203,16 @@ export default function Navbar() {
                                         <div className='dropdown-item' onClick={handleEditProfile}>Edit Profile</div>
                                         <div className='dropdown-item' onClick={handleChangePassword}>Change Password</div>
                                         <div className='dropdown-item'>Order and History</div>
-                                        <div className='dropdown-item' onClick={handleJoinJastip}>Join Jastip</div>
+                                        {/* Conditionally render Jastip options */}
+                                        {!isJastipLoggedIn ? (
+                                            userData?.identityCard && userData?.storeName && userData?.storeDescription ? (
+                                                <div className='dropdown-item' onClick={handleLoginJastip}>Login Jastip</div>
+                                            ) : (
+                                                <div className='dropdown-item' onClick={handleJoinJastip}>Join Jastip</div>
+                                            )
+                                        ) : (
+                                            <div className='dropdown-item' onClick={handleLogoutJastip}>Logout Jastip</div>
+                                        )}
                                         <div className='dropdown-item' onClick={handleLogout}>Logout</div>
                                     </>
                                 )}
