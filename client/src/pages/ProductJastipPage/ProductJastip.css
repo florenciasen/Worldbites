@@ -1,0 +1,56 @@
+
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+
+.container-productjastip {
+    min-height: 100vh;
+    width: 100%;
+    
+    background-image: url('../../assets/Wallpaper.svg'); 
+    background-size: cover;        
+    background-position: center;  
+    background-repeat: no-repeat; 
+    
+    display: flex;
+    flex-direction: column;
+}
+
+.store-name{
+    margin-top: 80px;
+}
+
+.content-wrapper {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.left-container {
+    width: 55%;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background-color: #f0f0f0;
+    margin-right: 20px;
+    margin-left: 60px;
+
+}
+
+
+.right-container {
+    background-color: #f0f0f0;
+    width: 30%;
+    padding: 20px;
+    margin-right: 70px;
+}
+
+h2 {
+    margin-bottom: 10px;
+}
+
+p {
+    font-size: 16px;
+}
