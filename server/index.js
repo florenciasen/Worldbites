@@ -87,14 +87,17 @@ const authenticateToken = (req, res, next) => {
     return res.status(401).json({ message: 'Token required' });
   }
 
-  jwt.verify(token, JWT_SECRET, (err, user) => {  // Use the hardcoded JWT secret here as well
-    if (err) {
-      return res.status(403).json({ message: 'Invalid token' });
-    }
+  try{
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.user = decoded;
 
-    req.user = user;  // Attach decoded user data (userId, email, phoneNumber) to request object
+    console.log('Decoded token:', decoded);
+    
     next();
-  });
+  } catch (error) {
+    console.error('Error verifying token:', error);
+    return res.status(403).json({ message: 'Invalid token' });
+  }
 };
 
 
@@ -307,32 +310,35 @@ app.post('/verifyotp', async (req, res) => {
 
 // Change Password Endpoint
 app.post('/changepassword', authenticateToken, async (req, res) => {
-  console.log('User from token:', req.user); // Log the user object for debugging
-
   const { currentPassword, newPassword } = req.body;
 
   try {
-      // Find user in the database
-      const user = await User.findById(req.user.userId); // Find user by ID from token
+    // Find the user by ID from the token
+    const user = await User.findById(req.user.userId);
 
-      // Check if the user was found
-      if (!user) {
-          return res.status(404).json({ message: 'User not found.' }); // Return error if user not found
-      }
+    // Check if the user was found
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
 
-      // Check if the current password matches
-      if (user.password !== currentPassword) {
-          return res.status(400).json({ message: 'Current password is incorrect.' });
-      }
+    // Validate that the email in the token matches the user's email in the database
+    if (user.email !== req.user.email) {
+      return res.status(403).json({ message: 'Invalid token or mismatched email' });
+    }
 
-      // Update the password
-      user.password = newPassword; // Set the new password
-      await user.save(); // Save the user
+    // Check if the current password matches the one in the database
+    if (user.password !== currentPassword) {
+      return res.status(400).json({ message: 'Current password is incorrect.' });
+    }
 
-      res.status(200).json({ message: 'Password updated successfully!' });
+    // Update the password
+    user.password = newPassword; // Set the new password
+    await user.save(); // Save the updated user with the new password
+
+    res.status(200).json({ message: 'Password updated successfully!' });
   } catch (error) {
-      console.error('Error changing password:', error);
-      res.status(500).json({ message: 'Internal server error.' });
+    console.error('Error changing password:', error);
+    res.status(500).json({ message: 'Internal server error.' });
   }
 });
 
@@ -425,33 +431,44 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// Update profile endpoint
 app.post('/updateprofile', authenticateToken, upload.single('profilePicture'), async (req, res) => {
   try {
-    // Find the user by ID
+    // Find the user by ID from the token
     const user = await User.findById(req.user.userId);
+
+    // Validate that the email from the token matches the user's email in the database
+    if (user.email !== req.user.email) {
+      return res.status(403).json({ message: 'Invalid token or mismatched email' });
+    }
+
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Update user's profile information
+    // Update the user's profile information
     user.name = req.body.name || user.name;
-    user.phoneNumber = req.body.phone || user.phoneNumber;
-    user.email = req.body.email || user.email;
+    user.phoneNumber = req.body.phoneNumber || user.phoneNumber;
     user.address = req.body.address || user.address;
 
-    // If a new profile picture is uploaded, update it; otherwise, keep the existing one
-    if (req.file) {
-      user.profilePicture = req.file.filename; // Save just the filename
+    // Only update the email if it matches the token's email (optional)
+    if (req.body.email && req.body.email === req.user.email) {
+      user.email = req.body.email;
     }
 
-    await user.save(); // Save the updated user information
+    // Update profile picture if a new file is uploaded
+    if (req.file) {
+      user.profilePicture = req.file.filename;
+    }
+
+    // Save the updated user profile
+    await user.save();
     res.status(200).json({ message: 'Profile updated successfully', profile: user });
   } catch (error) {
     console.error('Error updating profile:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
+
 
 
 app.post('/joinjastip', authenticateToken, async (req, res) => {
