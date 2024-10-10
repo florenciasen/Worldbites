@@ -1,0 +1,72 @@
+@import url('https://fonts.googleapis.com/css2?family=Gabriela&display=swap');
+
+
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+
+.container-homepagejastip {
+    min-height: 100vh;
+    width: 100%;
+    
+    background-image: url('../../assets/Wallpaper.svg'); 
+    background-size: cover;        
+    background-position: center;  
+    background-repeat: no-repeat; 
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.container-large {
+    background-color: white;
+    width: 80%;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.container-small-wrapper {
+    display: flex;
+    justify-content: space-between;
+    width: 80%;
+}
+
+.container-small {
+    background-color: white;
+    width: 20%; /* Adjusted to fit 4 containers */
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.small-container-image {
+    width: 100px;
+    height: auto; 
+}
+
+.order-completed-image {
+    width: 6.25rem; /* Atur lebar gambar yang lebih besar */
+    height: 5.5rem; /* Atur tinggi gambar untuk menjaga proporsi */
+    object-fit: contain; /* Menjaga proporsi gambar */
+    margin-bottom: 0.625rem; /* Jarak antara gambar dan teks */
+}
+
+.net-income-image{
+    width: 6.25rem; /* Atur lebar gambar yang lebih besar */
+    height: 5.9375rem; /* Atur tinggi gambar untuk menjaga proporsi */
+    object-fit: contain;
+    margin-top: 0.0625rem;
+}
+
+h3{
+    font-family: 'Gabriela', serif;
+}

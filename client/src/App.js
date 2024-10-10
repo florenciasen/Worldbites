@@ -12,6 +12,8 @@ import EditProfile from './pages/EditProfilePage/EditProfile';
 import JoinJastip from './pages/JoinJastipPage/JoinJastip';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ChangePassword from './pages/ChangePasswordPage/ChangePassword';
+import HomepageJastip from './pages/HomepageJastipPage/HomepageJastip';
+import ProductJastip from './pages/ProductJastipPage/ProductJastip';
 
 
 function App() {
@@ -29,6 +31,8 @@ function App() {
         <Route path="/editprofile" element={<EditProfile/>} />
         <Route path="/changepassword" element={<ChangePassword/>} />
         <Route path="/jastip" element={<JoinJastip />} />
+        <Route path="/homepagejastip" element={<HomepageJastip />} />
+        <Route path="/productjastip" element= {<ProductJastip/>} />
       </Routes>
     </Router>
   );

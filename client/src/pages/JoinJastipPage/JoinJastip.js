@@ -30,7 +30,7 @@ export default function JoinJastip() {
             console.log(response.data);
             toast.success('Registration successful!');
             setTimeout(() => {
-                navigate('/');
+                navigate('/homepagejastip');
             }, 1000);
         } catch (error) {
             if (error.response) {
