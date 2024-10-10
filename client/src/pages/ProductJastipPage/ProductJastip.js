@@ -28,8 +28,8 @@ export default function ProductJastip() {
         <div className='container-productjastip'>
             <Navbar />
             <div className="store-name">
-                    <h2>{storeName ? storeName : 'Loading...'}</h2> {/* Tampilkan store name */}
-                </div>
+                <h2>{storeName ? storeName : 'Loading...'}</h2> {/* Tampilkan store name */}
+            </div>
             <div className="content-wrapper">
                 <div className="left-container">
                     <h2>Product</h2>

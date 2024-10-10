@@ -494,25 +494,25 @@ app.post('/joinjastip', authenticateToken, async (req, res) => {
   }
 });
 
-// Endpoint untuk mendapatkan store berdasarkan token pengguna
 app.get('/joinjastip/me', authenticateToken, async (req, res) => {
   try {
       // Ambil ID pengguna dari token
-      const userId = req.user.userId; 
-      const data = await JoinJastip.findOne({ userId: userId }); // Ambil data dari database
+      const user = await User.findById(req.user.userId); // Find user by ID from the token
 
-      if (!data) {
-          return res.status(404).json({ message: 'Data not found' });
+      // Check if the user was found
+      if (!user) {
+          return res.status(404).json({ message: 'User not found' }); // Return 404 if user is not found
       }
 
       res.status(200).json({
-        storeName: user.storeName
-      }); // Kirimkan data ke frontend
+        storeName: user.storeName // Return the storeName from the user object
+      }); // Send the storeName to the frontend
   } catch (error) {
-      console.error('Error fetching joinjastip data:', error);
+      console.error('Error fetching user data:', error);
       res.status(500).json({ message: 'Server error' });
   }
 });
+
 
 
 
