@@ -23,11 +23,15 @@ export default function ProductJastip() {
     };
     
     useEffect(() => {
-        fetchStoreData(); // Ambil data toko saat komponen dimuat
+        fetchStoreData(); 
     }, []);
 
     const handleAddBatch = () => {
         navigate('/addbatch'); 
+    };
+
+    const handleAddProduct = () => {
+        navigate('/addproduct'); 
     };
 
     return (
@@ -39,12 +43,18 @@ export default function ProductJastip() {
             <div className="content-wrapper">
                 <div className="left-container">
                     <h2>Product</h2>
-                    <p>Isi konten untuk produk di sini...</p>
+                    <div className="product-box" onClick={handleAddProduct}>
+                        <span className="plus-icon1">+</span>
+                        <p className="add-product-text">Add your product</p>
+                    </div>
                 </div>
                 <div className="right-container">
                     <h2>Batch</h2>
                     <div className="batch-box" onClick={handleAddBatch}>
                     <span className="plus-icon">+</span>
+                    </div>
+                    <div className="batch-info-box">
+                        <p>5 January - 30 January 2024</p>
                     </div>
                 </div>
             </div>
