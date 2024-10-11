@@ -57,8 +57,8 @@ const productSchema = new mongoose.Schema({
   brand: { type: String, required: true },  // Brand Name
   category: { type: String, required: true },  // Category (e.g., Fashion, Electronics, etc.)
   price: { type: Number, required: true },  // Price of the product
-  details: { type: String },  // Additional product details (e.g., size, material, etc.)
-  imageUrl: { type: String },  // URL of the product image
+  details: { type: String, required: true },  // Additional product details (e.g., size, material, etc.)
+  imageUrl: { type: String, required: true },  // URL of the product image
 });
 
 const Product = mongoose.model('Product', productSchema);
@@ -584,6 +584,88 @@ app.post('/batch', authenticateToken, async (req, res) => {
       console.error('Error saving batch:', error);
       // Send a more specific error message if available
       res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+
+
+// Add product to batch endpoint
+app.post('/batch/:batchId/product', authenticateToken, async (req, res) => {
+  const { batchId } = req.params; // Get the batch ID from the URL
+  const { name, price, imageUrl, brand, category, details } = req.body; // Get product details from request body
+
+  try {
+    // Find the batch by ID
+    const batch = await Batch.findById(batchId);
+
+    if (!batch) {
+      return res.status(404).json({ message: 'Batch not found' });
+    }
+
+    if (!name || !price) {
+      return res.status(400).json({ message: 'Product name and price are required' });
+    }
+    
+
+    // Create a new product object
+    const newProduct = {
+      name,
+      price,
+      imageUrl,
+      brand,
+      category,
+      details,
+    };
+
+    // Push the new product to the batch's products array
+    batch.products.push(newProduct);
+
+    // Save the updated batch
+    await batch.save();
+
+    res.status(200).json(batch); // Respond with the updated batch
+  } catch (error) {
+    console.error('Error adding product:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+
+// Get batches and their products for the authenticated user
+app.get('/batches/products', authenticateToken, async (req, res) => {
+  try {
+    // Fetch batches created by the user, including products in each batch
+    const batches = await Batch.find({ createdBy: req.user.userId });
+
+    // Check if batches are found
+    if (!batches || batches.length === 0) {
+      return res.status(404).json({ message: 'No batches found for this user' });
+    }
+
+    res.status(200).json(batches); // Return batches with products
+  } catch (error) {
+    console.error('Error fetching batches and products:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+
+// Get products for a specific batch
+app.get('/batches/:batchId/products', authenticateToken, async (req, res) => {
+  const { batchId } = req.params;
+  
+  try {
+    // Fetch the batch by ID and include the products
+    const batch = await Batch.findById(batchId);
+    
+    if (!batch) {
+      return res.status(404).json({ message: 'Batch not found' });
+    }
+
+    res.status(200).json(batch.products); // Return only products
+  } catch (error) {
+    console.error('Error fetching products for batch:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 

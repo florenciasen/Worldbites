@@ -119,6 +119,7 @@ p {
   }
 
   .batch-info-box {
+    cursor: pointer;
     width: 90%;
     height: 40px;
     border: 1px solid #FF0000;

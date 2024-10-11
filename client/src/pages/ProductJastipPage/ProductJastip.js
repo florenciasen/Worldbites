@@ -6,24 +6,63 @@ import { useNavigate } from 'react-router-dom';
 
 export default function ProductJastip() {
     const navigate = useNavigate();
-    const [storeName, setStoreName] = useState(''); // State untuk menyimpan storeName
-
+    const [storeName, setStoreName] = useState('');
+    const [batches, setBatches] = useState([]); // State to store all batches
+    const [selectedBatch, setSelectedBatch] = useState(null); // State for the selected batch
+    const [products, setProducts] = useState([]); // State to store products for the selected batch
 
     const fetchStoreData = async () => {
         try {
             const response = await axios.get('http://localhost:3011/joinjastip/me', {
                 headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}` // Autentikasi menggunakan token
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
                 }
             });
-            setStoreName(response.data.storeName); // Simpan storeName dari response ke state
+            setStoreName(response.data.storeName);
         } catch (error) {
-            console.error('Error fetching store data:', error); // Tangani error jika ada
+            console.error('Error fetching store data:', error);
         }
     };
-    
+
+    const fetchBatches = async () => {
+        try {
+            const response = await axios.get('http://localhost:3011/batches/products', {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            setBatches(response.data); // Save the batches and products to state
+            if (response.data.length > 0) {
+                setSelectedBatch(response.data[0]); // Set the first batch as the default selection
+                fetchProducts(response.data[0]._id); // Fetch products for the default batch
+            }
+        } catch (error) {
+            console.error('Error fetching batches:', error);
+        }
+    };
+
+    const fetchProducts = async (batchId) => {
+        try {
+            const response = await axios.get(`http://localhost:3011/batches/${batchId}/products`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            setProducts(response.data); // Save the products for the selected batch
+        } catch (error) {
+            console.error('Error fetching products for batch:', error);
+        }
+    };
+
+    // Handle batch switch
+    const handleBatchSwitch = (batch) => {
+        setSelectedBatch(batch); // Set the clicked batch as selected
+        fetchProducts(batch._id); // Fetch products for the selected batch
+    };
+
     useEffect(() => {
-        fetchStoreData(); 
+        fetchStoreData();
+        fetchBatches(); // Fetch all batches when component loads
     }, []);
 
     const handleAddBatch = () => {
@@ -38,8 +77,8 @@ export default function ProductJastip() {
         <div className='container-productjastip'>
             <Navbar />
             <div className="store-name">
-                    <h2>{storeName ? storeName : 'Loading...'}</h2> {/* Tampilkan store name */}
-                </div>
+                <h2>{storeName ? storeName : 'Loading...'}</h2>
+            </div>
             <div className="content-wrapper">
                 <div className="left-container">
                     <h2>Product</h2>
@@ -47,15 +86,34 @@ export default function ProductJastip() {
                         <span className="plus-icon1">+</span>
                         <p className="add-product-text">Add your product</p>
                     </div>
+                    {/* Display product images for the selected batch */}
+                    <div className="products-grid">
+                        {products.length > 0 ? (
+                            products.map(product => (
+                                <div key={product._id} className="product-item">
+                                    <img src={product.imageUrl} alt={product.name} className="product-image" />
+                                </div>
+                            ))
+                        ) : (
+                            console.log('No products found.')
+                        )}
+                    </div>
                 </div>
                 <div className="right-container">
                     <h2>Batch</h2>
                     <div className="batch-box" onClick={handleAddBatch}>
-                    <span className="plus-icon">+</span>
+                        <span className="plus-icon">+</span>
                     </div>
-                    <div className="batch-info-box">
-                        <p>5 January - 30 January 2024</p>
-                    </div>
+                    {/* Display batches */}
+                    {batches.map(batch => (
+                        <div 
+                            key={batch._id} 
+                            className={`batch-info-box ${selectedBatch && selectedBatch._id === batch._id ? 'active' : ''}`}
+                            onClick={() => handleBatchSwitch(batch)}
+                        >
+                            <p>{new Date(batch.startDate).toLocaleDateString()} - {new Date(batch.endDate).toLocaleDateString()}</p>
+                        </div>
+                    ))}
                 </div>
             </div>
         </div>
