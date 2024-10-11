@@ -52,15 +52,28 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', userSchema);
 
+const productSchema = new mongoose.Schema({
+  name: { type: String, required: true },  // Product Name
+  brand: { type: String, required: true },  // Brand Name
+  category: { type: String, required: true },  // Category (e.g., Fashion, Electronics, etc.)
+  price: { type: Number, required: true },  // Price of the product
+  details: { type: String },  // Additional product details (e.g., size, material, etc.)
+  imageUrl: { type: String },  // URL of the product image
+});
+
+const Product = mongoose.model('Product', productSchema);
+
 //Create a Batches model
 const batchSchema = new mongoose.Schema({
   name: { type: String, required: true },
   startDate: { type: Date, required: true },
   endDate: { type: Date, required: true },
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  products: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }]
 });
 
 const Batch = mongoose.model('Batch', batchSchema);
+
 
 
 // Registration endpoint
@@ -547,12 +560,22 @@ app.get('/sellerinfo', authenticateToken, async (req, res) => {
 app.post('/batch', authenticateToken, async (req, res) => {
   const { batchName, startDate, endDate } = req.body;
 
+  if (!batchName || !startDate || !endDate) {
+      return res.status(400).json({ message: 'Please fill in all the fields' });
+  }
+
+  if (new Date(startDate) >= new Date(endDate)) {
+    return res.status(400).json({ message: 'Start date must be before end date' });
+  }
+  
+
   try {
       const newBatch = new Batch({
           name: batchName,
           startDate,
           endDate,
-          createdBy: req.user.userId // Use userId from authenticated token
+          createdBy: req.user.userId, // Use userId from authenticated token
+          products: [] // Initialize products array
       });
 
       await newBatch.save();
