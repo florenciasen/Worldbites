@@ -602,8 +602,8 @@ app.post('/batch/:batchId/product', authenticateToken, async (req, res) => {
       return res.status(404).json({ message: 'Batch not found' });
     }
 
-    if (!name || !price) {
-      return res.status(400).json({ message: 'Product name and price are required' });
+    if (!name || !price || !imageUrl || !brand || !category || !details) {
+      return res.status(400).json({ message: 'Please fill in all the fields' });
     }
     
 

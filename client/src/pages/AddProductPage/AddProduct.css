@@ -1,0 +1,146 @@
+@import url('https://fonts.googleapis.com/css2?family=Jersey+15&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Amaranth:wght@400;700&display=swap');
+
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+
+.container-addproduct {
+    min-height: 100vh;
+    width: 100%;
+    
+    background-image: url('../../assets/Wallpaper.svg'); 
+    background-size: cover;        
+    background-position: center;  
+    background-repeat: no-repeat; 
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    margin-top: 1.25rem; /* Jarak atas dari navbar */
+    padding: 1.25rem;
+    border: 1px solid #B4835B; /* Border luar untuk wrapper */
+    border-radius: 1rem; /* Sudut melengkung */
+    background-color: #f8f8f8; /* Warna latar belakang */
+    width: 60%; /* Mengatur lebar wrapper agar tidak penuh */
+}
+
+.title {
+    text-align: center; /* Menengahkan teks */
+    font-size: 28px; /* Ukuran font untuk judul lebih besar */
+    font-weight: bold; /* Ketebalan font */
+    color: #B4835B; /* Warna teks judul */
+    margin-bottom: 1.875rem; /* Jarak bawah judul untuk memberi ruang */
+    font-family: 'Jersey 15', sans-serif;
+}
+
+.photo-form-container {
+    display: flex; /* Mengatur elemen di dalamnya dalam satu baris */
+    justify-content: space-between; /* Jarak antar elemen */
+    width: 100%; /* Lebar penuh untuk container */
+    gap: 1.25rem; /* Jarak antara photo container dan form fields */
+}
+
+.photo-container {
+    flex: 1;
+}
+
+.uploaded-image {
+    width: 100%; /* Memastikan gambar mengisi lebar kontainer */
+    height: 100%; /* Memastikan gambar mengisi tinggi kontainer */
+    object-fit: cover; /* Gambar akan mengisi area kontainer, memotong bagian yang tidak sesuai proporsi */
+}
+
+
+.add-photo-box {
+    width: 80%; /* Lebar kotak untuk menambahkan foto */
+    height:45%; /* Tinggi kotak */
+    border: 1px dashed #B4835B; /* Garis putus-putus */
+    border-radius: 0.625rem; /* Sudut melengkung */
+    display: flex;
+    flex-direction: column; /* Konten dalam kolom */
+    justify-content: center; /* Menyelaraskan konten secara vertikal */
+    align-items: center; /* Menyelaraskan konten secara horizontal */
+    cursor: pointer; /* Menunjukkan bahwa ini bisa diklik */
+}
+
+.plus-icon {
+    font-size: 40px; /* Ukuran ikon plus */
+    color: #793E0E; /* Warna ikon */
+}
+
+.form-fields {
+    width: 65%; /* Lebar penuh */
+}
+
+
+label {
+    margin-bottom: 0.625rem; /* Jarak antar label */
+}
+
+.batch-name-label {
+    font-size: 12px; /* Ukuran font untuk batch name */
+}
+
+input, textarea {
+    width: 100%; /* Lebar penuh */
+    padding: 0.625rem; /* Jarak dalam */
+    margin-top: 0.3125rem; /* Jarak atas untuk input */
+    border: 1px solid #ccc; /* Garis border */
+    border-radius: 0.3125rem; /* Sudut melengkung */
+    box-sizing: border-box; /* Mengatur ukuran termasuk padding dan border */  
+    font-family: 'Amaranth', sans-serif;
+    font-size: 14px;
+
+    
+}
+
+.add-button {
+    margin-top: 1.25rem; /* Jarak atas tombol */
+    padding: 0.625rem; /* Jarak dalam tombol */
+    width: 10%;
+    background-color: #B4835B; /* Warna latar belakang tombol */
+    color: white; /* Warna teks tombol */
+    border: none; /* Menghilangkan border */
+    border-radius: 0.3125rem; /* Sudut melengkung */
+    cursor: pointer; /* Menunjukkan bahwa ini bisa diklik */
+}
+
+.add-button:hover {
+    background-color: #FF5733; /* Mengubah warna latar belakang saat hover */
+}
+
+    
+
+.label-input-container {
+    display: flex;
+    flex-direction: row; /* Mengatur elemen dalam satu baris */
+    align-items: center;
+    justify-content: space-between; /* Menyebar label dan input */
+    margin-bottom: 0.9375rem;
+}
+
+.label-input-container p {
+    margin-right: 1.25rem; /* Jarak antara label dan input */
+    font-size: 14px;
+    width: 9.375rem; /* Lebar tetap untuk label */
+    flex-shrink: 0; /* Menyimpan lebar label */
+    font-family: 'Amaranth', sans-serif;
+}
+
+.input-field {
+    padding: 0.625rem;
+    border: 1px solid #B4835B;
+    border-radius: 0.3125rem;
+    width: 100%;
+    box-sizing: border-box; /* Memastikan padding masuk hitungan lebar */
+}
