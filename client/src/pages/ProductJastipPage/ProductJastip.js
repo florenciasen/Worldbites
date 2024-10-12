@@ -110,7 +110,7 @@ export default function ProductJastip() {
                                 </div>
                             ))
                         ) : (
-                            <p>No products found.</p>
+                            console.log('No products found')
                         )}
                     </div>
                 </div>
