@@ -15,6 +15,7 @@ import ChangePassword from './pages/ChangePasswordPage/ChangePassword';
 import HomepageJastip from './pages/HomepageJastipPage/HomepageJastip';
 import ProductJastip from './pages/ProductJastipPage/ProductJastip';
 import AddBatch from './pages/AddBatchPage/AddBatch';
+import AddProduct from './pages/AddProductPage/AddProduct';
 
 
 
@@ -36,6 +37,7 @@ function App() {
         <Route path="/homepagejastip" element={<HomepageJastip />} />
         <Route path="/productjastip" element= {<ProductJastip/>} />
         <Route path="/addbatch" element={<AddBatch />} />
+        <Route path="/addproduct" element={<AddProduct />} />
       </Routes>
     </Router>
   );

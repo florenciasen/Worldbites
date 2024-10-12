@@ -105,6 +105,8 @@ input, textarea {
 }
 
 .add-button {
+    font-family: 'Jersey 15', sans-serif;
+    font-size: 20px;
     margin-top: 1.25rem; /* Jarak atas tombol */
     padding: 0.625rem; /* Jarak dalam tombol */
     width: 10%;

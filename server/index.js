@@ -588,47 +588,48 @@ app.post('/batch', authenticateToken, async (req, res) => {
 });
 
 
-
 // Add product to batch endpoint
-app.post('/batch/:batchId/product', authenticateToken, async (req, res) => {
-  const { batchId } = req.params; // Get the batch ID from the URL
-  const { name, price, imageUrl, brand, category, details } = req.body; // Get product details from request body
-
+app.post('/batch/add-product', authenticateToken,  upload.single('imageUrl'), async (req, res) => {
   try {
-    // Find the batch by ID
-    const batch = await Batch.findById(batchId);
+      
+      const { productName, price, brand, category, details, batchId } = req.body;
 
-    if (!batch) {
-      return res.status(404).json({ message: 'Batch not found' });
-    }
+     // Find the batch by ID
+     const batch = await Batch.findById(batchId);
 
-    if (!name || !price || !imageUrl || !brand || !category || !details) {
-      return res.status(400).json({ message: 'Please fill in all the fields' });
-    }
-    
 
-    // Create a new product object
-    const newProduct = {
-      name,
-      price,
-      imageUrl,
-      brand,
-      category,
-      details,
-    };
+      console.log('Batch:', batch);
 
-    // Push the new product to the batch's products array
-    batch.products.push(newProduct);
+      if (!batch) {
+          return res.status(404).json({ message: 'Batch not found' });
+      }
 
-    // Save the updated batch
-    await batch.save();
+      // Create a new product
+      const newProduct = new Product({
+          name: productName,
+          price,
+          brand,
+          category,
+          details,
+          imageUrl: req.file ? req.file.filename : null // Save the filename if a file is uploaded
+      });
 
-    res.status(200).json(batch); // Respond with the updated batch
+      // Save the product to the Product collection
+      const savedProduct = await newProduct.save();
+
+      // Add the saved product's ID to the batch's products array
+      batch.products.push(savedProduct._id);
+
+      // Save the updated batch
+      await batch.save();
+
+      res.status(200).json({ message: 'Product added to batch', batch });
   } catch (error) {
-    console.error('Error adding product:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+      console.error('Error:', error);
+      res.status(500).json({ message: 'Server error' });
   }
 });
+
 
 
 // Get batches and their products for the authenticated user

@@ -7,9 +7,9 @@ import { useNavigate } from 'react-router-dom';
 export default function ProductJastip() {
     const navigate = useNavigate();
     const [storeName, setStoreName] = useState('');
-    const [batches, setBatches] = useState([]); // State to store all batches
-    const [selectedBatch, setSelectedBatch] = useState(null); // State for the selected batch
-    const [products, setProducts] = useState([]); // State to store products for the selected batch
+    const [batches, setBatches] = useState([]);
+    const [selectedBatch, setSelectedBatch] = useState(null);
+    const [products, setProducts] = useState([]);
 
     const fetchStoreData = async () => {
         try {
@@ -31,10 +31,10 @@ export default function ProductJastip() {
                     Authorization: `Bearer ${localStorage.getItem('token')}`
                 }
             });
-            setBatches(response.data); // Save the batches and products to state
+            setBatches(response.data);
             if (response.data.length > 0) {
-                setSelectedBatch(response.data[0]); // Set the first batch as the default selection
-                fetchProducts(response.data[0]._id); // Fetch products for the default batch
+                setSelectedBatch(response.data[0]);
+                fetchProducts(response.data[0]._id);
             }
         } catch (error) {
             console.error('Error fetching batches:', error);
@@ -48,29 +48,28 @@ export default function ProductJastip() {
                     Authorization: `Bearer ${localStorage.getItem('token')}`
                 }
             });
-            setProducts(response.data); // Save the products for the selected batch
+            setProducts(response.data);
         } catch (error) {
             console.error('Error fetching products for batch:', error);
         }
     };
 
-    // Handle batch switch
     const handleBatchSwitch = (batch) => {
-        setSelectedBatch(batch); // Set the clicked batch as selected
-        fetchProducts(batch._id); // Fetch products for the selected batch
+        setSelectedBatch(batch);
+        fetchProducts(batch._id);
     };
 
     useEffect(() => {
         fetchStoreData();
-        fetchBatches(); // Fetch all batches when component loads
+        fetchBatches();
     }, []);
 
     const handleAddBatch = () => {
-        navigate('/addbatch'); 
+        navigate('/addbatch');
     };
 
     const handleAddProduct = () => {
-        navigate('/addproduct'); 
+        navigate('/addproduct', { state: { batchId: selectedBatch ? selectedBatch._id : null } });
     };
 
     return (
@@ -86,7 +85,6 @@ export default function ProductJastip() {
                         <span className="plus-icon1">+</span>
                         <p className="add-product-text">Add your product</p>
                     </div>
-                    {/* Display product images for the selected batch */}
                     <div className="products-grid">
                         {products.length > 0 ? (
                             products.map(product => (
@@ -104,7 +102,6 @@ export default function ProductJastip() {
                     <div className="batch-box" onClick={handleAddBatch}>
                         <span className="plus-icon">+</span>
                     </div>
-                    {/* Display batches */}
                     {batches.map(batch => (
                         <div 
                             key={batch._id} 
