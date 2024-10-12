@@ -631,45 +631,23 @@ app.post('/batch/add-product', authenticateToken,  upload.single('imageUrl'), as
 });
 
 
-
-// Get batches and their products for the authenticated user
+// Get all products in a batch
 app.get('/batches/products', authenticateToken, async (req, res) => {
   try {
-    // Fetch batches created by the user, including products in each batch
-    const batches = await Batch.find({ createdBy: req.user.userId });
+      // Fetch batches created by the user, including populated products
+      const batches = await Batch.find({ createdBy: req.user.userId }).populate('products');
 
-    // Check if batches are found
-    if (!batches || batches.length === 0) {
-      return res.status(404).json({ message: 'No batches found for this user' });
-    }
+      // Check if batches are found
+      if (!batches || batches.length === 0) {
+          return res.status(404).json({ message: 'No batches found for this user' });
+      }
 
-    res.status(200).json(batches); // Return batches with products
+      res.status(200).json(batches); // Return batches with populated products
   } catch (error) {
-    console.error('Error fetching batches and products:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+      console.error('Error fetching batches and products:', error);
+      res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
-
-
-// Get products for a specific batch
-app.get('/batches/:batchId/products', authenticateToken, async (req, res) => {
-  const { batchId } = req.params;
-  
-  try {
-    // Fetch the batch by ID and include the products
-    const batch = await Batch.findById(batchId);
-    
-    if (!batch) {
-      return res.status(404).json({ message: 'Batch not found' });
-    }
-
-    res.status(200).json(batch.products); // Return only products
-  } catch (error) {
-    console.error('Error fetching products for batch:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
-});
-
 
 
 // Basic route for testing

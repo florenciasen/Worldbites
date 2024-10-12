@@ -5,10 +5,13 @@ import Navbar from '../../components/Navbar/Navbar';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 export default function AddProduct() {
     const location = useLocation();
     const { batchId } = location.state || {};
+
+    const navigate = useNavigate();
 
     const [selectedFile, setSelectedFile] = useState(null);
     const [productName, setProductName] = useState('');
@@ -64,6 +67,7 @@ export default function AddProduct() {
                 setPrice('');
                 setSelectedFile(null); // Clear the selected file
                 setBatchId(batchId || ''); // Reset batch ID if needed
+                navigate('/productjastip');
             }
         } catch (error) {
             console.error('Error adding product:', error);

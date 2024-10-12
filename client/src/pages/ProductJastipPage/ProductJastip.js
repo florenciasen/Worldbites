@@ -42,15 +42,27 @@ export default function ProductJastip() {
     };
 
     const fetchProducts = async (batchId) => {
+        if (batchId) {
+            const batch = batches.find(b => b._id === batchId);
+            setProducts(batch ? batch.products : []);
+        } else {
+            // Fetch all products if no batch is selected
+            fetchAllProducts();
+        }
+    };
+
+    const fetchAllProducts = async () => {
         try {
-            const response = await axios.get(`http://localhost:3011/batches/${batchId}/products`, {
+            const response = await axios.get('http://localhost:3011/batches/products', {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`
                 }
             });
-            setProducts(response.data);
+            // Flatten the products array from all batches created by the user
+            const allProducts = response.data.reduce((acc, batch) => acc.concat(batch.products), []);
+            setProducts(allProducts);
         } catch (error) {
-            console.error('Error fetching products for batch:', error);
+            console.error('Error fetching all products:', error);
         }
     };
 
@@ -63,6 +75,11 @@ export default function ProductJastip() {
         fetchStoreData();
         fetchBatches();
     }, []);
+
+    useEffect(() => {
+        // Fetch products when batch selection changes
+        fetchProducts(selectedBatch ? selectedBatch._id : null);
+    }, [selectedBatch]);
 
     const handleAddBatch = () => {
         navigate('/addbatch');
@@ -81,19 +98,19 @@ export default function ProductJastip() {
             <div className="content-wrapper">
                 <div className="left-container">
                     <h2>Product</h2>
-                    <div className="product-box" onClick={handleAddProduct}>
-                        <span className="plus-icon1">+</span>
-                        <p className="add-product-text">Add your product</p>
-                    </div>
-                    <div className="products-grid">
+                    <div className='product-grid'>
+                        <div className="product-box" onClick={handleAddProduct}>
+                            <span className="plus-icon1">+</span>
+                            <p className="add-product-text">Add your product</p>
+                        </div>
                         {products.length > 0 ? (
                             products.map(product => (
-                                <div key={product._id} className="product-item">
-                                    <img src={product.imageUrl} alt={product.name} className="product-image" />
+                                <div key={product._id} className="product-box">
+                                    <img src={`http://localhost:3011/uploads/${product.imageUrl}`} alt={product.name} className="product-image" />
                                 </div>
                             ))
                         ) : (
-                            console.log('No products found.')
+                            <p>No products found.</p>
                         )}
                     </div>
                 </div>
