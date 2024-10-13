@@ -16,6 +16,7 @@ import HomepageJastip from './pages/HomepageJastipPage/HomepageJastip';
 import ProductJastip from './pages/ProductJastipPage/ProductJastip';
 import AddBatch from './pages/AddBatchPage/AddBatch';
 import AddProduct from './pages/AddProductPage/AddProduct';
+import ProductDescription from './pages/ProductDescriptionPage/ProductDescription';
 
 
 
@@ -38,6 +39,7 @@ function App() {
         <Route path="/productjastip" element= {<ProductJastip/>} />
         <Route path="/addbatch" element={<AddBatch />} />
         <Route path="/addproduct" element={<AddProduct />} />
+        <Route path="/productdescription" element={<ProductDescription />} />
       </Routes>
     </Router>
   );
