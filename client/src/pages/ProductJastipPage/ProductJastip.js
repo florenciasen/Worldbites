@@ -32,10 +32,7 @@ export default function ProductJastip() {
                 }
             });
             setBatches(response.data);
-            if (response.data.length > 0) {
-                setSelectedBatch(response.data[0]);
-                fetchProducts(response.data[0]._id);
-            }
+            
         } catch (error) {
             console.error('Error fetching batches:', error);
         }
@@ -67,10 +64,17 @@ export default function ProductJastip() {
     };
 
     const handleBatchSwitch = (batch) => {
-        setSelectedBatch(batch);
-        fetchProducts(batch._id);
+        if (selectedBatch && selectedBatch._id === batch._id) {
+            // Jika batch yang diklik adalah batch yang sudah dipilih, maka unselect
+            setSelectedBatch(null);
+            setProducts([]); // Mengosongkan produk saat batch di-unselect
+        } else {
+            // Jika batch yang diklik berbeda, maka pilih batch baru
+            setSelectedBatch(batch);
+            fetchProducts(batch._id);
+        }
     };
-
+    
     useEffect(() => {
         fetchStoreData();
         fetchBatches();
@@ -120,14 +124,15 @@ export default function ProductJastip() {
                         <span className="plus-icon">+</span>
                     </div>
                     {batches.map(batch => (
-                        <div 
-                            key={batch._id} 
-                            className={`batch-info-box ${selectedBatch && selectedBatch._id === batch._id ? 'active' : ''}`}
-                            onClick={() => handleBatchSwitch(batch)}
-                        >
-                            <p>{new Date(batch.startDate).toLocaleDateString()} - {new Date(batch.endDate).toLocaleDateString()}</p>
-                        </div>
-                    ))}
+    <div 
+        key={batch._id} 
+        className={`batch-info-box ${selectedBatch && selectedBatch._id === batch._id ? 'active' : ''}`}
+        onClick={() => handleBatchSwitch(batch)}
+    >
+        <p>{new Date(batch.startDate).toLocaleDateString()} - {new Date(batch.endDate).toLocaleDateString()}</p>
+    </div>
+))}
+
                 </div>
             </div>
         </div>
