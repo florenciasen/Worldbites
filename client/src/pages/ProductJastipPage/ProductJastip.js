@@ -3,6 +3,8 @@ import axios from 'axios';
 import './ProductJastip.css';
 import Navbar from '../../components/Navbar/Navbar';
 import { useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; // Import the styles
 
 export default function ProductJastip() {
     const navigate = useNavigate();
@@ -109,14 +111,12 @@ export default function ProductJastip() {
                                 <p className="add-product-text">Add your product</p>
                             </div>
                         )}
-                        {products.length > 0 ? (
+                        {products.length > 0 && (
                             products.map(product => (
                                 <div key={product._id} className="product-box">
                                     <img src={`http://localhost:3011/uploads/${product.imageUrl}`} alt={product.name} className="product-image" />
                                 </div>
                             ))
-                        ) : (
-                            console.log('No products found')
                         )}
                     </div>
 
@@ -138,6 +138,18 @@ export default function ProductJastip() {
 
                 </div>
             </div>
+            <ToastContainer 
+                position="top-center"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="colored"
+            />
         </div>
     );
 }
