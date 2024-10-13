@@ -84,7 +84,7 @@ p {
 }
 
 .product-box:hover {
-    background-color: #b8b0a1; /* Warna saat hover */
+    background-color: #d8b7cd; /* Warna saat hover */
 }
 
 
@@ -121,12 +121,12 @@ p {
  
 
   .batch-info-box.active {
-    background-color: #b8b0a1; /* Ganti dengan warna yang diinginkan */
+    background-color: #EFD5E6; /* Ganti dengan warna yang diinginkan */
     color: white; /* Opsional, menyesuaikan warna teks */
 }
   
   .batch-box:hover {
-    background-color: #b8b0a1;
+    background-color: #d8b7cd;
   }
   
   .plus-icon {
@@ -157,7 +157,7 @@ p {
 }
 
 .batch-info-box:hover {
-    background-color: #b8b0a1;
+    background-color: #d8b7cd;
 }
 
 .batch-info-box p {
