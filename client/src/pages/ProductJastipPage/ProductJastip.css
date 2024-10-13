@@ -87,10 +87,6 @@ p {
     background-color: #b8b0a1; /* Warna saat hover */
 }
 
-.batch-info-box.active {
-    background-color: #b8b0a1; /* Ganti dengan warna yang diinginkan */
-    color: white; /* Opsional, menyesuaikan warna teks */
-}
 
 
 .plus-icon1 {
@@ -110,8 +106,8 @@ p {
 
 
 .batch-box {
-    width: 95%;
-    height: 17%;
+    width: 93.5%;
+    height: 13.5%;
     border: 1px solid #FF0000;
     border-radius: 10px;
     display: flex;
@@ -121,6 +117,13 @@ p {
     transition: background-color 0.3s ease;
     margin-left: 0.625rem;
   }
+
+ 
+
+  .batch-info-box.active {
+    background-color: #b8b0a1; /* Ganti dengan warna yang diinginkan */
+    color: white; /* Opsional, menyesuaikan warna teks */
+}
   
   .batch-box:hover {
     background-color: #b8b0a1;
@@ -139,11 +142,10 @@ p {
 
   .batch-info-box {
     cursor: pointer;
-    width: 90%;
-    height: 40px;
+    width: 93.5%;
+    height: 13.5%;
     border: 1px solid #FF0000;
     border-radius: 10px;
-    padding: 10px;
     margin-top: 20px;
     margin-left: 0.625rem;
     background-color: #f0f0f0;

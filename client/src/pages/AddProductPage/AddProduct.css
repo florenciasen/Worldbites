@@ -62,8 +62,8 @@ body {
 
 
 .add-photo-box {
-    width: 80%; /* Lebar kotak untuk menambahkan foto */
-    height:45%; /* Tinggi kotak */
+    width: 65%; /* Lebar kotak untuk menambahkan foto */
+    height: 45%; /* Tinggi kotak */
     border: 1px dashed #B4835B; /* Garis putus-putus */
     border-radius: 0.625rem; /* Sudut melengkung */
     display: flex;
@@ -71,6 +71,7 @@ body {
     justify-content: center; /* Menyelaraskan konten secara vertikal */
     align-items: center; /* Menyelaraskan konten secara horizontal */
     cursor: pointer; /* Menunjukkan bahwa ini bisa diklik */
+    margin-left: 2.5rem;
 }
 
 .plus-icon {
@@ -79,7 +80,7 @@ body {
 }
 
 .form-fields {
-    width: 65%; /* Lebar penuh */
+    width: 70%; /* Lebar penuh */
 }
 
 

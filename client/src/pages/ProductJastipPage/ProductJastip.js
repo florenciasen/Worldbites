@@ -32,7 +32,7 @@ export default function ProductJastip() {
                 }
             });
             setBatches(response.data);
-            
+
         } catch (error) {
             console.error('Error fetching batches:', error);
         }
@@ -74,7 +74,7 @@ export default function ProductJastip() {
             fetchProducts(batch._id);
         }
     };
-    
+
     useEffect(() => {
         fetchStoreData();
         fetchBatches();
@@ -103,10 +103,12 @@ export default function ProductJastip() {
                 <div className="left-container">
                     <h2>Product</h2>
                     <div className='product-grid'>
-                        <div className="product-box" onClick={handleAddProduct}>
-                            <span className="plus-icon1">+</span>
-                            <p className="add-product-text">Add your product</p>
-                        </div>
+                        {selectedBatch && (
+                            <div className="product-box" onClick={handleAddProduct}>
+                                <span className="plus-icon1">+</span>
+                                <p className="add-product-text">Add your product</p>
+                            </div>
+                        )}
                         {products.length > 0 ? (
                             products.map(product => (
                                 <div key={product._id} className="product-box">
@@ -117,6 +119,7 @@ export default function ProductJastip() {
                             console.log('No products found')
                         )}
                     </div>
+
                 </div>
                 <div className="right-container">
                     <h2>Batch</h2>
@@ -124,14 +127,14 @@ export default function ProductJastip() {
                         <span className="plus-icon">+</span>
                     </div>
                     {batches.map(batch => (
-    <div 
-        key={batch._id} 
-        className={`batch-info-box ${selectedBatch && selectedBatch._id === batch._id ? 'active' : ''}`}
-        onClick={() => handleBatchSwitch(batch)}
-    >
-        <p>{new Date(batch.startDate).toLocaleDateString()} - {new Date(batch.endDate).toLocaleDateString()}</p>
-    </div>
-))}
+                        <div
+                            key={batch._id}
+                            className={`batch-info-box ${selectedBatch && selectedBatch._id === batch._id ? 'active' : ''}`}
+                            onClick={() => handleBatchSwitch(batch)}
+                        >
+                            <p>{new Date(batch.startDate).toLocaleDateString()} - {new Date(batch.endDate).toLocaleDateString()}</p>
+                        </div>
+                    ))}
 
                 </div>
             </div>
