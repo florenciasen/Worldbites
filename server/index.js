@@ -667,6 +667,45 @@ app.get('/getproductdescription/:id', authenticateToken, async (req, res) => {
   }
 });
 
+app.delete('/deleteproductdescription/:id', authenticateToken, async (req, res) => {
+  try {
+      const { id } = req.params; // Get the product ID from the URL
+
+      // Find the product by ID and remove it
+      const product = await Product.findByIdAndDelete(id);
+
+      if (!product) {
+          return res.status(404).json({ message: 'Product not found' });
+      }
+
+      res.status(200).json({ message: 'Product deleted successfully' });
+  } catch (error) {
+      console.error('Error deleting product:', error);
+      res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.put('/updateproductdescription/:id', authenticateToken, upload.single('productimage'), async (req, res) => {
+  const { name, price, brand, category, details } = req.body;
+  const imageUrl = req.file ? req.file.filename : undefined; // Get filename from multer
+
+  try {
+      const updatedProduct = await Product.findByIdAndUpdate(req.params.id, {
+          name,
+          price,
+          brand,
+          category,
+          details,
+          ...(imageUrl && { imageUrl }) // Only update imageUrl if a new image is uploaded
+      }, { new: true });
+
+      if (!updatedProduct) return res.status(404).send('Product not found');
+      res.status(200).json(updatedProduct);
+  } catch (error) {
+      console.error('Error updating product:', error);
+      res.status(500).send('Server error');
+  }
+});
 
 
 // Basic route for testing
