@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom'; // Import useNavigate for redirecting
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './ProductDescription.css';
 import Navbar from '../../components/Navbar/Navbar';
 import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css'; // Import the styles
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function ProductDescription() {
-    const { id } = useParams(); // Get the product ID from the URL
-    const [product, setProduct] = useState(null); // State to store product details
-    const [formData, setFormData] = useState({}); // State for form data
-    const [image, setImage] = useState(null); // State for the selected image
-    const navigate = useNavigate(); // Use navigate for redirection
+    const { id } = useParams();
+    const [product, setProduct] = useState(null);
+    const [formData, setFormData] = useState({});
+    const [image, setImage] = useState(null);
+    const [imagePreview, setImagePreview] = useState(null); // State for image preview
+    const navigate = useNavigate();
 
-    // Function to fetch product details
     const fetchProductDetails = async () => {
         try {
             const response = await axios.get(`http://localhost:3011/getproductdescription/${id}`, {
@@ -22,7 +22,8 @@ export default function ProductDescription() {
                 },
             });
             setProduct(response.data);
-            setFormData(response.data); // Initialize formData with fetched product data
+            setFormData(response.data);
+            setImagePreview(`http://localhost:3011/uploads/${response.data.imageUrl}`); // Set initial image preview
         } catch (error) {
             console.error('Error fetching product details:', error);
         }
@@ -30,11 +31,10 @@ export default function ProductDescription() {
 
     useEffect(() => {
         if (id) {
-            fetchProductDetails(); // Fetch product details when component mounts
+            fetchProductDetails();
         }
     }, [id]);
 
-    // Handle input changes
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prevData) => ({
@@ -43,12 +43,18 @@ export default function ProductDescription() {
         }));
     };
 
-    // Handle image change
     const handleImageChange = (e) => {
-        setImage(e.target.files[0]); // Store the selected file
+        const file = e.target.files[0];
+        if (file) {
+            setImage(file); // Store the selected file
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreview(reader.result); // Set image preview
+            };
+            reader.readAsDataURL(file);
+        }
     };
 
-    // Handle save product
     const handleSave = async () => {
         const formDataToSend = new FormData();
         formDataToSend.append('name', formData.name);
@@ -57,25 +63,24 @@ export default function ProductDescription() {
         formDataToSend.append('category', formData.category);
         formDataToSend.append('details', formData.details);
         if (image) {
-            formDataToSend.append('productimage', image); // Append the image file
+            formDataToSend.append('productimage', image);
         }
 
         try {
             const response = await axios.put(`http://localhost:3011/updateproductdescription/${id}`, formDataToSend, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`,
-                    'Content-Type': 'multipart/form-data' // Specify the content type
+                    'Content-Type': 'multipart/form-data'
                 },
             });
             console.log('Product updated:', response.data);
             toast.success('Product updated successfully!');
-            navigate('/productjastip'); // Redirect after updating product
+            navigate('/productjastip');
         } catch (error) {
             console.error('Error updating product:', error);
         }
     };
 
-    // Handle delete product
     const handleDelete = async () => {
         if (window.confirm('Are you sure you want to delete this product?')) {
             try {
@@ -85,7 +90,7 @@ export default function ProductDescription() {
                     },
                 });
                 toast.success('Product deleted successfully!');
-                navigate('/productjastip'); // Redirect after deletion
+                navigate('/productjastip');
             } catch (error) {
                 console.error('Error deleting product:', error);
             }
@@ -100,41 +105,80 @@ export default function ProductDescription() {
                 <div className="form-container">
                     <div className="left-section">
                         <div className="add-photo">
-                            {product && <img src={`http://localhost:3011/uploads/${product.imageUrl}`} alt={product.name} />}
+                            <img 
+                                src={imagePreview || `http://localhost:3011/uploads/${product?.imageUrl}`} 
+                                alt={product?.name} 
+                            />
                         </div>
                         <input 
                             type="file" 
-                            className="edit-photo-btn" 
+                            id="file-input" 
+                            style={{ display: 'none' }} // Hide the file input
                             onChange={handleImageChange} 
-                            accept="image/*" 
                         />
+                        <button 
+                            className="edit-photo-btn" 
+                            onClick={() => document.getElementById('file-input').click()}
+                        >
+                            Edit Photo
+                        </button>
                     </div>
                     <div className="right-section">
                         <div className="form-group">
                             <label htmlFor="productName">Product Name:</label>
-                            <input type="text" id="productName" name="name" value={formData.name || ''} onChange={handleChange} />
+                            <input 
+                                type="text" 
+                                id="productName" 
+                                name="name" 
+                                value={formData.name || ''} 
+                                onChange={handleChange} 
+                            />
                         </div>
                         <div className="form-group">
                             <label htmlFor="brand">Brand:</label>
-                            <input type="text" id="brand" name="brand" value={formData.brand || ''} onChange={handleChange} />
+                            <input 
+                                type="text" 
+                                id="brand" 
+                                name="brand" 
+                                value={formData.brand || ''} 
+                                onChange={handleChange} 
+                            />
                         </div>
                         <div className="form-group">
                             <label htmlFor="category">Category:</label>
-                            <input type="text" id="category" name="category" value={formData.category || ''} onChange={handleChange} />
+                            <input 
+                                type="text" 
+                                id="category" 
+                                name="category" 
+                                value={formData.category || ''} 
+                                onChange={handleChange} 
+                            />
                         </div>
                         <div className="form-group">
                             <label htmlFor="details">Details:</label>
-                            <textarea id="details" name="details" value={formData.details || ''} onChange={handleChange}></textarea>
+                            <textarea 
+                                id="details" 
+                                name="details" 
+                                value={formData.details || ''} 
+                                onChange={handleChange}
+                            ></textarea>
                         </div>
                         <div className="form-group">
                             <label htmlFor="price">Price:</label>
-                            <input type="text" id="price" name="price" value={formData.price || ''} onChange={handleChange} placeholder="IDR" />
+                            <input 
+                                type="text" 
+                                id="price" 
+                                name="price" 
+                                value={formData.price || ''} 
+                                onChange={handleChange} 
+                                placeholder="IDR" 
+                            />
                         </div>
                     </div>
                 </div>
-                <div className="button-group"> {/* Grouping the buttons */}
+                <div className="button-group">
                     <button type="button" className="save-btn1" onClick={handleSave}>Save</button>
-                    <button type="button" className="delete-btn" onClick={handleDelete}>Delete</button> {/* Add button Delete */}
+                    <button type="button" className="delete-btn" onClick={handleDelete}>Delete</button>
                 </div>
             </div>
             <ToastContainer
