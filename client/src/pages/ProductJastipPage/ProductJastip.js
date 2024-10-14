@@ -95,6 +95,11 @@ export default function ProductJastip() {
         navigate('/addproduct', { state: { batchId: selectedBatch ? selectedBatch._id : null } });
     };
 
+
+    const handleProductDescription = (productId) => {
+        navigate(`/productdescription/${productId}`);
+    }
+
     return (
         <div className='container-productjastip'>
             <Navbar />
@@ -113,7 +118,7 @@ export default function ProductJastip() {
                         )}
                         {products.length > 0 && (
                             products.map(product => (
-                                <div key={product._id} className="product-box">
+                                <div key={product._id} className="product-box" onClick={() => handleProductDescription(product._id)} >
                                     <img src={`http://localhost:3011/uploads/${product.imageUrl}`} alt={product.name} className="product-image" />
                                 </div>
                             ))

@@ -136,3 +136,8 @@ textarea {
 .save-btn1:hover, .delete-btn:hover {
     background-color: #c08a57;
 }
+
+.add-photo img {
+    width: 100%;
+    height: 100%;
+}

@@ -111,12 +111,12 @@ const authenticateToken = (req, res, next) => {
     return res.status(401).json({ message: 'Token required' });
   }
 
-  try{
+  try {
     const decoded = jwt.verify(token, JWT_SECRET);
     req.user = decoded;
 
     console.log('Decoded token:', decoded);
-    
+
     next();
   } catch (error) {
     console.error('Error verifying token:', error);
@@ -160,7 +160,7 @@ app.post('/login', async (req, res) => {
 // Logout endpoint for invalidating token
 app.post('/logout', authenticateToken, (req, res) => {
 
-  
+
 
   if (req.user) {
     res.status(200).json({ message: 'Logout successful' });
@@ -519,40 +519,40 @@ app.post('/joinjastip', authenticateToken, async (req, res) => {
 
 app.get('/joinjastip/me', authenticateToken, async (req, res) => {
   try {
-      // Ambil ID pengguna dari token
-      const user = await User.findById(req.user.userId); // Find user by ID from the token
+    // Ambil ID pengguna dari token
+    const user = await User.findById(req.user.userId); // Find user by ID from the token
 
-      // Check if the user was found
-      if (!user) {
-          return res.status(404).json({ message: 'User not found' }); // Return 404 if user is not found
-      }
+    // Check if the user was found
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' }); // Return 404 if user is not found
+    }
 
-      res.status(200).json({
-        storeName: user.storeName // Return the storeName from the user object
-      }); // Send the storeName to the frontend
+    res.status(200).json({
+      storeName: user.storeName // Return the storeName from the user object
+    }); // Send the storeName to the frontend
   } catch (error) {
-      console.error('Error fetching user data:', error);
-      res.status(500).json({ message: 'Server error' });
+    console.error('Error fetching user data:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
 
 app.get('/sellerinfo', authenticateToken, async (req, res) => {
   try {
-    
-      const user = await User.findById(req.user.userId);
 
-      if (user) {
-          res.json({
-              identityCard: user.identityCard,
-              storeName: user.storeName,
-              storeDescription: user.storeDescription
-          });
-      } else {
-          res.status(404).json({ message: 'User not found' });
-      }
+    const user = await User.findById(req.user.userId);
+
+    if (user) {
+      res.json({
+        identityCard: user.identityCard,
+        storeName: user.storeName,
+        storeDescription: user.storeDescription
+      });
+    } else {
+      res.status(404).json({ message: 'User not found' });
+    }
   } catch (error) {
-      res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
@@ -561,72 +561,72 @@ app.post('/batch', authenticateToken, async (req, res) => {
   const { batchName, startDate, endDate } = req.body;
 
   if (!batchName || !startDate || !endDate) {
-      return res.status(400).json({ message: 'Please fill in all the fields' });
+    return res.status(400).json({ message: 'Please fill in all the fields' });
   }
 
   if (new Date(startDate) >= new Date(endDate)) {
     return res.status(400).json({ message: 'Start date must be before end date' });
   }
-  
+
 
   try {
-      const newBatch = new Batch({
-          name: batchName,
-          startDate,
-          endDate,
-          createdBy: req.user.userId, // Use userId from authenticated token
-          products: [] // Initialize products array
-      });
+    const newBatch = new Batch({
+      name: batchName,
+      startDate,
+      endDate,
+      createdBy: req.user.userId, // Use userId from authenticated token
+      products: [] // Initialize products array
+    });
 
-      await newBatch.save();
-      res.status(201).json(newBatch);
+    await newBatch.save();
+    res.status(201).json(newBatch);
   } catch (error) {
-      console.error('Error saving batch:', error);
-      // Send a more specific error message if available
-      res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('Error saving batch:', error);
+    // Send a more specific error message if available
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
 
 // Add product to batch endpoint
-app.post('/batch/add-product', authenticateToken,  upload.single('imageUrl'), async (req, res) => {
+app.post('/batch/add-product', authenticateToken, upload.single('imageUrl'), async (req, res) => {
   try {
-      
-      const { productName, price, brand, category, details, batchId } = req.body;
 
-     // Find the batch by ID
-     const batch = await Batch.findById(batchId);
+    const { productName, price, brand, category, details, batchId } = req.body;
+
+    // Find the batch by ID
+    const batch = await Batch.findById(batchId);
 
 
-      console.log('Batch:', batch);
+    console.log('Batch:', batch);
 
-      if (!batch) {
-          return res.status(404).json({ message: 'Batch not found' });
-      }
+    if (!batch) {
+      return res.status(404).json({ message: 'Batch not found' });
+    }
 
-      // Create a new product
-      const newProduct = new Product({
-          name: productName,
-          price,
-          brand,
-          category,
-          details,
-          imageUrl: req.file ? req.file.filename : null // Save the filename if a file is uploaded
-      });
+    // Create a new product
+    const newProduct = new Product({
+      name: productName,
+      price,
+      brand,
+      category,
+      details,
+      imageUrl: req.file ? req.file.filename : null // Save the filename if a file is uploaded
+    });
 
-      // Save the product to the Product collection
-      const savedProduct = await newProduct.save();
+    // Save the product to the Product collection
+    const savedProduct = await newProduct.save();
 
-      // Add the saved product's ID to the batch's products array
-      batch.products.push(savedProduct._id);
+    // Add the saved product's ID to the batch's products array
+    batch.products.push(savedProduct._id);
 
-      // Save the updated batch
-      await batch.save();
+    // Save the updated batch
+    await batch.save();
 
-      res.status(200).json({ message: 'Product added to batch', batch });
+    res.status(200).json({ message: 'Product added to batch', batch });
   } catch (error) {
-      console.error('Error:', error);
-      res.status(500).json({ message: 'Server error' });
+    console.error('Error:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
@@ -634,20 +634,39 @@ app.post('/batch/add-product', authenticateToken,  upload.single('imageUrl'), as
 // Get all products in a batch
 app.get('/batches/products', authenticateToken, async (req, res) => {
   try {
-      // Fetch batches created by the user, including populated products
-      const batches = await Batch.find({ createdBy: req.user.userId }).populate('products');
+    // Fetch batches created by the user, including populated products
+    const batches = await Batch.find({ createdBy: req.user.userId }).populate('products');
 
-      // Check if batches are found
-      if (!batches || batches.length === 0) {
-          return res.status(404).json({ message: 'No batches found for this user' });
-      }
+    // Check if batches are found
+    if (!batches || batches.length === 0) {
+      return res.status(404).json({ message: 'No batches found for this user' });
+    }
 
-      res.status(200).json(batches); // Return batches with populated products
+    res.status(200).json(batches); // Return batches with populated products
   } catch (error) {
-      console.error('Error fetching batches and products:', error);
-      res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('Error fetching batches and products:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
+
+app.get('/getproductdescription/:id', authenticateToken, async (req, res) => {
+  try {
+      const { id } = req.params; // Get the product ID from the URL
+
+      // Find the product by ID
+      const product = await Product.findById(id);
+
+      if (!product) {
+          return res.status(404).json({ message: 'Product not found' });
+      }
+
+      res.status(200).json(product);
+  } catch (error) {
+      console.error('Error fetching product:', error);
+      res.status(500).json({ message: 'Server error' });
+  }
+});
+
 
 
 // Basic route for testing

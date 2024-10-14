@@ -39,7 +39,7 @@ function App() {
         <Route path="/productjastip" element= {<ProductJastip/>} />
         <Route path="/addbatch" element={<AddBatch />} />
         <Route path="/addproduct" element={<AddProduct />} />
-        <Route path="/productdescription" element={<ProductDescription />} />
+        <Route path="/productdescription/:id" element={<ProductDescription />} />
       </Routes>
     </Router>
   );
