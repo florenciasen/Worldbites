@@ -99,6 +99,7 @@ export default function ProductJastip() {
     const handleProductDescription = (productId) => {
         navigate(`/productdescription/${productId}`);
     }
+    
 
     return (
         <div className='container-productjastip'>

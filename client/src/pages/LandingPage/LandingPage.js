@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './LandingPage.css';
 import Navbar from '../../components/Navbar/Navbar';
 import Slider from 'react-slick';
@@ -9,8 +10,28 @@ import Carousel2 from '../../assets/Carousel2.svg';
 import Carousel3 from '../../assets/Carousel3.svg';
 import Carousel4 from '../../assets/Carousel4.svg';
 
+export default function LandingPage() {
+    const [products, setProducts] = useState([]);
 
-export default function LandingPage (){
+    const fetchAllProducts = async () => {
+        try {
+            const response = await axios.get('http://localhost:3011/batches/products', {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            // Flatten the products array from all batches created by the user
+            const allProducts = response.data.reduce((acc, batch) => acc.concat(batch.products), []);
+            setProducts(allProducts);
+        } catch (error) {
+            console.error('Error fetching all products:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchAllProducts();
+    }, []);
+
     const settings = {
         dots: true,
         infinite: true,
@@ -21,21 +42,26 @@ export default function LandingPage (){
         autoplaySpeed: 3000,
     };
 
+    const handleProductDescription = (productId) => {
+        // Handle product click, for example navigate to the product detail page
+        console.log('Product clicked:', productId);
+    };
+
+    const displayedProducts = products.slice(0, 7);
 
     return (
-
         <div className='container'>
-             <Navbar />
-             <div className='search-container'>
-             <button className="filter-button">Filter</button>
+            <Navbar />
+            <div className='search-container'>
+                <button className="filter-button">Filter</button>
                 <div className="searchbar">
                     <input type="text" className="search__input" placeholder="Search..." />
                 </div>
             </div>
 
-             {/* Carousel */}
-             <div className="carousel-container">
-             <Slider {...settings}>
+            {/* Carousel */}
+            <div className="carousel-container">
+                <Slider {...settings}>
                     <div className="carousel-slide">
                         <img src={Carousel1} alt="Slide 1" />
                     </div>
@@ -51,12 +77,26 @@ export default function LandingPage (){
                 </Slider>
             </div>
 
-
-
-
-
-            
+            {/* Product Cards */}
+            <div className='product-container'>
+            {displayedProducts.length > 0 ? (
+                    displayedProducts.map(product => (
+                        <div key={product._id} className="product-box1" onClick={() => handleProductDescription(product._id)}>
+                            <img 
+                                src={`http://localhost:3011/uploads/${product.imageUrl}`} 
+                                alt={product.name} 
+                                className="product-image1" 
+                            />
+                            <div className="product-info">
+                                <h3 className="product-name">{product.name}</h3>
+                                <p className="product-price">Rp {product.price}</p>
+                            </div>
+                        </div>
+                    ))
+                ) : (
+                    <p>No products available</p>
+                )}
+            </div>
         </div>
-    )
-
+    );
 }

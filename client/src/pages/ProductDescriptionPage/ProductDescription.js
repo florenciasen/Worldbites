@@ -54,6 +54,7 @@ export default function ProductDescription() {
             reader.readAsDataURL(file);
         }
     };
+    
 
     const handleSave = async () => {
 
