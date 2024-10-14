@@ -56,6 +56,24 @@ export default function ProductDescription() {
     };
 
     const handleSave = async () => {
+
+        const hasChanges =
+            formData.name !== product.name ||
+            formData.price !== product.price ||
+            formData.brand !== product.brand ||
+            formData.category !== product.category ||
+            formData.details !== product.details ||
+            (image && image.name !== product.imageUrl);
+
+        if (!hasChanges) {
+            toast.error('No changes applied.');
+            setTimeout(() => {
+                navigate('/productjastip');
+            }, 1000);
+            return;
+        }
+
+
         const formDataToSend = new FormData();
         formDataToSend.append('name', formData.name);
         formDataToSend.append('price', formData.price);
@@ -75,7 +93,9 @@ export default function ProductDescription() {
             });
             console.log('Product updated:', response.data);
             toast.success('Product updated successfully!');
-            navigate('/productjastip');
+            setTimeout(() => {
+                navigate('/productjastip');
+            }, 1000);
         } catch (error) {
             console.error('Error updating product:', error);
         }
@@ -90,9 +110,11 @@ export default function ProductDescription() {
                     },
                 });
                 toast.success('Product deleted successfully!');
-                navigate('/productjastip');
+                setTimeout(() => {
+                    navigate('/productjastip');
+                }, 1000);
             } catch (error) {
-                console.error('Error deleting product:', error);
+                    toast.error('Error deleting product. Please try again.');
             }
         }
     };
@@ -105,19 +127,19 @@ export default function ProductDescription() {
                 <div className="form-container">
                     <div className="left-section">
                         <div className="add-photo">
-                            <img 
-                                src={imagePreview || `http://localhost:3011/uploads/${product?.imageUrl}`} 
-                                alt={product?.name} 
+                            <img
+                                src={imagePreview || `http://localhost:3011/uploads/${product?.imageUrl}`}
+                                alt={product?.name}
                             />
                         </div>
-                        <input 
-                            type="file" 
-                            id="file-input" 
+                        <input
+                            type="file"
+                            id="file-input"
                             style={{ display: 'none' }} // Hide the file input
-                            onChange={handleImageChange} 
+                            onChange={handleImageChange}
                         />
-                        <button 
-                            className="edit-photo-btn" 
+                        <button
+                            className="edit-photo-btn"
                             onClick={() => document.getElementById('file-input').click()}
                         >
                             Edit Photo
@@ -126,52 +148,52 @@ export default function ProductDescription() {
                     <div className="right-section">
                         <div className="form-group">
                             <label htmlFor="productName">Product Name:</label>
-                            <input 
-                                type="text" 
-                                id="productName" 
-                                name="name" 
-                                value={formData.name || ''} 
-                                onChange={handleChange} 
+                            <input
+                                type="text"
+                                id="productName"
+                                name="name"
+                                value={formData.name || ''}
+                                onChange={handleChange}
                             />
                         </div>
                         <div className="form-group">
                             <label htmlFor="brand">Brand:</label>
-                            <input 
-                                type="text" 
-                                id="brand" 
-                                name="brand" 
-                                value={formData.brand || ''} 
-                                onChange={handleChange} 
+                            <input
+                                type="text"
+                                id="brand"
+                                name="brand"
+                                value={formData.brand || ''}
+                                onChange={handleChange}
                             />
                         </div>
                         <div className="form-group">
                             <label htmlFor="category">Category:</label>
-                            <input 
-                                type="text" 
-                                id="category" 
-                                name="category" 
-                                value={formData.category || ''} 
-                                onChange={handleChange} 
+                            <input
+                                type="text"
+                                id="category"
+                                name="category"
+                                value={formData.category || ''}
+                                onChange={handleChange}
                             />
                         </div>
                         <div className="form-group">
                             <label htmlFor="details">Details:</label>
-                            <textarea 
-                                id="details" 
-                                name="details" 
-                                value={formData.details || ''} 
+                            <textarea
+                                id="details"
+                                name="details"
+                                value={formData.details || ''}
                                 onChange={handleChange}
                             ></textarea>
                         </div>
                         <div className="form-group">
                             <label htmlFor="price">Price:</label>
-                            <input 
-                                type="text" 
-                                id="price" 
-                                name="price" 
-                                value={formData.price || ''} 
-                                onChange={handleChange} 
-                                placeholder="IDR" 
+                            <input
+                                type="text"
+                                id="price"
+                                name="price"
+                                value={formData.price || ''}
+                                onChange={handleChange}
+                                placeholder="IDR"
                             />
                         </div>
                     </div>
