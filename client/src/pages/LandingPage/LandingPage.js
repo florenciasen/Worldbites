@@ -9,9 +9,12 @@ import Carousel1 from '../../assets/Carousel1.svg';
 import Carousel2 from '../../assets/Carousel2.svg';
 import Carousel3 from '../../assets/Carousel3.svg';
 import Carousel4 from '../../assets/Carousel4.svg';
+import { useNavigate } from 'react-router-dom';
 
 export default function LandingPage() {
     const [products, setProducts] = useState([]);
+
+    const navigate = useNavigate(); // Get the navigate function
 
     const fetchAllProducts = async () => {
         try {
@@ -36,12 +39,13 @@ export default function LandingPage() {
         autoplaySpeed: 3000,
     };
 
-    const handleProductDescription = (productId) => {
-        // Handle product click, for example navigate to the product detail page
-        console.log('Product clicked:', productId);
-    };
 
     const displayedProducts = products.slice(0, 7);
+
+
+    const handleProductDescription = (productId) => {
+        navigate(`/productinfo/${productId}`); // Navigate to ProductInfo page with productId
+    };
 
     return (
         <div className='container'>
@@ -75,7 +79,7 @@ export default function LandingPage() {
             <div className='product-container'>
                 {displayedProducts.length > 0 && (
                     displayedProducts.map(product => (
-                        <div key={product._id} className="product-box1" onClick={() => handleProductDescription(product._id)}>
+                        <div key={product._id} className="product-box1" onClick={() => handleProductDescription(product._id)} >
                             <img 
                                 src={`http://localhost:3011/uploads/${product.imageUrl}`} 
                                 alt={product.name} 

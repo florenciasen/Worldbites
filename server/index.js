@@ -719,6 +719,62 @@ app.get('/getallproducts', async (req, res) => {
 });
 
 
+// Endpoint to get product and associated user/store data
+// Endpoint to get product and associated user/store data
+app.get('/productinfo/:id', async (req, res) => {
+  try {
+    const { id } = req.params; // Get productId from URL params
+
+    // Find the product by ID
+    const product = await Product.findById(id);
+
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    // Find the batch that contains the product
+    const batch = await Batch.findOne({ products: product._id });
+
+    if (!batch) {
+      return res.status(404).json({ message: 'Batch not found' });
+    }
+
+    // Find the user who created the batch (createdBy)
+    const user = await User.findById(batch.createdBy);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Create response data
+    const responseData = {
+      product: {
+        name: product.name,
+        brand: product.brand,
+        category: product.category,
+        price: product.price,
+        details: product.details,
+        imageUrl: product.imageUrl
+      },
+      store: {
+        name: user.storeName,
+        profilePicture: user.profilePicture,
+      },
+      batch: {
+        startDate: batch.startDate,
+        endDate: batch.endDate,
+        createdBy: batch.createdBy
+      }
+    };
+
+    res.status(200).json(responseData);
+  } catch (error) {
+    console.error('Error fetching product info:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
 
 // Basic route for testing
 app.get('/', (req, res) => {
