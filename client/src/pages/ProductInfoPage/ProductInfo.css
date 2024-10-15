@@ -175,3 +175,8 @@ body {
     height: 40px;
     margin-right: 10px;
 }
+
+
+.cart-logo {
+    cursor: pointer;
+}
