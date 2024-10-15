@@ -708,6 +708,18 @@ app.put('/updateproductdescription/:id', authenticateToken, upload.single('produ
 });
 
 
+app.get('/getallproducts', async (req, res) => {
+  try {
+    const products = await Product.find(); // Fetch all products from the collection
+    res.status(200).json(products); // Send the products as a JSON response
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    res.status(500).send('Server error');
+  }
+});
+
+
+
 // Basic route for testing
 app.get('/', (req, res) => {
   res.send('Hello from Node.js backend!');

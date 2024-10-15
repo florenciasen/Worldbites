@@ -15,14 +15,8 @@ export default function LandingPage() {
 
     const fetchAllProducts = async () => {
         try {
-            const response = await axios.get('http://localhost:3011/batches/products', {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`
-                }
-            });
-            // Flatten the products array from all batches created by the user
-            const allProducts = response.data.reduce((acc, batch) => acc.concat(batch.products), []);
-            setProducts(allProducts);
+            const response = await axios.get('http://localhost:3011/getallproducts'); // New endpoint, no authentication required
+            setProducts(response.data); // Directly set the fetched products
         } catch (error) {
             console.error('Error fetching all products:', error);
         }
@@ -31,7 +25,7 @@ export default function LandingPage() {
     useEffect(() => {
         fetchAllProducts();
     }, []);
-
+    
     const settings = {
         dots: true,
         infinite: true,
@@ -79,7 +73,7 @@ export default function LandingPage() {
 
             {/* Product Cards */}
             <div className='product-container'>
-            {displayedProducts.length > 0 ? (
+                {displayedProducts.length > 0 && (
                     displayedProducts.map(product => (
                         <div key={product._id} className="product-box1" onClick={() => handleProductDescription(product._id)}>
                             <img 
@@ -93,8 +87,6 @@ export default function LandingPage() {
                             </div>
                         </div>
                     ))
-                ) : (
-                    <p>No products available</p>
                 )}
             </div>
         </div>
