@@ -34,6 +34,22 @@ mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.error('MongoDB connection error:', err));
 
+
+
+const cartSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    brand: { type: String, required: true },
+    category: { type: String, required: true },
+    price: { type: Number, required: true },
+    details: { type: String, required: true },
+    imageUrl: { type: String, required: true },
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    quantity: { type: Number, default: 1 },
+    productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' }
+  });
+  
+  const Cart = mongoose.model('Cart', cartSchema);
+  
 // Create a User model
 const userSchema = new mongoose.Schema({
   name: { type: String, default: null }, // Name can be null initially
@@ -47,7 +63,7 @@ const userSchema = new mongoose.Schema({
   storeName: { type: String, default: null },
   identityCard: { type: String, default: null },
   storeDescription: { type: String, default: null },
-
+  cartId: { type: mongoose.Schema.Types.ObjectId, ref: 'Cart' }
 });
 
 const User = mongoose.model('User', userSchema);
@@ -73,8 +89,6 @@ const batchSchema = new mongoose.Schema({
 });
 
 const Batch = mongoose.model('Batch', batchSchema);
-
-
 
 // Registration endpoint
 app.post('/register', async (req, res) => {
@@ -771,6 +785,103 @@ app.get('/productinfo/:id', async (req, res) => {
   } catch (error) {
     console.error('Error fetching product info:', error);
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.post('/cart/add', authenticateToken, async (req, res) => {
+  const { productId, quantity } = req.body;
+
+  console.log('Product ID:', productId);
+  console.log('Quantity:', quantity);
+
+  try {
+      const product = await Product.findById(productId);
+      if (!product) return res.status(404).send('Product not found');
+
+      // Check if the product already exists in the user's cart
+      const existingCartItem = await Cart.findOne({
+          createdBy: req.user.userId, // Correctly reference user ID
+          productId: productId // Make sure this field exists in your Cart schema
+      });
+
+      if (existingCartItem) {
+          // If it exists, update the quantity
+          existingCartItem.quantity += quantity; // Increment the quantity
+          await existingCartItem.save(); // Save the updated cart item
+          return res.status(200).json(existingCartItem); // Respond with updated item
+      }
+
+      // Create a new cart item if it doesn't exist
+      const cart = new Cart({
+          name: product.name,
+          brand: product.brand,
+          category: product.category,
+          price: product.price,
+          details: product.details,
+          imageUrl: product.imageUrl,
+          createdBy: req.user.userId,
+          quantity: quantity, // Set initial quantity
+          productId: productId // Ensure productId is included in the Cart schema
+      });
+
+      await cart.save();
+      await User.findByIdAndUpdate(req.user.userId, { $push: { cartId: cart._id } });
+
+      res.status(201).json(cart); // Respond with the new cart item
+  } catch (error) {
+      console.error('Error adding to cart:', error);
+      res.status(500).json({ message: 'Error adding to cart', error: error.message });
+  }
+});
+
+// In your Express server
+app.get('/getcart', authenticateToken, async (req, res) => {
+  try {
+      const cartItems = await Cart.find({ createdBy: req.user.userId });
+      res.status(200).json(cartItems);
+  } catch (error) {
+      console.error('Error fetching cart items:', error);
+      res.status(500).json({ message: 'Error fetching cart items', error: error.message });
+  }
+});
+
+
+app.delete('/cart/remove/:id', authenticateToken, async (req, res) => {
+  try {
+      const { id } = req.params;
+
+      // Remove the item from the Cart collection
+      const result = await Cart.findByIdAndDelete(id);
+      
+      if (!result) return res.status(404).json({ message: 'Item not found' });
+      
+      res.status(200).json({ message: 'Item removed from cart' });
+  } catch (error) {
+      console.error('Error removing item from cart:', error);
+      res.status(500).json({ message: 'Error removing item from cart' });
+  }
+});
+
+
+app.put('/updatecartquantity/:id', authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  const { quantity } = req.body;
+
+  console.log(`Updating quantity for item with ID: ${id}, New Quantity: ${quantity}`);
+
+  try {
+      // Update the quantity in the database
+      const updatedItem = await Cart.findByIdAndUpdate(id, { quantity }, { new: true });
+      
+      if (!updatedItem) {
+          console.error(`Item with ID: ${id} not found.`);
+          return res.status(404).json({ message: 'Item not found' });
+      }
+
+      res.json(updatedItem);
+  } catch (error) {
+      console.error('Error updating quantity:', error);
+      res.status(500).json({ message: 'Failed to update quantity', error: error.message });
   }
 });
 

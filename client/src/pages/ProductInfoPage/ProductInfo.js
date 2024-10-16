@@ -42,6 +42,26 @@ export default function ProductInfo() {
         }
     };
 
+
+     // Function to add product to the cart
+     const addToCart = async () => {
+        try {
+            const response = await axios.post('http://localhost:3011/cart/add', {
+                productId: id,
+                quantity: quantity
+            }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+
+            toast.success('Product added to cart successfully!');
+        } catch (error) {
+            console.error('Error adding product to cart:', error);
+            toast.error('Error adding product to cart.');
+        }
+    };
+
     return (
         <div className="container-productinfo">
             <Navbar />
@@ -101,7 +121,10 @@ export default function ProductInfo() {
 
                     <div className="buybutton-cart">
                         <button className="buy-now-button">BUY NOW</button>
-                        <img src={Cartlogo} alt="Add to Cart" className="cart-logo" />
+                        <img src={Cartlogo} 
+                        alt="Add to Cart" 
+                        className="cart-logo"
+                        onClick={addToCart} />
                     </div>
                 </div>
             </div>
