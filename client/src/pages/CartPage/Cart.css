@@ -45,16 +45,15 @@ body {
 
 .cart-header {
     display: grid;
-    grid-template-columns: repeat(6, 1fr); /* Six equal columns */
+    grid-template-columns: 0.5fr 0.7fr 1.5fr 1fr 1fr 1fr; /* Smaller for checklist and picture */
     font-weight: bold;
     padding: 10px; /* Padding for header */
     border-bottom: 1px solid #ddd; /* Border for header */
 }
 
-
 .cart-item {
     display: grid;
-    grid-template-columns: repeat(6, 1fr); /* Six equal columns */
+    grid-template-columns: 0.5fr 0.7fr 1.5fr 1fr 1fr 1fr; /* Same proportions for items */
     align-items: center; /* Center items vertically */
     padding: 10px;
     border-bottom: 1px solid #ddd; /* Border for items */

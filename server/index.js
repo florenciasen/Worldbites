@@ -867,7 +867,6 @@ app.put('/updatecartquantity/:id', authenticateToken, async (req, res) => {
   const { id } = req.params;
   const { quantity } = req.body;
 
-  console.log(`Updating quantity for item with ID: ${id}, New Quantity: ${quantity}`);
 
   try {
       // Update the quantity in the database
