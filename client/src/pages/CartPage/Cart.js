@@ -2,8 +2,8 @@ import './Cart.css';
 import Navbar from '../../components/Navbar/Navbar';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import React, { useState, useEffect } from 'react'; 
-import axios from 'axios'; 
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 export default function Cart() {
     const [cartItems, setCartItems] = useState([]);
@@ -41,13 +41,21 @@ export default function Cart() {
     };
 
     const updateQuantity = async (id, action) => {
-        const updatedQuantity = action === 'increase' 
-            ? cartItems.find(item => item._id === id).quantity + 1 
-            : Math.max(cartItems.find(item => item._id === id).quantity - 1, 1);
+        const currentItem = cartItems.find(item => item._id === id);
 
-        setCartItems((prevItems) => 
-            prevItems.map((item) => 
-                item._id === id 
+        if (currentItem.quantity === 1 && action === 'decrease') {
+            // Show error toast if trying to decrease below 1
+            toast.error('Quantity cannot be less than 1');
+            return;
+        }
+
+        const updatedQuantity = action === 'increase'
+            ? currentItem.quantity + 1
+            : currentItem.quantity - 1;
+
+        setCartItems((prevItems) =>
+            prevItems.map((item) =>
+                item._id === id
                     ? { ...item, quantity: updatedQuantity }
                     : item
             )
@@ -65,6 +73,7 @@ export default function Cart() {
             toast.error('Failed to update quantity');
         }
     };
+
 
     const handleCheckboxChange = (id) => {
         setCheckedItems((prevCheckedItems) => {
@@ -91,7 +100,7 @@ export default function Cart() {
             toast.error('Failed to remove item from cart');
         }
     };
-    
+
     if (loading) {
         return <div>Loading...</div>;
     }
