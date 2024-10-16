@@ -2,53 +2,49 @@ import './Cart.css';
 import Navbar from '../../components/Navbar/Navbar';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import React, { useState, useEffect } from 'react'; // Import React and useState, useEffect
-import axios from 'axios'; // Make sure to install axios for API requests
+import React, { useState, useEffect } from 'react'; 
+import axios from 'axios'; 
 
 export default function Cart() {
     const [cartItems, setCartItems] = useState([]);
-    const [loading, setLoading] = useState(true); // Add loading state
-    const [checkedItems, setCheckedItems] = useState([]); // State for checked items
+    const [loading, setLoading] = useState(true);
+    const [checkedItems, setCheckedItems] = useState([]);
 
     useEffect(() => {
         const fetchCartItems = async () => {
             try {
                 const response = await axios.get('http://localhost:3011/getcart', {
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`, // Adjust if you're using a different storage method
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
                     },
                 });
                 setCartItems(response.data);
-                // Set checked items to all IDs of the fetched cart items by default
                 setCheckedItems(response.data.map(item => item._id));
             } catch (error) {
                 console.error('Error fetching cart items:', error);
                 toast.error('Failed to fetch cart items');
             } finally {
-                setLoading(false); // Set loading to false after fetching
+                setLoading(false);
             }
         };
 
         fetchCartItems();
-    }, []); // Empty dependency array to run once on mount
+    }, []);
 
-    // Calculate total price based on checked items
     const calculateTotalPrice = () => {
         return cartItems.reduce((total, item) => {
-            if (checkedItems.includes(item._id)) { // Check if item is checked
+            if (checkedItems.includes(item._id)) {
                 return total + item.price * item.quantity;
             }
             return total;
         }, 0);
     };
 
-    // Handle quantity change
     const updateQuantity = async (id, action) => {
         const updatedQuantity = action === 'increase' 
             ? cartItems.find(item => item._id === id).quantity + 1 
             : Math.max(cartItems.find(item => item._id === id).quantity - 1, 1);
 
-        // Update cart items in state
         setCartItems((prevItems) => 
             prevItems.map((item) => 
                 item._id === id 
@@ -57,7 +53,6 @@ export default function Cart() {
             )
         );
 
-        // Send the updated quantity to the server
         try {
             await axios.put(`http://localhost:3011/updatecartquantity/${id}`, { quantity: updatedQuantity }, {
                 headers: {
@@ -71,7 +66,6 @@ export default function Cart() {
         }
     };
 
-    // Handle checkbox change
     const handleCheckboxChange = (id) => {
         setCheckedItems((prevCheckedItems) => {
             if (prevCheckedItems.includes(id)) {
@@ -82,7 +76,6 @@ export default function Cart() {
         });
     };
 
-    // Remove item handler
     const removeItem = async (id) => {
         try {
             await axios.delete(`http://localhost:3011/cart/remove/${id}`, {
@@ -90,8 +83,6 @@ export default function Cart() {
                     Authorization: `Bearer ${localStorage.getItem('token')}`,
                 },
             });
-    
-            // Remove item from state
             setCartItems((prevItems) => prevItems.filter((item) => item._id !== id));
             setCheckedItems((prevCheckedItems) => prevCheckedItems.filter(itemId => itemId !== id));
             toast.success('Item removed from cart');
@@ -102,7 +93,7 @@ export default function Cart() {
     };
     
     if (loading) {
-        return <div>Loading...</div>; // Show loading state
+        return <div>Loading...</div>;
     }
 
     return (
@@ -112,41 +103,40 @@ export default function Cart() {
                 <h2 className="cart-title">CART</h2>
                 <div className="cart-table">
                     <div className="cart-header">
-                        <div className='Product'>
-                            <span>Product</span>
-                        </div>
-                        <div className='price-quantity-total-header'>
-                            <span>Price</span>
-                            <span>Quantity</span>
-                            <span>Total</span>
-                        </div>
+                        <div className="header-item"></div>
+                        <div className="header-item"></div>
+                        <div className="header-item">Product Name</div>
+                        <div className="header-item">Price</div>
+                        <div className="header-item">Quantity</div>
+                        <div className="header-item">Total</div>
                     </div>
                     {cartItems.map((item) => (
                         <div key={item._id} className="cart-item">
-                            <div className="cart-product">
+                            <div className="cart-checklist">
                                 <input
                                     className="checkbox"
                                     type="checkbox"
-                                    onChange={() => handleCheckboxChange(item._id)} // Handle checkbox change
-                                    checked={checkedItems.includes(item._id)} // Check if item is checked
+                                    onChange={() => handleCheckboxChange(item._id)}
+                                    checked={checkedItems.includes(item._id)}
                                 />
-                                <img src={`http://localhost:3011/uploads/${item.imageUrl}`}
-                                alt="Product" />
                             </div>
-                            <div className='product-info-cart'>
-                                <div className="product-details">
-                                    <p>{item.name}</p>
-                                    <button className="remove-btn" onClick={() => removeItem(item._id)}>Remove</button>
-                                </div>
-                                <div className='price-quantity-total'>
-                                    <p className="cart-price">IDR {item.price.toLocaleString()}</p>
-                                    <div className="quantity-selector-cart">
-                                        <button className="decrease-quantity" onClick={() => updateQuantity(item._id, 'decrease')}>-</button>
-                                        <span className="quantity">{item.quantity}</span>
-                                        <button className="increase-quantity" onClick={() => updateQuantity(item._id, 'increase')}>+</button>
-                                    </div>
-                                    <p className="cart-total">IDR {(item.price * item.quantity).toLocaleString()}</p>
-                                </div>
+                            <div className="cart-image">
+                                <img src={`http://localhost:3011/uploads/${item.imageUrl}`} alt="Product" />
+                            </div>
+                            <div className="product-name-cart">
+                                <p>{item.name}</p>
+                                <button className="remove-btn" onClick={() => removeItem(item._id)}>Remove</button>
+                            </div>
+                            <div className="cart-price">
+                                <p>IDR {item.price.toLocaleString()}</p>
+                            </div>
+                            <div className="quantity-selector-cart">
+                                <button className="decrease-quantity" onClick={() => updateQuantity(item._id, 'decrease')}>-</button>
+                                <span className="quantity">{item.quantity}</span>
+                                <button className="increase-quantity" onClick={() => updateQuantity(item._id, 'increase')}>+</button>
+                            </div>
+                            <div className="cart-total">
+                                <p>IDR {(item.price * item.quantity).toLocaleString()}</p>
                             </div>
                         </div>
                     ))}
