@@ -1,8 +1,31 @@
+@import url('https://fonts.googleapis.com/css2?family=Jersey+15&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Amaranth:wght@400;700&display=swap');
+
+
 
 body {
+    font-family: 'Amaranth', sans-serif;
     margin: 0;
     padding: 0;
     min-height: 100vh;
+}
+
+.price-quantity-total {
+    display: flex;
+    gap: 12.8rem;
+}
+
+.price-quantity-total-header {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    gap: 15rem;
+    font-weight: bold;
+}
+
+.product-info-cart{
+    display: flex;
+    gap: 8.3rem;
 }
 
 .container-cart {
@@ -19,3 +42,130 @@ body {
     justify-content: center;
     align-items: center;
 }
+
+
+.cart-content {
+    width: 80%;
+    margin-top: 40px;
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.cart-title {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.cart-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.cart-header {
+    display: flex;
+    align-items: center;
+    gap: 34.2rem;
+    padding: 10px;
+    font-weight: bold;
+    border-bottom: 1px solid #ddd;
+}
+
+.cart-item {
+    display: flex;
+    padding: 10px;
+    gap: 2rem;
+    border-bottom: 1px solid #ddd;
+}
+
+.product-details {
+    display: flex;
+    flex-direction: column;
+}
+
+
+
+.cart-product {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.cart-price{
+    font-weight: bold;
+    display: flex;
+}
+
+.cart-total {
+    font-weight: bold;
+}
+
+.cart-quantity {
+    width: 20%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+
+.cart-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+    font-size: 18px;
+}
+
+.checkbox {
+    width: 25px; /* Adjust the width */
+    height: 25px; /* Adjust the height */
+    accent-color: #d6a97c; /* Optionally change the color for supported browsers */
+    cursor: pointer; /* Make it look clickable */
+}
+
+
+.quantity-selector-cart {
+    display: flex;
+    align-items: center;
+}
+
+.decrease-quantity, .increase-quantity {
+    background-color: #ddd;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.quantity {
+    margin: 0 10px;
+    font-size: 18px;
+}
+
+
+.checkout-btn {
+    font-family: 'Amaranth', sans-serif;
+    background-color: #d6a97c;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.remove-btn{
+    display: flex;
+    border: none;
+    width: 25%;
+    margin-left: -5px;
+    background-color: white;
+    align-items: flex-start;
+    justify-content: flex-start;
+    font-size: 16px;
+    font-family: 'Amaranth', sans-serif;
+    color: #d9534f;
+    cursor: pointer;
+}
+

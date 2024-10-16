@@ -93,6 +93,7 @@ export default function Navbar() {
         }
     };
 
+
     // Jastip login handler
     const handleLoginJastip = () => {
         setIsJastipLoggedIn(true); // Set Jastip mode before navigating
