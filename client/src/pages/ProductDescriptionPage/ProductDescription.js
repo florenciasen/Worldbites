@@ -199,7 +199,7 @@ export default function ProductDescription() {
                         </div>
                     </div>
                 </div>
-                <div className="button-group">
+                <div className="button-group-productdescription">
                     <button type="button" className="save-btn1" onClick={handleSave}>Save</button>
                     <button type="button" className="delete-btn" onClick={handleDelete}>Delete</button>
                 </div>

@@ -69,7 +69,7 @@ export default function ProductInfo() {
             <div className="product-info-container">
                 {/* Product Image */}
                 <div className="product-image-container">
-                    <img src={`http://localhost:3011/uploads/${product.imageUrl}`} alt={product.name} className="product-image" />
+                    <img src={`http://localhost:3011/uploads/${product.imageUrl}`} alt={product.name} className="product-image-info" />
                 </div>
 
                 {/* Product Details */}

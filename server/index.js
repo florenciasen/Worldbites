@@ -560,7 +560,8 @@ app.get('/sellerinfo', authenticateToken, async (req, res) => {
       res.json({
         identityCard: user.identityCard,
         storeName: user.storeName,
-        storeDescription: user.storeDescription
+        storeDescription: user.storeDescription,
+        storePicture: user.profilePicture
       });
     } else {
       res.status(404).json({ message: 'User not found' });
