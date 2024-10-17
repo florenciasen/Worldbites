@@ -103,13 +103,10 @@ body {
     gap: 25px;
     overflow-x: hidden; /* Allows horizontal scrolling if products overflow */
     scroll-behavior: smooth;
-    width: 93%; /* Takes the full width of the container */
+    width: 95%; /* Takes the full width of the container */
     margin: 0 auto; /* Centers the product container */
     justify-content: flex-start; /* Aligns items to the start (left) */
-    padding: 10px;
-    margin-left: 50px;
-    padding-top: 30px; /* Adjusts spacing between the carousel and product container */
-    padding-bottom: 40px;
+    margin-top: 3rem;
 }
 
 .product-box1 {
