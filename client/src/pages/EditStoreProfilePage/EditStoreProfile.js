@@ -16,18 +16,18 @@ export default function EditStoreProfile() {
         JastipFrom: '',
         ShippingMethod: '',
         identityCard: '',
-        storePicture: ''
+        storePicture: '' // Will hold the current store picture URL
     });
 
-    const [photo, setPhoto] = useState(null);
+    const [photo, setPhoto] = useState(null); // Will hold the new photo for preview
 
     const handlePhotoChange = (e) => {
         const selectedPhoto = e.target.files[0];
-        setPhoto(selectedPhoto);
+        setPhoto(selectedPhoto); // Store the new photo in the state
 
         if (selectedPhoto) {
-            const imageUrl = URL.createObjectURL(selectedPhoto);
-            setFormData((prevData) => ({ ...prevData, storePicture: imageUrl }));
+            const imageUrl = URL.createObjectURL(selectedPhoto); // Create a temporary URL for the selected image
+            setFormData((prevData) => ({ ...prevData, storePicture: imageUrl })); // Temporarily show the new image
         }
     };
 
@@ -63,7 +63,7 @@ export default function EditStoreProfile() {
         formDataToSubmit.append('ShippingMethod', formData.ShippingMethod);
 
         if (photo) {
-            formDataToSubmit.append('storePicture', photo);
+            formDataToSubmit.append('storePicture', photo); // Attach the new photo for upload
         }
 
         try {
@@ -96,10 +96,12 @@ export default function EditStoreProfile() {
                 </div>
                 <form onSubmit={handleSubmit} className="edit-store-profile-content">
                     <div className="edit-store-image-section">
-                        {formData.storePicture ? (
+                        {photo ? (
+                            <img src={URL.createObjectURL(photo)} alt="Store Preview" className="edit-store-image" />
+                        ) : formData.storePicture ? (
                             <img src={`http://localhost:3011/uploads/${formData.storePicture}`} alt="Store" className="edit-store-image" />
                         ) : (
-                            <img src="/path-to-store-image.png" alt="Store" className="edit-store-image" />
+                            <img src="/path-to-store-image.png" alt="Default Store" className="edit-store-image" />
                         )}
                         <input
                             type="file"
