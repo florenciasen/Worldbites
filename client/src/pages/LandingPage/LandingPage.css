@@ -5,23 +5,23 @@ body {
 }
 
 .container {
-  min-height: 100vh;
-  width: 100%;
-  background-image: url('../../assets/Wallpaper.svg'); 
-  background-size: cover;
-  background-position: center;  
-  background-repeat: no-repeat;  
-  
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+    min-height: 100vh;
+    width: 100%;
+    background-image: url('../../assets/Wallpaper.svg'); 
+    background-size: cover;
+    background-position: center;  
+    background-repeat: no-repeat;  
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
-
 
 .search-container {
     width: 70%;
     margin: 0 auto; 
     display: flex;
+    align-items: center;
     padding-top: 90px;
 }
 
@@ -80,7 +80,6 @@ body {
     background-color: #EFD5E6; 
 }
 
-
 .carousel-container {
     width: 100%;
     max-width: 95%;
@@ -93,7 +92,6 @@ body {
     align-items: center; 
 }
 
-
 .carousel-slide img {
     width: 100%; 
     object-fit: cover; 
@@ -101,3 +99,70 @@ body {
     margin-top: 1rem;
 }
 
+.product-container {
+    display: flex;
+    gap: 25px;
+    overflow-x: hidden; /* Allows horizontal scrolling if products overflow */
+    scroll-behavior: smooth;
+    width: 95%; /* Takes the full width of the container */
+    margin: 0 auto; /* Centers the product container */
+    justify-content: flex-start; /* Aligns items to the start (left) */
+    margin-top: 3rem;
+}
+
+.product-box1 {
+    flex: 0 0 auto; /* Prevents shrinking and allows wrapping */
+    background-color: #fff;
+    border: 2px solid #793E0E; /* More prominent border color */
+    border-radius: 16px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 10%; 
+    height: 10%; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px;
+    text-align: center;
+    transition: transform 0.3s ease-in-out;
+}
+
+.product-box1:hover {
+    transform: scale(1.05);
+    border-color: #EFD5E6;
+}
+
+
+.product-image1 {
+    width: 100%;
+    height: 180px; /* Ensures consistent height for all images */
+    object-fit: cover; /* Ensures the image fits without distortion */
+    border-radius: 12px; /* Rounded corners for images */
+    margin-bottom: 12px;
+}
+
+.product-info {
+    flex-grow: 1; /* Allows the content to fill the remaining space */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.product-name {
+    font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+    margin-top: 8px;
+    overflow: hidden; /* Prevents overflow */
+    text-overflow: ellipsis; /* Adds "..." for overflowed text */
+    display: -webkit-box;
+    -webkit-line-clamp: 1; /* Limits to 2 lines */
+    -webkit-box-orient: vertical;
+}
+
+.product-price {
+    font-size: 14px;
+    color: #666;
+    margin-top: 4px;
+}

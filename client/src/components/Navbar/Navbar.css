@@ -83,3 +83,10 @@ h1 a {
     background-color: #EFD5E6; 
 }
 
+.profile-dropdown img {
+    width: 40px; /* Set the width of the profile picture */
+    height: 40px; /* Set the height of the profile picture */
+    border-radius: 50%; /* Make the image circular */
+    object-fit: cover; /* Ensure the image covers the circle without distortion */
+    border: 2px solid #f0f0f0; /* Optional: Add a border around the profile picture */
+}

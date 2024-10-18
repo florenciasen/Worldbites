@@ -21,6 +21,7 @@ body {
     justify-content: center;
     align-items: center;
 }
+
 .register-form {
     display: flex; 
     flex-direction: column;
