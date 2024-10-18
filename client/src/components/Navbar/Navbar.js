@@ -18,9 +18,11 @@ export default function Navbar() {
     const [profilePicture, setProfilePicture] = useState(Profile); 
     const navigate = useNavigate();
     const location = useLocation();
-    
+
     useEffect(() => {
         const token = localStorage.getItem('token');
+        const jastipState = localStorage.getItem('isJastipLoggedIn') === 'true';
+
         if (token) {
             try {
                 const decoded = jwtDecode(token);
@@ -32,6 +34,7 @@ export default function Navbar() {
                     setIsLoggedIn(true);
                     fetchUserData();
                     fetchProfilePicture();
+                    setIsJastipLoggedIn(jastipState); // Restore Jastip login state
                 }
             } catch (error) {
                 console.error('Invalid token');
@@ -40,15 +43,12 @@ export default function Navbar() {
         }
     }, []);
 
-    // Listen for location change to check if the user is on the Jastip homepage
     useEffect(() => {
         if (location.pathname === '/homepagejastip') {
             setIsJastipLoggedIn(true);
-        } else {
-            setIsJastipLoggedIn(false);
         }
     }, [location.pathname]);
-    
+
     const toggleDropdown = () => {
         setIsOpen(!isOpen);
     };
@@ -60,7 +60,7 @@ export default function Navbar() {
     const handleRegister = () => {
         navigate('/register'); 
     };
-    
+
     const handleCart = () => {
         if (isLoggedIn) {
             navigate('/cart'); 
@@ -93,16 +93,17 @@ export default function Navbar() {
         }
     };
 
-
-    // Jastip login handler
-    const handleLoginJastip = () => {
-        setIsJastipLoggedIn(true); // Set Jastip mode before navigating
+    const handleLoginJastip = async () => {
+        setIsJastipLoggedIn(true);
+        localStorage.setItem('isJastipLoggedIn', 'true'); // Store Jastip login state in localStorage
+        await new Promise(resolve => setTimeout(resolve, 0)); // Ensure state updates
         navigate('/homepagejastip');
     };
 
-    // Jastip logout handler (not total logout)
-    const handleLogoutJastip = () => {
-        setIsJastipLoggedIn(false); // Exit Jastip mode only
+    const handleLogoutJastip = async () => {
+        setIsJastipLoggedIn(false);
+        localStorage.removeItem('isJastipLoggedIn'); // Remove Jastip login state from localStorage
+        await new Promise(resolve => setTimeout(resolve, 0)); // Ensure state updates
         navigate('/');
         toast.success('You have logged out from Jastip mode.');
     };
@@ -114,10 +115,11 @@ export default function Navbar() {
                     Authorization: `Bearer ${localStorage.getItem('token')}`
                 }
             });
-    
+
             localStorage.removeItem('token');
             setIsLoggedIn(false);
             setIsJastipLoggedIn(false); // Reset both Jastip and general login
+            localStorage.setItem('isJastipLoggedIn', 'false'); // Reset Jastip login state in localStorage
             setUserData(null);
             setProfilePicture(Profile); 
             navigate('/');
@@ -135,7 +137,7 @@ export default function Navbar() {
                     Authorization: `Bearer ${localStorage.getItem('token')}`
                 }
             });
-    
+
             if (response.data && response.data.profilePicture) {
                 setProfilePicture(response.data.profilePicture); 
             }
@@ -162,19 +164,16 @@ export default function Navbar() {
         }
     };
 
-    // Define handleJoinJastip
     const handleJoinJastip = () => {
         if (!userData?.storeName || !userData?.identityCard || !userData?.storeDescription) {
             toast.error("Incomplete Jastip details. Please complete your profile.");
-            // Redirect to the Join Jastip page to complete their profile
             navigate('/joinjastip');
         } else {
-            setIsJastipLoggedIn(true); // Set Jastip mode before navigating
+            setIsJastipLoggedIn(true);
+            localStorage.setItem('isJastipLoggedIn', 'true'); // Store Jastip login state in localStorage
             navigate('/homepagejastip');
         }
     };
-
-    const isOnHomepageJastip = location.pathname === '/homepagejastip';
 
     return (
         <div className='container-navbar'>
@@ -204,7 +203,6 @@ export default function Navbar() {
                                         <div className='dropdown-item' onClick={handleEditProfile}>Edit Profile</div>
                                         <div className='dropdown-item' onClick={handleChangePassword}>Change Password</div>
                                         <div className='dropdown-item'>Order and History</div>
-                                        {/* Conditionally render Jastip options */}
                                         {!isJastipLoggedIn ? (
                                             userData?.identityCard && userData?.storeName && userData?.storeDescription ? (
                                                 <div className='dropdown-item' onClick={handleLoginJastip}>Login Jastip</div>
