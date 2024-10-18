@@ -63,7 +63,10 @@ const userSchema = new mongoose.Schema({
   storeName: { type: String, default: null },
   identityCard: { type: String, default: null },
   storeDescription: { type: String, default: null },
-  cartId: { type: mongoose.Schema.Types.ObjectId, ref: 'Cart' }
+  storePicture: { type: String, default: null },
+  JastipFrom: { type: String, default: null },
+  ShippingMethod: { type: String, default: null },
+  cartId: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Cart' }]
 });
 
 const User = mongoose.model('User', userSchema);
@@ -484,6 +487,7 @@ app.post('/updateprofile', authenticateToken, upload.single('profilePicture'), a
 
     // Update the user's profile information
     user.name = req.body.name || user.name;
+    user.email = req.body.email || user.email;
     user.phoneNumber = req.body.phoneNumber || user.phoneNumber;
     user.address = req.body.address || user.address;
 
@@ -882,6 +886,55 @@ app.put('/updatecartquantity/:id', authenticateToken, async (req, res) => {
   } catch (error) {
       console.error('Error updating quantity:', error);
       res.status(500).json({ message: 'Failed to update quantity', error: error.message });
+  }
+});
+
+
+app.get('/get-store-profile', authenticateToken, async (req, res) => {
+
+  try {
+  
+    const user = await User.findById(req.user.userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching store profile', error: error.message });
+  }
+});
+
+
+app.post('/update-store-profile', authenticateToken, upload.single('storePicture'), async (req, res) => {
+  try {
+    console.log('Request Body:', req.body);
+    console.log('File:', req.file);
+
+    const user = await User.findById(req.user.userId);
+
+    console.log('User:', user);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    user.storeName = req.body.storeName || user.storeName;
+    user.storeDescription = req.body.storeDescription || user.storeDescription;
+    user.JastipFrom = req.body.JastipFrom || user.JastipFrom;
+    user.ShippingMethod = req.body.ShippingMethod || user.ShippingMethod;
+
+    if (req.file) {
+      user.storePicture = req.file.filename;
+    }
+
+    await user.save();
+
+    res.json(user);
+  } catch (error) {
+    console.error('Error updating store profile:', error);
+    res.status(500).json({ message: 'Error updating store profile', error: error.message });
   }
 });
 

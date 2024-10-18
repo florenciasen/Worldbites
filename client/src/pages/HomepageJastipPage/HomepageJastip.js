@@ -55,6 +55,10 @@ export default function HomepageJastip() {
         navigate('/productjastip'); 
     };
 
+    const handleEditStore = () => {
+        navigate('/editstoreprofile');
+    }
+
     return (
         <div className='container-homepagejastip'>
             <Navbar />
@@ -67,13 +71,12 @@ export default function HomepageJastip() {
                         {/* Dynamic store picture */}
                         <img 
                             src={`http://localhost:3011/uploads/${storeInfo.storePicture}`} 
-                            alt="Store Icon" 
                             className="store-icon" 
                         />
                         <div className="store-details">
                             <h3>{storeInfo.storeName}</h3>
                             <p>{storeInfo.storeDescription}</p>
-                            <button className='edit-button'>Edit</button>
+                            <button className='edit-button' onClick={handleEditStore}>Edit Store</button>
                         </div>
                     </div>
                     <div className="batch-products">

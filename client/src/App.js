@@ -18,6 +18,7 @@ import AddBatch from './pages/AddBatchPage/AddBatch';
 import AddProduct from './pages/AddProductPage/AddProduct';
 import ProductDescription from './pages/ProductDescriptionPage/ProductDescription';
 import ProductInfo from './pages/ProductInfoPage/ProductInfo';
+import EditStoreProfile from './pages/EditStoreProfilePage/EditStoreProfile';
 
 
 
@@ -42,6 +43,7 @@ function App() {
         <Route path="/addproduct" element={<AddProduct />} />
         <Route path="/productdescription/:id" element={<ProductDescription />} />
         <Route path="/productinfo/:id" element={<ProductInfo />} />
+        <Route path="/editstoreprofile" element={<EditStoreProfile />} />
       </Routes>
     </Router>
   );
