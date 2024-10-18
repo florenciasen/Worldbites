@@ -99,7 +99,7 @@ export default function EditStoreProfile() {
                         {photo ? (
                             <img src={URL.createObjectURL(photo)} alt="Store Preview" className="edit-store-image" />
                         ) : formData.storePicture ? (
-                            <img src={`http://localhost:3011/uploads/${formData.storePicture}`} alt="Store" className="edit-store-image" />
+                            <img src={`http://localhost:3011/uploads/${formData.storePicture}`} className="edit-store-image" />
                         ) : (
                             <img src="/path-to-store-image.png" alt="Default Store" className="edit-store-image" />
                         )}
