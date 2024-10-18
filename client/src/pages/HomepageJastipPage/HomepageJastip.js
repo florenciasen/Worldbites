@@ -14,7 +14,7 @@ export default function HomepageJastip() {
     const [products, setProducts] = useState([]);
     const [storeInfo, setStoreInfo] = useState({
         storeName: '',
-        storeDescription: '',
+        storeJastipFrom: '',
         storePicture: ''
     });
 
@@ -75,7 +75,7 @@ export default function HomepageJastip() {
                         />
                         <div className="store-details">
                             <h3>{storeInfo.storeName}</h3>
-                            <p>{storeInfo.storeDescription}</p>
+                            <p>{storeInfo.storeJastipFrom}</p>
                             <button className='edit-button' onClick={handleEditStore}>Edit Store</button>
                         </div>
                     </div>

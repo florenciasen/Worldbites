@@ -29,6 +29,7 @@
 }
 
 .edit-store-profile-content {
+    margin-top: 2rem;
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
@@ -57,7 +58,7 @@
     width: 150px;
     height: 150px;
     border: 2px solid #ddd;
-    border-radius: 10px;
+    border-radius: 50%;
     object-fit: cover;
     margin-bottom: 10px;
 }
@@ -147,11 +148,17 @@
     font-family: 'Amaranth', sans-serif;
 }
 
+.store-title {
+    font-family: 'Jersey 15', sans-serif;
+    color: #B4835B;
+    font-size: 28px;
+    border-bottom: 2px solid #B4835B;
+}
+
 h2 {
     margin-bottom: 20px;
     font-size: 24px;
     color: #a67f5b;
-    border-bottom: 2px solid #a67f5b;
     padding-bottom: 10px;
     text-align: center;
     width: 100%;
