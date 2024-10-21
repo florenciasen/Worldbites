@@ -19,6 +19,7 @@ import AddProduct from './pages/AddProductPage/AddProduct';
 import ProductDescription from './pages/ProductDescriptionPage/ProductDescription';
 import ProductInfo from './pages/ProductInfoPage/ProductInfo';
 import EditStoreProfile from './pages/EditStoreProfilePage/EditStoreProfile';
+import ViewStore from './pages/ViewStorePage/ViewStore';
 
 
 
@@ -44,6 +45,7 @@ function App() {
         <Route path="/productdescription/:id" element={<ProductDescription />} />
         <Route path="/productinfo/:id" element={<ProductInfo />} />
         <Route path="/editstoreprofile" element={<EditStoreProfile />} />
+        <Route path="/viewstore" element={<ViewStore />} />
       </Routes>
     </Router>
   );

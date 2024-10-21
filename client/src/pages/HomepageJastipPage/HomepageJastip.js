@@ -59,6 +59,10 @@ export default function HomepageJastip() {
         navigate('/editstoreprofile');
     }
 
+    const handleViewStore = () => {
+        navigate('/viewstore');
+    }
+
     return (
         <div className='container-homepagejastip'>
             <Navbar />
@@ -72,6 +76,8 @@ export default function HomepageJastip() {
                         <img 
                             src={`http://localhost:3011/uploads/${storeInfo.storePicture}`} 
                             className="store-icon" 
+                            onClick={handleViewStore}
+                            style={{ cursor: 'pointer' }}
                         />
                         <div className="store-details">
                             <h3>{storeInfo.storeName}</h3>
@@ -91,8 +97,8 @@ export default function HomepageJastip() {
                         </div>
                     </div>
                     <div className='arrow-view-store'>
-                                <img src={Arrow} alt="Arrow" className="arrow-icon" />
-                                <p className="view-store-btn">View Store</p>
+                                <img src={Arrow} style={{ cursor:'pointer' }}alt="Arrow" className="arrow-icon" onClick={handleViewStore} />
+                                <p className="view-store-btn" onClick={handleViewStore}>View Store</p>
                             </div>
                 </div>
             </div>
