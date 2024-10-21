@@ -119,7 +119,7 @@ export default function Navbar() {
             localStorage.removeItem('token');
             setIsLoggedIn(false);
             setIsJastipLoggedIn(false); // Reset both Jastip and general login
-            localStorage.setItem('isJastipLoggedIn', 'false'); // Reset Jastip login state in localStorage
+            localStorage.removeItem('isJastipLoggedIn'); // Remove Jastip login state from localStorage
             setUserData(null);
             setProfilePicture(Profile); 
             navigate('/');
