@@ -9,6 +9,7 @@ const fs = require('fs');
 const path = require('path');
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
+const Fuse = require('fuse.js');
 
 
 // JWT secret key
@@ -186,6 +187,40 @@ app.post('/logout', authenticateToken, (req, res) => {
   }
 
 
+});
+
+
+app.post('/search', async (req, res) => {
+  const { query } = req.body;
+  console.log('Search query received:', query);
+
+  try {
+      // Fetch all products from the database (can be optimized by fetching specific fields)
+      const products = await Product.find({});
+
+      // Define options for Fuse.js to perform fuzzy search
+      const options = {
+          keys: ['name'], // Search by the 'name' field
+          threshold: 0.4, // This controls how fuzzy the search is (lower is stricter, higher is more fuzzy)
+      };
+
+      // Initialize Fuse with the products list and options
+      const fuse = new Fuse(products, options);
+
+      // Perform the fuzzy search
+      const result = fuse.search(query);
+
+      // Extract the actual products from the Fuse.js result
+      const filteredProducts = result.map(res => res.item);
+
+      // Sort the filtered products alphabetically
+      filteredProducts.sort((a, b) => a.name.localeCompare(b.name));
+
+      res.json(filteredProducts);
+  } catch (error) {
+      console.error('Error searching products:', error);
+      res.status(500).json({ error: 'Server error' });
+  }
 });
 
 
