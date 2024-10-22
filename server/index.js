@@ -189,6 +189,30 @@ app.post('/logout', authenticateToken, (req, res) => {
 
 });
 
+app.post('/filter', async (req, res) => {
+  const { selectedCategories, selectedBrands } = req.body;
+
+  let filter = {};
+
+  // Build the filter object dynamically based on the selected filters
+  if (selectedCategories.length > 0) {
+      filter.category = { $in: selectedCategories }; // Find products that match the selected categories
+  }
+
+  if (selectedBrands.length > 0) {
+      filter.brand = { $in: selectedBrands }; // Find products that match the selected brands
+  }
+
+  try {
+      // Fetch products based on the selected filters
+      const products = await Product.find(filter);
+      res.json(products);
+  } catch (error) {
+      console.error('Error fetching filtered products:', error);
+      res.status(500).json({ error: 'Server error' });
+  }
+});
+
 
 app.post('/search', async (req, res) => {
   const { query } = req.body;

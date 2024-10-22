@@ -157,7 +157,6 @@ body {
     overflow: hidden; /* Prevents overflow */
     text-overflow: ellipsis; /* Adds "..." for overflowed text */
     display: -webkit-box;
-    -webkit-line-clamp: 1; /* Limits to 2 lines */
     -webkit-box-orient: vertical;
 }
 
@@ -165,4 +164,102 @@ body {
     font-size: 14px;
     color: #666;
     margin-top: 4px;
+}
+
+
+/* Modal overlay to cover the whole screen */
+.modal-overlay {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Ensures it's on top of all content */
+}
+
+/* Modal styling */
+.filter-modal {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 500px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+/* Close button inside the modal */
+.close-modal {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: transparent;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.filter-content h3 {
+    margin: 10px 0;
+    font-size: 1.2rem;
+    color: #333;
+}
+
+.filter-modal h2 {
+    font-size: 2rem; /* Increase modal heading font size */
+    margin-bottom: 20px;
+}
+
+.filter-modal h3 {
+    font-size: 1.5rem; /* Increase section headings inside the modal */
+    margin-bottom: 10px;
+}
+
+.filter-modal label {
+    font-size: 1.2rem; /* Increase font size for labels in the modal */
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filter-content ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.filter-content ul li {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+/* Styling the Apply Filter Button */
+.apply-filter-button {
+    background-color:  #B4835B;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;;
+    width: 30%;
+}
+
+
+/* Disable button style */
+.apply-filter-button:disabled {
+    background-color: #dcdcdc;
+    color: #888888;
+    cursor: not-allowed;
+}
+
+.filter-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
