@@ -192,7 +192,6 @@ app.post('/logout', authenticateToken, (req, res) => {
 
 app.post('/search', async (req, res) => {
   const { query } = req.body;
-  console.log('Search query received:', query);
 
   try {
       // Fetch all products from the database (can be optimized by fetching specific fields)
