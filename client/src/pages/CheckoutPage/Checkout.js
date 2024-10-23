@@ -149,8 +149,8 @@ export default function Checkout() {
                                 <div className="cart-price">
                                     <p>IDR {item.price.toLocaleString()}</p>
                                 </div>
-                                <div className="quantity-selector-cart">
-                                    <p className="quantity">{item.quantity}</p>
+                                <div className="quantity-selector-cart-checkout">
+                                    <p className="quantity-checkout">{item.quantity}</p>
                                 </div>
                                 <div className="cart-total">
                                     <p>IDR {(item.price * item.quantity).toLocaleString()}</p>
