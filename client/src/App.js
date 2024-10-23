@@ -20,6 +20,7 @@ import ProductDescription from './pages/ProductDescriptionPage/ProductDescriptio
 import ProductInfo from './pages/ProductInfoPage/ProductInfo';
 import EditStoreProfile from './pages/EditStoreProfilePage/EditStoreProfile';
 import ViewStore from './pages/ViewStorePage/ViewStore';
+import Checkout from './pages/CheckoutPage/Checkout';
 
 
 
@@ -46,6 +47,7 @@ function App() {
         <Route path="/productinfo/:id" element={<ProductInfo />} />
         <Route path="/editstoreprofile" element={<EditStoreProfile />} />
         <Route path="/viewstore" element={<ViewStore />} />
+        <Route path="/checkout" element={<Checkout />} />
       </Routes>
     </Router>
   );

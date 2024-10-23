@@ -10,6 +10,7 @@ const path = require('path');
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const Fuse = require('fuse.js');
+const axios = require('axios');
 
 
 // JWT secret key
@@ -22,9 +23,7 @@ const port = 3011;
 
 // Middleware to parse JSON bodies
 app.use(bodyParser.json());
-app.use(cors({
-  origin: 'http://localhost:3000' // Replace with your React app's URL
-}));
+app.use(cors()); // Enable CORS
 
 // Serve static files from the uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -178,8 +177,6 @@ app.post('/login', async (req, res) => {
 // Logout endpoint for invalidating token
 app.post('/logout', authenticateToken, (req, res) => {
 
-
-
   if (req.user) {
     res.status(200).json({ message: 'Logout successful' });
   } else {
@@ -187,6 +184,24 @@ app.post('/logout', authenticateToken, (req, res) => {
   }
 
 
+});
+
+app.get('/usercheckout', authenticateToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json({
+      name: user.name,
+      phone: user.phoneNumber,
+      email: user.email,
+      address: user.address,
+    });
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
 app.post('/filter', async (req, res) => {
@@ -997,6 +1012,61 @@ app.post('/update-store-profile', authenticateToken, upload.single('storePicture
   }
 });
 
+
+
+app.get('/provinces', async (req, res) => {
+  try {
+    const response = await axios.get('https://api.rajaongkir.com/starter/province', {
+      headers: { key: '687ec21839595a49d2e828450438be1c' }
+    });
+    res.json(response.data.rajaongkir.results);
+  } catch (error) {
+    console.error('Error fetching provinces:', error.response ? error.response.data : error.message);
+    res.status(500).json({ error: 'Failed to fetch provinces' });
+  }
+});
+
+
+// Get cities by province ID
+app.get('/cities/:provinceId', async (req, res) => {
+  const { provinceId } = req.params;
+
+  try {
+    const response = await axios.get('https://api.rajaongkir.com/starter/city', {
+      params: { province: provinceId },
+      headers: {
+        key: '687ec21839595a49d2e828450438be1c'
+      }
+    });
+    res.json(response.data.rajaongkir.results);
+  } catch (error) {
+    console.error('Error fetching cities:', error);
+    res.status(500).json({ error: 'Failed to fetch cities' });
+  }
+});
+
+// Calculate shipping cost (ongkir)
+app.post('/ongkir', async (req, res) => {
+  const { origin, destination, weight, courier } = req.body; // Expecting these fields from the client
+
+  try {
+    const response = await axios.post('https://api.rajaongkir.com/starter/cost', {
+      origin: origin, // Example: origin city ID
+      destination, // Example: destination city ID
+      weight, // Example: 1000 (in grams)
+      courier // Example: 'jne', 'pos', 'tiki'
+    }, {
+      headers: { 
+        key: '687ec21839595a49d2e828450438be1c'
+      }
+    });
+
+    res.json(response.data.rajaongkir.results);
+  } catch (error) {
+    console.error('Error calculating shipping cost:', error);
+    res.status(500).json({ error: 'Failed to calculate shipping cost' });
+  }
+});
 
 
 // Basic route for testing

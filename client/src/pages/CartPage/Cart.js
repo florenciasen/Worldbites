@@ -2,6 +2,7 @@ import './Cart.css';
 import Navbar from '../../components/Navbar/Navbar';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom'
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -9,6 +10,7 @@ export default function Cart() {
     const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [checkedItems, setCheckedItems] = useState([]);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchCartItems = async () => {
@@ -85,6 +87,11 @@ export default function Cart() {
         });
     };
 
+
+    const checkoutHandle = () => {
+        navigate('/checkout'); // Navigate to the checkout page
+    }
+
     const removeItem = async (id) => {
         try {
             await axios.delete(`http://localhost:3011/cart/remove/${id}`, {
@@ -104,6 +111,7 @@ export default function Cart() {
     if (loading) {
         return <div>Loading...</div>;
     }
+
 
     return (
         <div className="container-cart">
@@ -151,7 +159,7 @@ export default function Cart() {
                     ))}
                     <div className="cart-summary">
                         <p>Total: IDR {calculateTotalPrice().toLocaleString()}</p>
-                        <button className="checkout-btn">CHECKOUT</button>
+                        <button className="checkout-btn" onClick={checkoutHandle}>Checkout</button>
                     </div>
                 </div>
             </div>
