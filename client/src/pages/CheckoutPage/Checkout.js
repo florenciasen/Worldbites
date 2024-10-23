@@ -4,6 +4,7 @@ import './Checkout.css';
 import Navbar from '../../components/Navbar/Navbar';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom';
 
 export default function Checkout() {
     const [userData, setUserData] = useState({
@@ -20,6 +21,7 @@ export default function Checkout() {
     const [courier, setCourier] = useState('jne'); // default courier 'jne'
     const [cost, setCost] = useState(null);
     const [cartItems, setCartItems] = useState([]); // Add state for cart items
+    const Navigate = useNavigate();
 
     // Fetch user data and cart items on component mount
     useEffect(() => {
@@ -113,6 +115,10 @@ export default function Checkout() {
         }
     };
 
+    const cancelCheckout = () => {
+        Navigate('/cart');
+    }
+
     return (
         <div className='container-checkout'>
             <Navbar />
@@ -120,7 +126,7 @@ export default function Checkout() {
             <div className='checkout-content'>
                 <div className='checkout-left'>
 
-                    <div className="checkout-title">
+                    <div className="checkout-title-header">
                         <h2>Checkout</h2>
                     </div>
 
@@ -236,9 +242,15 @@ export default function Checkout() {
                     <p>Admin fee: IDR {calculateAdminFee().toLocaleString()}</p>
                     <hr />
                     <p>Total: IDR {calculateFinalCheckoutTotal().toLocaleString()}</p>
+
+                    <div className='button-checkout-cancel'>
+                        <button className='cancel-btn' onClick={cancelCheckout}>Cancel</button>
+                        <button className='checkout-btn-page'>Checkout</button>
+                    </div>
+
                 </div>
             </div>
-            <ToastContainer 
+            <ToastContainer
                 position="top-center"
                 autoClose={3000}
                 hideProgressBar={false}
