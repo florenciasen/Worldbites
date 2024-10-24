@@ -18,9 +18,9 @@ export default function Checkout() {
     const [cities, setCities] = useState([]);
     const [selectedCity, setSelectedCity] = useState('');
     const [weight, setWeight] = useState('');
-    const [courier, setCourier] = useState('jne'); // default courier 'jne'
+    const [courier, setCourier] = useState('jne');
     const [cost, setCost] = useState(null);
-    const [cartItems, setCartItems] = useState([]); // Add state for cart items
+    const [cartItems, setCartItems] = useState([]);
     const Navigate = useNavigate();
 
     // Fetch user data and cart items on component mount
@@ -32,10 +32,14 @@ export default function Checkout() {
                         Authorization: `Bearer ${localStorage.getItem('token')}`
                     },
                 });
-                setUserData(response.data); // Set the user data
+                setUserData(response.data);
             } catch (error) {
-                console.error('Error fetching user data:', error);
-                toast.error('Error fetching user data');
+                if (error.response && error.response.status === 401) {
+                    toast.error('Session expired. Please log in again.');
+                    Navigate('/login');
+                } else {
+                    toast.error('Error fetching user data');
+                }
             }
         };
 
@@ -46,25 +50,33 @@ export default function Checkout() {
                         Authorization: `Bearer ${localStorage.getItem('token')}`,
                     },
                 });
-                setCartItems(response.data); // Set cart items
+                setCartItems(response.data);
             } catch (error) {
-                console.error('Error fetching cart items:', error);
-                toast.error('Failed to fetch cart items');
+                if (error.response && error.response.status === 401) {
+                    toast.error('Session expired. Please log in again.');
+                    Navigate('/login');
+                } else {
+                    toast.error('Failed to fetch cart items');
+                }
             }
         };
 
         fetchUserData();
-        fetchCartItems(); // Fetch cart items
-    }, []);
+        fetchCartItems();
+    }, [Navigate]);
 
     // Fetch provinces and cities
     useEffect(() => {
         const fetchProvinces = async () => {
             try {
-                const response = await axios.get('http://localhost:3011/provinces');
+                const response = await axios.get('http://localhost:3011/provinces', {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
                 setProvinces(response.data);
             } catch (error) {
-                console.error('Error fetching provinces:', error);
+                toast.error('Error fetching provinces');
             }
         };
 
@@ -75,10 +87,14 @@ export default function Checkout() {
         if (selectedProvince) {
             const fetchCities = async () => {
                 try {
-                    const response = await axios.get(`http://localhost:3011/cities/${selectedProvince}`);
+                    const response = await axios.get(`http://localhost:3011/cities/${selectedProvince}`, {
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem('token')}`
+                        }
+                    });
                     setCities(response.data);
                 } catch (error) {
-                    console.error('Error fetching cities:', error);
+                    toast.error('Error fetching cities');
                 }
             };
 
@@ -108,17 +124,21 @@ export default function Checkout() {
                 destination: selectedCity,
                 weight: parseInt(weight),
                 courier: courier
+            }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
             });
             setCost(response.data);
         } catch (error) {
-            console.error('Error calculating shipping cost:', error);
+            toast.error('Error calculating shipping cost');
         }
     };
 
     const cancelCheckout = () => {
         Navigate('/cart');
     }
-
+    
     return (
         <div className='container-checkout'>
             <Navbar />

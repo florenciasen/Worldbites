@@ -1014,7 +1014,7 @@ app.post('/update-store-profile', authenticateToken, upload.single('storePicture
 
 
 
-app.get('/provinces', async (req, res) => {
+app.get('/provinces', authenticateToken, async (req, res) => {
   try {
     const response = await axios.get('https://api.rajaongkir.com/starter/province', {
       headers: { key: '687ec21839595a49d2e828450438be1c' }
@@ -1028,7 +1028,7 @@ app.get('/provinces', async (req, res) => {
 
 
 // Get cities by province ID
-app.get('/cities/:provinceId', async (req, res) => {
+app.get('/cities/:provinceId', authenticateToken, async (req, res) => {
   const { provinceId } = req.params;
 
   try {
@@ -1046,7 +1046,7 @@ app.get('/cities/:provinceId', async (req, res) => {
 });
 
 // Calculate shipping cost (ongkir)
-app.post('/ongkir', async (req, res) => {
+app.post('/ongkir', authenticateToken, async (req, res) => {
   const { origin, destination, weight, courier } = req.body; // Expecting these fields from the client
 
   try {
