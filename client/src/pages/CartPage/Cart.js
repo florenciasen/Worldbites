@@ -110,8 +110,18 @@ export default function Cart() {
 
 
     const checkoutHandle = () => {
-        navigate('/checkout'); // Navigate to the checkout page
-    }
+        // Check if there are any checked items
+        const hasCheckedItems = cartItems.some(item => item.isChecked);
+        
+        if (!hasCheckedItems) {
+            // If no items are checked, show an error and prevent checkout
+            toast.error('Please select at least one item to proceed to checkout');
+            return;
+        }
+
+        // Proceed to the checkout page if items are checked
+        navigate('/checkout');
+    };
 
     const removeItem = async (id) => {
         try {
