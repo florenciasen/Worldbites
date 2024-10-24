@@ -20,10 +20,10 @@ export default function Checkout() {
     const [weight, setWeight] = useState('');
     const [courier, setCourier] = useState('jne');
     const [cost, setCost] = useState(null);
-    const [cartItems, setCartItems] = useState([]);
+    const [cartItems, setCartItems] = useState([]);  // Initialize as an array
     const Navigate = useNavigate();
 
-    // Fetch user data and cart items on component mount
+    // Fetch user data and checked cart items on component mount
     useEffect(() => {
         const fetchUserData = async () => {
             try {
@@ -32,7 +32,14 @@ export default function Checkout() {
                         Authorization: `Bearer ${localStorage.getItem('token')}`
                     },
                 });
-                setUserData(response.data);
+                // Set both user data and checked cart items
+                setUserData({
+                    name: response.data.name,
+                    phone: response.data.phone,
+                    email: response.data.email,
+                    address: response.data.address
+                });
+                setCartItems(response.data.cartItems);  // Set checked cart items
             } catch (error) {
                 if (error.response && error.response.status === 401) {
                     toast.error('Session expired. Please log in again.');
@@ -43,26 +50,7 @@ export default function Checkout() {
             }
         };
 
-        const fetchCartItems = async () => {
-            try {
-                const response = await axios.get('http://localhost:3011/getcart', {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
-                    },
-                });
-                setCartItems(response.data);
-            } catch (error) {
-                if (error.response && error.response.status === 401) {
-                    toast.error('Session expired. Please log in again.');
-                    Navigate('/login');
-                } else {
-                    toast.error('Failed to fetch cart items');
-                }
-            }
-        };
-
         fetchUserData();
-        fetchCartItems();
     }, [Navigate]);
 
     // Fetch provinces and cities
@@ -138,7 +126,7 @@ export default function Checkout() {
     const cancelCheckout = () => {
         Navigate('/cart');
     }
-    
+
     return (
         <div className='container-checkout'>
             <Navbar />
@@ -158,29 +146,30 @@ export default function Checkout() {
                             <div className="header-item">Quantity</div>
                             <div className="header-item">Total</div>
                         </div>
-                        {cartItems.map(item => (
-                            <div key={item._id} className="cart-item-checkout">
-                                <div className="cart-image-checkout">
-                                    <img src={`http://localhost:3011/uploads/${item.imageUrl}`} alt="Product" />
+                        {/* Conditionally render cart items only when cartItems is not undefined */}
+                        {cartItems && cartItems.length > 0 ? (
+                            cartItems.map(item => (
+                                <div key={item._id} className="cart-item-checkout">
+                                    <div className="cart-image-checkout">
+                                        <img src={`http://localhost:3011/uploads/${item.imageUrl}`} alt="Product" />
+                                    </div>
+                                    <div className="product-name-cart-checkout">
+                                        <p>{item.name}</p>
+                                    </div>
+                                    <div className="cart-price">
+                                        <p>IDR {item.price.toLocaleString()}</p>
+                                    </div>
+                                    <div className="quantity-selector-cart-checkout">
+                                        <p className="quantity-checkout">{item.quantity}</p>
+                                    </div>
+                                    <div className="cart-total">
+                                        <p>IDR {(item.price * item.quantity).toLocaleString()}</p>
+                                    </div>
                                 </div>
-                                <div className="product-name-cart-checkout">
-                                    <p>{item.name}</p>
-                                </div>
-                                <div className="cart-price">
-                                    <p>IDR {item.price.toLocaleString()}</p>
-                                </div>
-                                <div className="quantity-selector-cart-checkout">
-                                    <p className="quantity-checkout">{item.quantity}</p>
-                                </div>
-                                <div className="cart-total">
-                                    <p>IDR {(item.price * item.quantity).toLocaleString()}</p>
-                                </div>
-                            </div>
-                        ))}
-                        <div className='cart-total-checkout'>
-                            {/* This will now correctly show the total price of the items in the cart */}
-                            <p>Total: IDR {calculateCartItemTotal().toLocaleString()}</p>
-                        </div>
+                            ))
+                        ) : (
+                            <p>No items in the cart for checkout.</p>
+                        )}
                     </div>
 
                     {/* Personal Information Fields */}
@@ -267,7 +256,6 @@ export default function Checkout() {
                         <button className='cancel-btn' onClick={cancelCheckout}>Cancel</button>
                         <button className='checkout-btn-page'>Checkout</button>
                     </div>
-
                 </div>
             </div>
             <ToastContainer

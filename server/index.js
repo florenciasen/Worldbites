@@ -45,7 +45,8 @@ const cartSchema = new mongoose.Schema({
     imageUrl: { type: String, required: true },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     quantity: { type: Number, default: 1 },
-    productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' }
+    productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+    isChecked: { type: Boolean, required: true }
   });
   
   const Cart = mongoose.model('Cart', cartSchema);
@@ -188,21 +189,29 @@ app.post('/logout', authenticateToken, (req, res) => {
 
 app.get('/usercheckout', authenticateToken, async (req, res) => {
   try {
+    // Find the user by their ID
     const user = await User.findById(req.user.userId);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
+
+    // Find only the cart items where isChecked is true
+    const checkedCartItems = await Cart.find({ createdBy: req.user.userId, isChecked: true });
+
+    // Respond with both user data and the checked cart items
     res.json({
       name: user.name,
       phone: user.phoneNumber,
       email: user.email,
       address: user.address,
+      cartItems: checkedCartItems,  // Send only checked items
     });
   } catch (error) {
-    console.error('Error fetching user data:', error);
+    console.error('Error fetching user data and checked cart items:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
+
 
 app.post('/filter', async (req, res) => {
   const { selectedCategories, selectedBrands } = req.body;
@@ -900,7 +909,8 @@ app.post('/cart/add', authenticateToken, async (req, res) => {
           imageUrl: product.imageUrl,
           createdBy: req.user.userId,
           quantity: quantity, // Set initial quantity
-          productId: productId // Ensure productId is included in the Cart schema
+          productId: productId, // Ensure productId is included in the Cart schema
+          isChecked: true
       });
 
       await cart.save();
@@ -962,6 +972,27 @@ app.put('/updatecartquantity/:id', authenticateToken, async (req, res) => {
       res.status(500).json({ message: 'Failed to update quantity', error: error.message });
   }
 });
+
+app.put('/cart/updateIsChecked/:id', authenticateToken, async (req, res) => {
+  const { id } = req.params;  // Cart item ID from the URL
+  const { isChecked } = req.body;  // The new isChecked value sent in the request body
+
+  try {
+    // Update the isChecked status in the database
+    const updatedItem = await Cart.findByIdAndUpdate(id, { isChecked }, { new: true });
+    
+    if (!updatedItem) {
+      console.error(`Item with ID: ${id} not found.`);
+      return res.status(404).json({ message: 'Item not found' });
+    }
+
+    res.status(200).json(updatedItem);  // Return the updated item
+  } catch (error) {
+    console.error('Error updating isChecked status:', error);
+    res.status(500).json({ message: 'Failed to update isChecked status', error: error.message });
+  }
+});
+
 
 
 app.get('/get-store-profile', authenticateToken, async (req, res) => {
@@ -1067,7 +1098,6 @@ app.post('/ongkir', authenticateToken, async (req, res) => {
     res.status(500).json({ error: 'Failed to calculate shipping cost' });
   }
 });
-
 
 // Basic route for testing
 app.get('/', (req, res) => {
