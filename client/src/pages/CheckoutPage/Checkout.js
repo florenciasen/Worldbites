@@ -139,36 +139,36 @@ export default function Checkout() {
                     </div>
 
                     <div className="cart-table-checkout">
-                        <div className="cart-header-checkout">
-                            <div className="header-item"></div>
-                            <div className="header-item">Product Name</div>
-                            <div className="header-item">Price</div>
-                            <div className="header-item">Quantity</div>
-                            <div className="header-item">Total</div>
-                        </div>
-                        {/* Conditionally render cart items only when cartItems is not undefined */}
-                        {cartItems && cartItems.length > 0 ? (
-                            cartItems.map(item => (
-                                <div key={item._id} className="cart-item-checkout">
-                                    <div className="cart-image-checkout">
-                                        <img src={`http://localhost:3011/uploads/${item.imageUrl}`} alt="Product" />
-                                    </div>
-                                    <div className="product-name-cart-checkout">
-                                        <p>{item.name}</p>
-                                    </div>
-                                    <div className="cart-price">
-                                        <p>IDR {item.price.toLocaleString()}</p>
-                                    </div>
-                                    <div className="quantity-selector-cart-checkout">
-                                        <p className="quantity-checkout">{item.quantity}</p>
-                                    </div>
-                                    <div className="cart-total">
-                                        <p>IDR {(item.price * item.quantity).toLocaleString()}</p>
-                                    </div>
+                       
+                        {cartItems.length > 0 && (
+                            <>
+                                <div className="cart-header-checkout">
+                                    <div className="header-item"></div>
+                                    <div className="header-item">Product Name</div>
+                                    <div className="header-item">Price</div>
+                                    <div className="header-item">Quantity</div>
+                                    <div className="header-item">Total</div>
                                 </div>
-                            ))
-                        ) : (
-                            <p>No items in the cart for checkout.</p>
+                                {cartItems.map(item => (
+                                    <div key={item._id} className="cart-item-checkout">
+                                        <div className="cart-image-checkout">
+                                            <img src={`http://localhost:3011/uploads/${item.imageUrl}`} alt="Product" />
+                                        </div>
+                                        <div className="product-name-cart-checkout">
+                                            <p>{item.name}</p>
+                                        </div>
+                                        <div className="cart-price">
+                                            <p>IDR {item.price.toLocaleString()}</p>
+                                        </div>
+                                        <div className="quantity-selector-cart-checkout">
+                                            <p className="quantity-checkout">{item.quantity}</p>
+                                        </div>
+                                        <div className="cart-total">
+                                            <p>IDR {(item.price * item.quantity).toLocaleString()}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </>
                         )}
                     </div>
 
