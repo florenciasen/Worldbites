@@ -1099,6 +1099,44 @@ app.post('/ongkir', authenticateToken, async (req, res) => {
   }
 });
 
+
+app.post('/buy-now', authenticateToken, async (req, res) => {
+  const { productId, quantity } = req.body;
+
+  console.log('Buy Now - Product ID:', productId);
+  console.log('Quantity:', quantity);
+
+  try {
+      const product = await Product.findById(productId);
+      if (!product) return res.status(404).send('Product not found');
+
+      // You don't save the product to the cart for "Buy Now".
+      // Instead, directly return the product details with the specified quantity.
+      
+      const checkoutProduct = {
+          name: product.name,
+          brand: product.brand,
+          category: product.category,
+          price: product.price,
+          details: product.details,
+          imageUrl: product.imageUrl,
+          quantity: quantity, // Set quantity for immediate checkout
+          productId: productId,
+      };
+
+      // Send the product details for the checkout process without saving them
+      return res.status(200).json({
+          success: true,
+          message: 'Proceed to checkout',
+          product: checkoutProduct // Return the product details
+      });
+  } catch (error) {
+      console.error('Error during Buy Now:', error);
+      res.status(500).json({ message: 'Error processing Buy Now', error: error.message });
+  }
+});
+
+
 // Basic route for testing
 app.get('/', (req, res) => {
   res.send('Hello from Node.js backend!');
