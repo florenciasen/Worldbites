@@ -156,14 +156,13 @@ export default function Checkout() {
     return (
         <div className='container-checkout'>
             <Navbar />
-    
+
             <div className='checkout-content'>
                 <div className='checkout-left'>
                     <div className="checkout-title-header">
                         <h2>Checkout</h2>
                     </div>
-    
-                    {/* Always display the product table header */}
+
                     <div className="cart-table-checkout">
                         <div className="cart-header-checkout">
                             <div className="header-item"></div>
@@ -172,26 +171,28 @@ export default function Checkout() {
                             <div className="header-item">Quantity</div>
                             <div className="header-item">Total</div>
                         </div>
-    
+
                         {/* Conditionally Render Either "Buy Now" Product or Cart Items */}
                         {buyNowProduct ? (
-                            <div className="cart-item-checkout">
-                                <div className="cart-image-checkout">
-                                    <img src={`http://localhost:3011/uploads/${buyNowProduct.imageUrl}`} alt="Product" />
+                            <>
+                                <div className="cart-item-checkout">
+                                    <div className="cart-image-checkout">
+                                        <img src={`http://localhost:3011/uploads/${buyNowProduct.imageUrl}`} alt="Product" />
+                                    </div>
+                                    <div className="product-name-cart-checkout">
+                                        <p>{buyNowProduct.name}</p>
+                                    </div>
+                                    <div className="cart-price">
+                                        <p>IDR {buyNowProduct.price.toLocaleString()}</p>
+                                    </div>
+                                    <div className="quantity-selector-cart-checkout">
+                                        <p className="quantity-checkout">{buyNowProduct.quantity}</p>
+                                    </div>
+                                    <div className="cart-total">
+                                        <p>IDR {(buyNowProduct.price * buyNowProduct.quantity).toLocaleString()}</p>
+                                    </div>
                                 </div>
-                                <div className="product-name-cart-checkout">
-                                    <p>{buyNowProduct.name}</p>
-                                </div>
-                                <div className="cart-price">
-                                    <p>IDR {buyNowProduct.price.toLocaleString()}</p>
-                                </div>
-                                <div className="quantity-selector-cart-checkout">
-                                    <p className="quantity-checkout">{buyNowProduct.quantity}</p>
-                                </div>
-                                <div className="cart-total">
-                                    <p>IDR {(buyNowProduct.price * buyNowProduct.quantity).toLocaleString()}</p>
-                                </div>
-                            </div>
+                            </>
                         ) : (
                             cartItems.length > 0 && (
                                 <>
@@ -217,8 +218,14 @@ export default function Checkout() {
                                 </>
                             )
                         )}
+
+                        {/* Total Section for Both Buy Now and Cart Checkout */}
+                        <div className='total-checkout'>
+                            <p>Total: IDR {calculateSubtotal().toLocaleString()}</p>
+                        </div>
                     </div>
-    
+
+
                     {/* Personal Information Fields */}
                     <div className='checkout-title'>
                         <label>Nama Lengkap</label>
@@ -236,7 +243,7 @@ export default function Checkout() {
                         <label>Address</label>
                         <textarea rows="3" value={userData.address} readOnly></textarea>
                     </div>
-    
+
                     {/* Province and City Dropdown */}
                     <div className='checkout-title'>
                         <label>Province</label>
@@ -249,7 +256,7 @@ export default function Checkout() {
                             ))}
                         </select>
                     </div>
-    
+
                     <div className='checkout-title'>
                         <label>City</label>
                         <select value={selectedCity} onChange={(e) => setSelectedCity(e.target.value)} disabled={!selectedProvince}>
@@ -261,13 +268,13 @@ export default function Checkout() {
                             ))}
                         </select>
                     </div>
-    
+
                     {/* Weight and Courier */}
                     <div className='checkout-title'>
                         <label>Weight (grams)</label>
                         <input type="number" value={weight} onChange={(e) => setWeight(e.target.value)} placeholder="Enter weight in grams" />
                     </div>
-    
+
                     <div className='checkout-title'>
                         <label>Courier</label>
                         <select value={courier} onChange={(e) => setCourier(e.target.value)}>
@@ -276,12 +283,12 @@ export default function Checkout() {
                             <option value="tiki">TIKI</option>
                         </select>
                     </div>
-    
+
                     {/* Calculate Shipping Button */}
                     <div className='button-calculateshipping'>
                         <button onClick={handleCalculateShipping}>Calculate Shipping</button>
                     </div>
-    
+
                     {/* Display Shipping Cost */}
                     {cost && (
                         <div className='shipping-cost'>
@@ -290,7 +297,7 @@ export default function Checkout() {
                         </div>
                     )}
                 </div>
-    
+
                 {/* Checkout Summary on the Right */}
                 <div className='checkout-right'>
                     <p>
@@ -304,7 +311,7 @@ export default function Checkout() {
                     <p>
                         Total: IDR {calculateFinalTotal().toLocaleString()}
                     </p>
-    
+
                     <div className='button-checkout-cancel'>
                         <button className='cancel-btn' onClick={cancelCheckout}>Cancel</button>
                         <button className='checkout-btn-page'>Checkout</button>
@@ -323,5 +330,5 @@ export default function Checkout() {
                 pauseOnHover
             />
         </div>
-    );    
+    );
 }
