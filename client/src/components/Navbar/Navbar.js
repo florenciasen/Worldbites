@@ -69,6 +69,14 @@ export default function Navbar() {
         }
     };
 
+    const handleOrderHistory = () => {
+        if (isLoggedIn) {
+            navigate('/orderhistory');
+        } else {
+            handleLogin();
+        }
+    };
+
     const handleChat = () => {
         if (isLoggedIn) {
             navigate('/chat'); 
@@ -202,7 +210,7 @@ export default function Navbar() {
                                     <>
                                         <div className='dropdown-item' onClick={handleEditProfile}>Edit Profile</div>
                                         <div className='dropdown-item' onClick={handleChangePassword}>Change Password</div>
-                                        <div className='dropdown-item'>Order and History</div>
+                                        <div className='dropdown-item' onClick={handleOrderHistory}>Order History</div>
                                         {!isJastipLoggedIn ? (
                                             userData?.identityCard && userData?.storeName && userData?.storeDescription ? (
                                                 <div className='dropdown-item' onClick={handleLoginJastip}>Login Jastip</div>

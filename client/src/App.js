@@ -21,6 +21,7 @@ import ProductInfo from './pages/ProductInfoPage/ProductInfo';
 import EditStoreProfile from './pages/EditStoreProfilePage/EditStoreProfile';
 import ViewStore from './pages/ViewStorePage/ViewStore';
 import Checkout from './pages/CheckoutPage/Checkout';
+import OrderHistory from './pages/OrderHistoryPage/OrderHistory';
 
 
 
@@ -48,6 +49,7 @@ function App() {
         <Route path="/editstoreprofile" element={<EditStoreProfile />} />
         <Route path="/viewstore" element={<ViewStore />} />
         <Route path="/checkout" element={<Checkout />} />
+        <Route path="/orderhistory" element={<OrderHistory />} />
       </Routes>
     </Router>
   );

@@ -35,6 +35,25 @@ mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
   .catch(err => console.error('MongoDB connection error:', err));
 
 
+  const orderSchema = new mongoose.Schema({
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Reference to the user who made the order
+    store: { type: String, required: true }, // Store name
+    products: [{
+        productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
+        name: { type: String, required: true },
+        quantity: { type: Number, required: true },
+        price: { type: Number, required: true },
+        imageUrl: { type: String, required: true }
+    }],
+    totalItems: { type: Number, required: true }, // Total number of items
+    totalPrice: { type: Number, required: true }, // Total price of the order
+    trackingNumber: { type: String, default: 'xxxxxxx' }, // Tracking number for the order
+    status: { type: String, default: 'On Progress' }, // Order status
+    createdAt: { type: Date, default: Date.now }
+});
+
+const Order = mongoose.model('Order', orderSchema);
+
 
 const cartSchema = new mongoose.Schema({
     name: { type: String, required: true },
@@ -1133,6 +1152,28 @@ app.post('/buy-now', authenticateToken, async (req, res) => {
   } catch (error) {
       console.error('Error during Buy Now:', error);
       res.status(500).json({ message: 'Error processing Buy Now', error: error.message });
+  }
+});
+
+
+app.post('/checkout', async (req, res) => {
+  try {
+      const { userId, store, products, totalItems, totalPrice } = req.body;
+
+      // Create a new order
+      const newOrder = new Order({
+          user: userId,
+          store,
+          products,
+          totalItems,
+          totalPrice
+      });
+
+      await newOrder.save();
+
+      res.status(201).json({ message: 'Order created successfully', order: newOrder });
+  } catch (error) {
+      res.status(500).json({ message: 'Error creating order', error: error.message });
   }
 });
 

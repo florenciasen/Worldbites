@@ -118,6 +118,7 @@ input, textarea {
 
 .label-input-container {
     display: flex;
+    position: relative;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
@@ -133,9 +134,47 @@ input, textarea {
 }
 
 .input-field {
+    font-family: 'Amaranth', sans-serif;
     padding: 0.625rem;
     border: 1px solid #B4835B;
     border-radius: 0.3125rem;
     width: 100%;
     box-sizing: border-box;
+}
+
+.brand-dropdown {
+    position:absolute;
+    top: 100%; /* Agar dropdown muncul tepat di bawah input field */
+    max-height: 200px; /* Batasi tinggi dropdown */
+    overflow-y: auto; /* Tambahkan scrollbar jika hasil terlalu banyak */
+    background-color: white;
+    border: 1px solid #B4835B;
+    border-radius: 0.3125rem;
+    margin-left: 170px;
+    width: 79%; /* Lebar dropdown akan sama dengan input */
+    margin-top: 0.1rem;
+    padding: 0; /* Hapus padding yang tidak perlu */
+    list-style-type: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    font-family: 'Amaranth', sans-serif;
+    z-index: 1000; /* Agar dropdown berada di atas elemen lain */
+    box-sizing: border-box; 
+}
+
+
+/* Style untuk item dalam dropdown */
+.brand-dropdown li {
+    padding: 0.625rem;
+    cursor: pointer;
+    border-bottom: 1px solid #ccc;
+}
+
+.brand-dropdown li:last-child {
+    border-bottom: none;
+}
+
+/* Style saat item di-hover */
+.brand-dropdown li:hover {
+    background-color: #FF5733;
+    color: white;
 }

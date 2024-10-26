@@ -149,6 +149,50 @@ export default function Checkout() {
         }
     };
 
+
+    const handleCheckout = async () => {
+        try {
+            // Prepare the data to be sent to the backend
+            const checkoutData = {
+                userId: localStorage.getItem('userId'), // Assume the user ID is stored in localStorage
+                store: 'Store Name', // Replace with dynamic store name
+                products: buyNowProduct ? [{
+                    productId: buyNowProduct.productId,
+                    name: buyNowProduct.name,
+                    quantity: buyNowProduct.quantity,
+                    price: buyNowProduct.price,
+                    imageUrl: buyNowProduct.imageUrl
+                }] : cartItems.map(item => ({
+                    productId: item.productId,
+                    name: item.name,
+                    quantity: item.quantity,
+                    price: item.price,
+                    imageUrl: item.imageUrl
+                })),
+                totalItems: buyNowProduct ? 1 : cartItems.length,
+                totalPrice: calculateSubtotal()
+            };
+    
+            // Send checkout data to the backend
+            const response = await axios.post('http://localhost:3011/checkout', checkoutData, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+    
+            // Handle success (you can navigate to an "Order Confirmation" page, show a success message, etc.)
+            toast.success('Order created successfully!');
+            console.log('Order created:', response.data.order);
+    
+            // Redirect to an "Order Confirmation" or "Order History" page
+            Navigate('/orders'); // Replace with the correct route
+    
+        } catch (error) {
+            console.error('Error during checkout:', error);
+            toast.error('Error processing checkout.');
+        }
+    };
+
     const cancelCheckout = () => {
         Navigate('/cart');
     };
@@ -314,7 +358,7 @@ export default function Checkout() {
 
                     <div className='button-checkout-cancel'>
                         <button className='cancel-btn' onClick={cancelCheckout}>Cancel</button>
-                        <button className='checkout-btn-page'>Checkout</button>
+                        <button className='checkout-btn-page' onClick={handleCheckout}>Checkout</button>
                     </div>
                 </div>
             </div>

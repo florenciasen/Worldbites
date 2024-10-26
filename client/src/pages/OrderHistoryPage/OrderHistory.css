@@ -1,0 +1,135 @@
+@import url('https://fonts.googleapis.com/css2?family=Jersey+15&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Amaranth:wght@400;700&display=swap');
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Amaranth', sans-serif;
+    background-color: #faf5f5; /* Light background */
+    min-height: 100vh;
+}
+
+/* Container for the entire Order History section */
+.order-history-container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Title of the page */
+.order-history-container h2 {
+    text-align: center;
+    font-family: 'Jersey 15', sans-serif;
+    font-size: 36px;
+    margin-bottom: 30px;
+    color: #8d553f;
+}
+
+/* Each order card (container) */
+.order-card {
+    border: 1px solid #dcdcdc;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.2s ease-in-out;
+}
+
+.order-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Store name container */
+.order-store {
+    display: flex;
+    align-items: center;
+}
+
+.order-store p {
+    margin: 0;
+    font-size: 18px;
+    font-weight: bold;
+    color: #b46a50;
+}
+
+.order-store img {
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
+}
+
+/* Order items section */
+.order-items {
+    flex-grow: 2;
+    display: flex;
+    align-items: center;
+}
+
+.order-item {
+    display: flex;
+    align-items: center;
+}
+
+.order-item img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-right: 10px;
+}
+
+.order-item p {
+    margin: 0;
+    font-size: 16px;
+    color: #333;
+}
+
+/* Order Summary section (Right side) */
+.order-summary {
+    text-align: right;
+    font-size: 14px;
+}
+
+.order-summary p {
+    margin: 5px 0;
+}
+
+.order-summary .total-items {
+    font-weight: bold;
+    color: #333;
+}
+
+.order-summary .total-price {
+    font-weight: bold;
+    color: #b46a50;
+    font-size: 18px;
+}
+
+.order-summary .tracking-number {
+    font-style: italic;
+    color: #666;
+}
+
+/* Order status button */
+.order-summary .order-status {
+    padding: 8px 12px;
+    background-color: #f5f0eb;
+    color: #e15c44;
+    border: 1px solid #e15c44;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.order-summary .order-status:hover {
+    background-color: #e15c44;
+    color: white;
+}

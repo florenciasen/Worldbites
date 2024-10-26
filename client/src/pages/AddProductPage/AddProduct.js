@@ -21,7 +21,33 @@ export default function AddProduct() {
     const [price, setPrice] = useState('');
     const [batchIdState, setBatchId] = useState(batchId || '');
     const [batches, setBatches] = useState([]);
-;
+
+    const categories = [
+        "Food & Beverages",
+        "Fashion & Accessories",
+        "Beauty & Personal Care",
+        "Electronics & Gadgets",
+        "Toys & Hobbies",
+        "Home & Decoration",
+        "Health & Fitness",
+        "Books & Stationery",
+        "Baby & Kids Products"
+    ];
+
+    const availableBrands = [
+        // Tas
+        "Louis Vuitton", "Gucci", "Hermès", "Prada", "Chanel", "Fendi", "Coach", "Michael Kors", "Balenciaga","Dior",
+        
+        // Snack
+        "Lays", "Doritos", "Pringles", "KitKat", "Oreo", "Toblerone", "Milka", "Snickers", "Cadbury",
+        
+        // Skincare
+        "The Ordinary", "Laneige", "SK-II", "Innisfree", "Clinique", "Cetaphil", "La Roche-Posay", "Neutrogena", "Estee Lauder"
+    ];
+    
+
+    const [filteredBrands, setFilteredBrands] = useState([]);
+    const [isBrandDropdownVisible, setIsBrandDropdownVisible] = useState(false);
 
     const handleFileChange = (event) => {
         const file = event.target.files[0];
@@ -32,6 +58,28 @@ export default function AddProduct() {
 
     const handleLabelClick = () => {
         document.getElementById('file-input').click();
+    };
+
+    // Filter brands based on user input
+    const handleBrandSearch = (e) => {
+        const input = e.target.value;
+        setBrand(input);
+
+        if (input) {
+            const filtered = availableBrands.filter((b) =>
+                b.toLowerCase().includes(input.toLowerCase())
+            );
+            setFilteredBrands(filtered);
+            setIsBrandDropdownVisible(true);
+        } else {
+            setFilteredBrands([]);
+            setIsBrandDropdownVisible(false);
+        }
+    };
+
+    const handleBrandSelect = (selectedBrand) => {
+        setBrand(selectedBrand);
+        setIsBrandDropdownVisible(false);
     };
 
     const handleSubmit = async () => {
@@ -74,7 +122,6 @@ export default function AddProduct() {
             toast.error('Failed to add product. Please try again.');
         }
     };
-    
 
     return (
         <div className='container-addproduct'>
@@ -109,11 +156,33 @@ export default function AddProduct() {
                         </div>
                         <div className="label-input-container">
                             <p>Brand:</p>
-                            <input type="text" className="input-field" value={brand} onChange={(e) => setBrand(e.target.value)} />
+                            <input 
+                                type="text" 
+                                className="input-field" 
+                                value={brand} 
+                                onChange={handleBrandSearch} 
+                                onFocus={() => setIsBrandDropdownVisible(true)} 
+                            />
+                            {isBrandDropdownVisible && filteredBrands.length > 0 && (
+                                <ul className="brand-dropdown">
+                                    {filteredBrands.map((b) => (
+                                        <li key={b} onClick={() => handleBrandSelect(b)}>
+                                            {b}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
                         </div>
                         <div className="label-input-container">
                             <p>Category:</p>
-                            <input type="text" className="input-field" value={category} onChange={(e) => setCategory(e.target.value)} />
+                            <select className="input-field" value={category} onChange={(e) => setCategory(e.target.value)}>
+                                <option value="">Select Category</option>
+                                {categories.map((cat) => (
+                                    <option key={cat} value={cat}>
+                                        {cat}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
                         <div className="label-input-container">
                             <p>Details:</p>
