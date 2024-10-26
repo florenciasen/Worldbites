@@ -154,7 +154,6 @@ export default function Checkout() {
         try {
             // Prepare the data to be sent to the backend
             const checkoutData = {
-                userId: localStorage.getItem('userId'), // Assume the user ID is stored in localStorage
                 store: 'Store Name', // Replace with dynamic store name
                 products: buyNowProduct ? [{
                     productId: buyNowProduct.productId,
@@ -173,25 +172,25 @@ export default function Checkout() {
                 totalPrice: calculateSubtotal()
             };
     
+    
             // Send checkout data to the backend
             const response = await axios.post('http://localhost:3011/checkout', checkoutData, {
                 headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                    Authorization: `Bearer ${localStorage.getItem('token')}` // Use token from localStorage
                 }
             });
     
-            // Handle success (you can navigate to an "Order Confirmation" page, show a success message, etc.)
+            // Handle success
             toast.success('Order created successfully!');
             console.log('Order created:', response.data.order);
     
-            // Redirect to an "Order Confirmation" or "Order History" page
-            Navigate('/orders'); // Replace with the correct route
     
         } catch (error) {
-            console.error('Error during checkout:', error);
+            console.error('Error during checkout:', error); // Log the actual error
             toast.error('Error processing checkout.');
         }
     };
+    
 
     const cancelCheckout = () => {
         Navigate('/cart');

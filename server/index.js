@@ -38,6 +38,7 @@ mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
   const orderSchema = new mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Reference to the user who made the order
     store: { type: String, required: true }, // Store name
+    storePicture: { type: String, required: true }, // Store picture URL
     products: [{
         productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
         name: { type: String, required: true },
@@ -1156,17 +1157,33 @@ app.post('/buy-now', authenticateToken, async (req, res) => {
 });
 
 
-app.post('/checkout', async (req, res) => {
+app.post('/checkout', authenticateToken, async (req, res) => {
   try {
-      const { userId, store, products, totalItems, totalPrice } = req.body;
+      // Fetch user ID from the token (assuming it's part of the token payload)
+      const userId = req.user.userId;
+
+      // Find the user based on userId
+      const user = await User.findById(userId);
+      if (!user) {
+          return res.status(404).json({ message: 'User not found' });
+      }
+
+      // Extract storeName and storePicture from the user
+      const storeName = user.storeName || 'Default Store Name'; // Use default if not found
+      const storePicture = user.storePicture || 'default-store-pic.jpg'; // Use default image if not found
+
+      const { products, totalItems, totalPrice } = req.body;
 
       // Create a new order
       const newOrder = new Order({
           user: userId,
-          store,
-          products,
-          totalItems,
-          totalPrice
+          store: storeName,  // Save the store name
+          storePicture: storePicture, // Save the store picture
+          products: products,
+          totalItems: totalItems,
+          totalPrice: totalPrice,
+          trackingNumber: "xxxxxxx", // Add default tracking number for now
+          status: "On Progress"
       });
 
       await newOrder.save();
@@ -1174,6 +1191,36 @@ app.post('/checkout', async (req, res) => {
       res.status(201).json({ message: 'Order created successfully', order: newOrder });
   } catch (error) {
       res.status(500).json({ message: 'Error creating order', error: error.message });
+  }
+});
+
+
+app.get('/orders', authenticateToken, async (req, res) => {
+  try {
+      // Get the authenticated user's ID
+      const userId = req.user.userId;
+
+      // Fetch orders related to this user
+      const orders = await Order.find({ user: userId });
+
+      res.status(200).json({ orders });
+  } catch (error) {
+      console.error('Error fetching orders:', error.message);
+      res.status(500).json({ message: 'Error fetching orders', error: error.message });
+  }
+});
+
+app.get('/orders-history', authenticateToken, async (req, res) => {
+  try {
+      const userId = req.user.userId;
+
+      // Fetch orders related to this user that are considered "history" (you can define the logic)
+      const historyOrders = await Order.find({ user: userId, status: 'Completed' });
+
+      res.status(200).json({ orders: historyOrders });
+  } catch (error) {
+      console.error('Error fetching order history:', error.message);
+      res.status(500).json({ message: 'Error fetching order history', error: error.message });
   }
 });
 
