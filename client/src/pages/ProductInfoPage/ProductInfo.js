@@ -63,7 +63,7 @@ export default function ProductInfo() {
             toast.error('Error adding product to cart.');
         }
     };
-    
+
     const buyNow = async () => {
         try {
             const response = await axios.post('http://localhost:3011/buy-now', {
@@ -131,7 +131,7 @@ export default function ProductInfo() {
 
                     {/* Product Price */}
                     <div className="product-price">
-                        <h3>IDR {product.price}</h3>
+                        <h3>IDR {product.price.toLocaleString()}</h3>
                     </div>
 
                     {/* Quantity Selector and Buy Now Button */}
