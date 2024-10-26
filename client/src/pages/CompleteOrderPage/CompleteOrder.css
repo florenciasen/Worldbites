@@ -46,7 +46,7 @@ body {
     align-items: flex-start;
 }
 
-.product-info {
+.product-info-completeorder {
     display: flex;
     align-items: center;
     max-width: 300px;

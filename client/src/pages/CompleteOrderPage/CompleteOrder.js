@@ -20,7 +20,7 @@ export default function CompleteOrder() {
 
                 {/* Order 1 */}
                 <div className='order-details'>
-                    <div className='product-info'>
+                    <div className='product-info-completeorder'>
                         <img 
                             src="https://example.com/stitch-plush.jpg" 
                             alt="Stitch Attacks Snacks Plush" 
@@ -65,7 +65,7 @@ export default function CompleteOrder() {
 
                 {/* Order 2 */}
                 <div className='order-details'>
-                    <div className='product-info'>
+                    <div className='product-info-completeorder'>
                         <img 
                             src="https://example.com/another-product.jpg" 
                             alt="Another Product" 
