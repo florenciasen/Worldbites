@@ -169,7 +169,8 @@ export default function Checkout() {
                     imageUrl: item.imageUrl
                 })),
                 totalItems: buyNowProduct ? 1 : cartItems.length,
-                totalPrice: calculateSubtotal()
+                totalPrice: calculateSubtotal(),
+                courier: courier,
             };
     
     
