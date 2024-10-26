@@ -3,7 +3,7 @@ import './HomepageJastip.css';
 import Navbar from '../../components/Navbar/Navbar';
 import AddProductImage from '../../assets/addproduct.svg';
 import CustomerOrderImage from '../../assets/customerorder.svg';
-import OrderCompletedImage from '../../assets/ordercompleted.svg';
+import CompleteOrderImage from '../../assets/ordercompleted.svg';
 import NetIncomeImage from '../../assets/netincome.svg';
 import Arrow from '../../assets/Arrow 1.svg';
 import axios from 'axios';
@@ -63,6 +63,14 @@ export default function HomepageJastip() {
         navigate('/viewstore');
     }
 
+    const handleCustomerOrder = () => {
+        navigate('/customerorder');
+    }
+
+    const handleCompleteOrder = () => {
+        navigate('/completeorder');
+    }
+
     return (
         <div className='container-homepagejastip'>
             <Navbar />
@@ -109,13 +117,13 @@ export default function HomepageJastip() {
                     <img src={AddProductImage} alt="Add Product" className="small-container-image" />
                     <h3>Add Product</h3>
                 </div>
-                <div className='container-small'>
+                <div className='container-small'onClick={() => handleCustomerOrder()}>
                     <img src={CustomerOrderImage} alt="Customer Order" className="small-container-image" />
                     <h3>Customer Order</h3>
                 </div>
-                <div className='container-small'>
-                    <img src={OrderCompletedImage} alt="Order Completed" className="order-completed-image" />
-                    <h3>Order Completed</h3>
+                <div className='container-small'onClick={() => handleCompleteOrder()}>
+                    <img src={CompleteOrderImage} alt="Order Completed" className="order-completed-image" />
+                    <h3>Complete Order</h3>
                 </div>
                 <div className='container-small'>
                     <img src={NetIncomeImage} alt="Net Income" className="net-income-image" />

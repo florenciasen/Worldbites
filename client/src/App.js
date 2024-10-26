@@ -22,6 +22,8 @@ import EditStoreProfile from './pages/EditStoreProfilePage/EditStoreProfile';
 import ViewStore from './pages/ViewStorePage/ViewStore';
 import Checkout from './pages/CheckoutPage/Checkout';
 import OrderHistory from './pages/OrderHistoryPage/OrderHistory';
+import CustomerOrder from './pages/CustomerOrderPage/CustomerOrder'
+import CompleteOrder from './pages/CompleteOrderPage/CompleteOrder';
 
 
 
@@ -50,6 +52,8 @@ function App() {
         <Route path="/viewstore" element={<ViewStore />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/orderhistory" element={<OrderHistory />} />
+        <Route path="/customerorder" element={<CustomerOrder />}/>
+        <Route path="/completeorder" element={<CompleteOrder/>}/>
       </Routes>
     </Router>
   );
