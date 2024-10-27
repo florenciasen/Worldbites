@@ -36,24 +36,24 @@ mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
 
 
   const orderSchema = new mongoose.Schema({
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Reference to the user who made the order
-    store: { type: String, required: true }, // Store name
-    storePicture: { type: String, required: true }, // Store picture URL
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Buyer's user ID
+    store: { type: String, required: true },  // Store name
+    storePicture: { type: String, required: true },  // Store picture URL
+    seller: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Seller's user ID
     products: [{
-        productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
-        name: { type: String, required: true },
-        quantity: { type: Number, required: true },
-        price: { type: Number, required: true },
-        imageUrl: { type: String, required: true }
+      productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
+      name: { type: String, required: true },
+      quantity: { type: Number, required: true },
+      price: { type: Number, required: true },
+      imageUrl: { type: String, required: true }
     }],
-    totalItems: { type: Number, required: true }, // Total number of items
-    totalPrice: { type: Number, required: true }, // Total price of the order
-    shippingby: { type: String, required: true }, // Shipping method
-    shippingby: { type: String, required: true }, // Shipping method
-    trackingNumber: { type: String, default: 'xxxxxxx' }, // Tracking number for the order
-    status: { type: String, default: 'On Progress' }, // Order status
+    totalItems: { type: Number, required: true },  // Total number of items
+    totalPrice: { type: Number, required: true },  // Total price of the order
+    shippingby: { type: String, required: true },  // Shipping method
+    trackingNumber: { type: String, default: 'xxxxxxx' },  // Tracking number
+    status: { type: String, default: 'On Progress' },  // Order status
     createdAt: { type: Date, default: Date.now }
-});
+  });
 
 const Order = mongoose.model('Order', orderSchema);
 
@@ -1162,53 +1162,52 @@ app.post('/buy-now', authenticateToken, async (req, res) => {
 
 app.post('/checkout', authenticateToken, async (req, res) => {
   try {
-      // Get buyer's user ID from the token
-      const buyerId = req.user.userId;
+    // Get buyer's user ID from the token
+    const buyerId = req.user.userId;
 
-      // Extract products, totalItems, totalPrice, and courier from the request body
-      const { products, totalItems, totalPrice, courier } = req.body;
+    // Extract products, totalItems, totalPrice, and courier from the request body
+    const { products, totalItems, totalPrice, courier } = req.body;
 
-      if (!courier) {
-          return res.status(400).json({ message: 'Please select a shipping courier' });
-      }
+    if (!courier) {
+      return res.status(400).json({ message: 'Please select a shipping courier' });
+    }
 
-      // Fetch product details with their 'createdBy' field populated to get seller info
-      const productIds = products.map(p => p.productId);
-      const productDetails = await Product.find({ _id: { $in: productIds } }).populate('createdBy'); // Populate seller details
+    // Fetch product details with their 'createdBy' field populated to get seller info
+    const productIds = products.map(p => p.productId);
+    const productDetails = await Product.find({ _id: { $in: productIds } }).populate('createdBy');
 
-      if (!productDetails.length) {
-          return res.status(404).json({ message: 'Products not found' });
-      }
+    if (!productDetails.length) {
+      return res.status(404).json({ message: 'Products not found' });
+    }
 
-      // Now fetch the store details from the 'createdBy' (seller's user) for each product
-      const firstProductSeller = productDetails[0].createdBy; // Assume all products come from the same seller
+    // Assume all products are from the same seller (createdBy field)
+    const firstProductSeller = productDetails[0].createdBy;
 
-      // Get the seller's store name and picture from the seller's (createdBy) user profile
-      const storeName = firstProductSeller.storeName || 'Default Store Name';  // Seller's store name
-      const storePicture = firstProductSeller.storePicture || 'default-store-pic.jpg';  // Seller's store picture
+    // Create a new order for the buyer, with seller's store details
+    const newOrder = new Order({
+      user: buyerId,  // Buyer's user ID
+      store: firstProductSeller.storeName,  // Seller's store name
+      storePicture: firstProductSeller.storePicture,  // Seller's store picture
+      seller: firstProductSeller._id,  // Store the seller's unique user ID
+      products: products,  // Products being ordered
+      totalItems: totalItems,  // Total number of items
+      totalPrice: totalPrice,  // Total price
+      shippingby: courier,  // Shipping method
+      trackingNumber: "xxxxxxx",  // Default tracking number
+      status: "On Progress",  // Default order status
+      createdAt: new Date()  // Current date and time
+    });
 
-      // Create a new order for the buyer, but with the seller's store details
-      const newOrder = new Order({
-          user: buyerId,  // Buyer's user ID
-          store: storeName,  // Seller's store name
-          storePicture: storePicture,  // Seller's store picture
-          products: products,  // Products being ordered
-          totalItems: totalItems,  // Total number of items
-          totalPrice: totalPrice,  // Total price
-          shippingby: courier,  // Shipping method selected
-          trackingNumber: "xxxxxxx",  // Default tracking number
-          status: "On Progress"  // Default order status
-      });
+    // Save the new order
+    await newOrder.save();
 
-      // Save the new order
-      await newOrder.save();
-
-      res.status(201).json({ message: 'Order created successfully', order: newOrder });
+    res.status(201).json({ message: 'Order created successfully', order: newOrder });
   } catch (error) {
-      console.error('Error during checkout:', error);
-      res.status(500).json({ message: 'Error creating order', error: error.message });
+    console.error('Error during checkout:', error);
+    res.status(500).json({ message: 'Error creating order', error: error.message });
   }
 });
+
 
 
 app.get('/orders', authenticateToken, async (req, res) => {
@@ -1262,6 +1261,26 @@ app.put('/orders/:orderId/trackingnumber', async (req, res) => {
   } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Error updating tracking number' });
+  }
+});
+
+app.get('/seller/orders', authenticateToken, async (req, res) => {
+  try {
+    // Get the seller's user ID from the token
+    const sellerId = req.user.userId;
+
+    // Fetch all orders where the seller's user ID matches the 'seller' field in the Order
+    const orders = await Order.find({ seller: sellerId }).populate('user');  // Populate buyer details
+
+    if (!orders.length) {
+      return res.status(404).json({ message: 'No orders found for this seller.' });
+    }
+
+    // Respond with all orders
+    res.status(200).json({ message: 'Orders fetched successfully', orders });
+  } catch (error) {
+    console.error('Error fetching seller orders:', error);
+    res.status(500).json({ message: 'Error fetching orders', error: error.message });
   }
 });
 
