@@ -100,6 +100,7 @@ const productSchema = new mongoose.Schema({
   price: { type: Number, required: true },  // Price of the product
   details: { type: String, required: true },  // Additional product details (e.g., size, material, etc.)
   imageUrl: { type: String, required: true },  // URL of the product image
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }  // Reference to the user who created the product
 });
 
 const Product = mongoose.model('Product', productSchema);
@@ -734,7 +735,8 @@ app.post('/batch/add-product', authenticateToken, upload.single('imageUrl'), asy
       brand,
       category,
       details,
-      imageUrl: req.file ? req.file.filename : null // Save the filename if a file is uploaded
+      imageUrl: req.file ? req.file.filename : null, // Save the filename if a file is uploaded
+      createdBy: req.user.userId // Use userId from authenticated token
     });
 
     // Save the product to the Product collection
@@ -1160,46 +1162,53 @@ app.post('/buy-now', authenticateToken, async (req, res) => {
 
 app.post('/checkout', authenticateToken, async (req, res) => {
   try {
-      // Fetch user ID from the token (assuming it's part of the token payload)
-      const userId = req.user.userId;
+      // Get buyer's user ID from the token
+      const buyerId = req.user.userId;
 
-      // Find the user based on userId
-      const user = await User.findById(userId);
-      if (!user) {
-          return res.status(404).json({ message: 'User not found' });
-      }
-
-      // Extract storeName and storePicture from the user
-      const storeName = user.storeName || 'Default Store Name'; // Use default if not found
-      const storePicture = user.storePicture || 'default-store-pic.jpg'; // Use default image if not found
-
+      // Extract products, totalItems, totalPrice, and courier from the request body
       const { products, totalItems, totalPrice, courier } = req.body;
 
-      if(!courier) {
+      if (!courier) {
           return res.status(400).json({ message: 'Please select a shipping courier' });
       }
 
-      // Create a new order
+      // Fetch product details with their 'createdBy' field populated to get seller info
+      const productIds = products.map(p => p.productId);
+      const productDetails = await Product.find({ _id: { $in: productIds } }).populate('createdBy'); // Populate seller details
+
+      if (!productDetails.length) {
+          return res.status(404).json({ message: 'Products not found' });
+      }
+
+      // Now fetch the store details from the 'createdBy' (seller's user) for each product
+      const firstProductSeller = productDetails[0].createdBy; // Assume all products come from the same seller
+
+      // Get the seller's store name and picture from the seller's (createdBy) user profile
+      const storeName = firstProductSeller.storeName || 'Default Store Name';  // Seller's store name
+      const storePicture = firstProductSeller.storePicture || 'default-store-pic.jpg';  // Seller's store picture
+
+      // Create a new order for the buyer, but with the seller's store details
       const newOrder = new Order({
-          user: userId,
-          store: storeName,  // Save the store name
-          storePicture: storePicture, // Save the store picture
-          products: products,
-          totalItems: totalItems,
-          totalPrice: totalPrice,
-          shippingby: courier,
-          trackingNumber: "xxxxxxx", // Add default tracking number for now
-          status: "On Progress"
+          user: buyerId,  // Buyer's user ID
+          store: storeName,  // Seller's store name
+          storePicture: storePicture,  // Seller's store picture
+          products: products,  // Products being ordered
+          totalItems: totalItems,  // Total number of items
+          totalPrice: totalPrice,  // Total price
+          shippingby: courier,  // Shipping method selected
+          trackingNumber: "xxxxxxx",  // Default tracking number
+          status: "On Progress"  // Default order status
       });
 
+      // Save the new order
       await newOrder.save();
 
       res.status(201).json({ message: 'Order created successfully', order: newOrder });
   } catch (error) {
+      console.error('Error during checkout:', error);
       res.status(500).json({ message: 'Error creating order', error: error.message });
   }
 });
-
 
 app.get('/orders', authenticateToken, async (req, res) => {
   try {
