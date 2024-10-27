@@ -48,6 +48,7 @@ mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
     }],
     totalItems: { type: Number, required: true }, // Total number of items
     totalPrice: { type: Number, required: true }, // Total price of the order
+    shippingby: { type: String, required: true }, // Shipping method
     trackingNumber: { type: String, default: 'xxxxxxx' }, // Tracking number for the order
     status: { type: String, default: 'On Progress' }, // Order status
     createdAt: { type: Date, default: Date.now }
@@ -1172,7 +1173,11 @@ app.post('/checkout', authenticateToken, async (req, res) => {
       const storeName = user.storeName || 'Default Store Name'; // Use default if not found
       const storePicture = user.storePicture || 'default-store-pic.jpg'; // Use default image if not found
 
-      const { products, totalItems, totalPrice } = req.body;
+      const { products, totalItems, totalPrice, courier } = req.body;
+
+      if(!courier) {
+          return res.status(400).json({ message: 'Please select a shipping courier' });
+      }
 
       // Create a new order
       const newOrder = new Order({
@@ -1182,6 +1187,7 @@ app.post('/checkout', authenticateToken, async (req, res) => {
           products: products,
           totalItems: totalItems,
           totalPrice: totalPrice,
+          shippingby: courier,
           trackingNumber: "xxxxxxx", // Add default tracking number for now
           status: "On Progress"
       });
@@ -1223,6 +1229,32 @@ app.get('/orders-history', authenticateToken, async (req, res) => {
       res.status(500).json({ message: 'Error fetching order history', error: error.message });
   }
 });
+
+app.put('/orders/:orderId/trackingnumber', async (req, res) => {
+  const { orderId } = req.params;
+  const { trackingNumber } = req.body;
+
+  try {
+      const order = await Order.findById(orderId);
+      if (!order) {
+          return res.status(404).json({ message: 'Order not found' });
+      }
+
+      // Validasi trackingNumber
+      if (!trackingNumber || trackingNumber === 'xxxxxxxxxxxxx') {
+          return res.status(400).json({ message: 'Invalid tracking number' });
+      }
+
+      order.trackingNumber = trackingNumber; // Simpan nomor pelacakan
+      await order.save();
+
+      res.status(200).json({ message: 'Tracking number updated successfully' });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Error updating tracking number' });
+  }
+});
+
 
 
 // Basic route for testing

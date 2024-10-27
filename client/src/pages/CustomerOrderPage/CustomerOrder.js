@@ -1,130 +1,154 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './CustomerOrder.css'; 
 import Navbar from '../../components/Navbar/Navbar';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function CustomerOrder() {
-    const [trackingNumbers, setTrackingNumbers] = useState(['', '']); // Initialize with two empty strings for two orders
-    const [isSubmitted, setIsSubmitted] = useState([false, false]); // Track submission status for each order
+    const [orders, setOrders] = useState([]);
+    const [userData, setUserData] = useState({});
+    const [isLoading, setIsLoading] = useState(true);
+    const [trackingInput, setTrackingInput] = useState({}); // State untuk menyimpan input tracking
+    const [showSubmit, setShowSubmit] = useState({}); // State untuk menampilkan tombol submit
 
-    const handleInputChange = (index, value) => {
-        const newTrackingNumbers = [...trackingNumbers];
-        newTrackingNumbers[index] = value;
-        setTrackingNumbers(newTrackingNumbers);
+    useEffect(() => {
+        const fetchOrders = async () => {
+            try {
+                const response = await axios.get('http://localhost:3011/orders', {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                setOrders(response.data.orders);
+    
+                // Ambil user data
+                const userPromises = response.data.orders.map(order => 
+                    axios.get('http://localhost:3011/user', {
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem('token')}`
+                        }
+                    })
+                );
+    
+                const userResponses = await Promise.all(userPromises);
+                const users = userResponses.map(userResponse => userResponse.data);
+                const userMap = {};
+                users.forEach(user => {
+                    userMap[user._id] = user;
+                });
+                setUserData(userMap);
+            } catch (error) {
+                console.error('Error fetching orders:', error);
+                toast.error('Error fetching orders.');
+            } finally {
+                setIsLoading(false);
+            }
+        };
+    
+        fetchOrders();
+    }, []);
+    
+    const handleTrackingInputChange = (orderId, value) => {
+        setTrackingInput(prev => ({ ...prev, [orderId]: value }));
+        setShowSubmit(prev => ({ ...prev, [orderId]: value.length > 0 })); // Tampilkan tombol jika ada input
     };
 
-    const handleSubmit = (index) => {
-        alert(`Tracking Number Submitted: ${trackingNumbers[index]}`);
-        const newIsSubmitted = [...isSubmitted];
-        newIsSubmitted[index] = true; // Mark this order as submitted
-        setIsSubmitted(newIsSubmitted);
-        const newTrackingNumbers = [...trackingNumbers];
-        newTrackingNumbers[index] = ''; // Clear the input after submission
-        setTrackingNumbers(newTrackingNumbers);
+    const handleUpdateTracking = async (orderId) => {
+        try {
+            const trackingNumber = trackingInput[orderId];
+            const response = await axios.put(`http://localhost:3011/orders/${orderId}/trackingnumber`, 
+                { trackingNumber }, 
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
+                }
+            );
+            console.log("Response:", response.data); // Tambahkan log ini
+            setTrackingInput(prev => ({ ...prev, [orderId]: trackingNumber }));
+            toast.success(response.data.message);
+            setShowSubmit(prev => ({ ...prev, [orderId]: false }));
+        } catch (error) {
+            console.error('Error updating tracking number:', error);
+            toast.error('Failed to update tracking number.');
+        }
     };
+    
 
     return (
         <div className='container-customerorder'>
             <Navbar />
-            <div className='order-wrapper'>
+            <div className='customerorder-wrapper'>
                 <h2 className='order-title'>Customer Order</h2>
 
-                {/* Order 1 */}
-                <div className='order-details'>
-                    <div className='product-info'>
-                        <img 
-                            src="https://example.com/stitch-plush.jpg" 
-                            alt="Stitch Attacks Snacks Plush" 
-                            className='product-image'
-                        />
-                        <div className='product-description'>
-                            <h3>Stitch Attacks Snacks Plush – Candy Apple</h3>
-                            <p>IDR 550.000</p>
-                        </div>
-                    </div>
-                    
-                    <div className='info-and-tracking'>
-                        <div className='customer-info'>
-                            <p><strong>Name:</strong> Michelle</p>
-                            <p><strong>Phone Number:</strong> 0821231231234</p>
-                            <p><strong>Address:</strong> Jalan Wonocolo no. 20, Kuningan, 
-                                Kota Jakarta Selatan, DKI Jakarta, 12950</p>
-                            <p><strong>Shipping:</strong> JNT Express</p>
-                            <p><strong>Total Payment:</strong> IDR 561.000</p>
-                        </div>
-                    </div>
-                    
-                    {/* Tracking Input Section for Order 1 */}
-                    <div className='tracking-input'>
-                        <label htmlFor='tracking-number-1'><strong>Input Tracking Number:</strong></label>
-                        <input 
-                            type='text' 
-                            id='tracking-number-1' 
-                            value={trackingNumbers[0]}
-                            onChange={(e) => handleInputChange(0, e.target.value)}
-                            placeholder='Enter tracking number'
-                        />
-                        {!isSubmitted[0] && trackingNumbers[0] && (
-                            <button 
-                                className='completed-button' 
-                                onClick={() => handleSubmit(0)}
-                            >
-                                Submit
-                            </button>
-                        )}
-                    </div>
-                </div>
+                {isLoading && <p>Loading...</p>}
 
-                {/* Space Between Orders */}
-                <div style={{ margin: '20px 0' }}></div>
-
-                {/* Order 2 */}
-                <div className='order-details'>
-                    <div className='product-info'>
-                        <img 
-                            src="https://example.com/another-product.jpg" 
-                            alt="Another Product" 
-                            className='product-image'
-                        />
-                        <div className='product-description'>
-                            <h3>Another Product Title</h3>
-                            <p>IDR 750.000</p>
+                {orders.map((order) => (
+                    <div key={order._id} className='order-details'>
+                        <div className='product-info-customerorder'>                          
+                            {order.products.map((product) => (
+                                <React.Fragment key={product.productId}>
+                                    <img 
+                                        src={`http://localhost:3011/uploads/${product.imageUrl}`} 
+                                        alt={product.name} 
+                                        className='product-image-customerorder'
+                                    />
+                                    <h3>{product.name}</h3>
+                                </React.Fragment>
+                            ))}
+                            <p>IDR {order.totalPrice.toLocaleString()}</p>
                         </div>
-                    </div>
-                    
-                    <div className='info-and-tracking'>
-                        <div className='customer-info'>
-                            <p><strong>Name:</strong> John</p>
-                            <p><strong>Phone Number:</strong> 081234567890</p>
-                            <p><strong>Address:</strong> Jalan Raya no. 1, Kuningan, 
-                                Jakarta, 12950</p>
-                            <p><strong>Shipping:</strong> JNE</p>
-                            <p><strong>Total Payment:</strong> IDR 800.000</p>
+                        
+                        <div className='info-and-tracking'>
+                            <div className='customer-info'>
+                                {userData[order.userId] ? (
+                                    <>
+                                        <p><strong>Name:</strong> {userData[order.userId].name}</p>
+                                        <p><strong>Phone Number:</strong> {userData[order.userId].phoneNumber}</p>
+                                        <p><strong>Address:</strong> {userData[order.userId].address}</p>
+                                    </>
+                                ) : (
+                                    <p>Loading user info...</p>
+                                )}
+                                <p><strong>Shipping:</strong> {order.shippingby}</p>
+                                <p><strong>Total Payment:</strong> IDR {order.totalPrice.toLocaleString()}</p>
+                            </div>
                         </div>
-                    </div>
-                    
-                    {/* Tracking Input Section for Order 2 */}
-                    <div className='tracking-input'>
-                        <label htmlFor='tracking-number-2'><strong>Input Tracking Number:</strong></label>
-                        <input 
-                            type='text' 
-                            id='tracking-number-2' 
-                            value={trackingNumbers[1]}
-                            onChange={(e) => handleInputChange(1, e.target.value)}
-                            placeholder='Enter tracking number'
-                        />
-                        {!isSubmitted[1] && trackingNumbers[1] && (
-                            <button 
-                                className='completed-button' 
-                                onClick={() => handleSubmit(1)}
-                            >
-                                Submit
-                            </button>
-                        )}
-                    </div>
-                </div>
 
-                {/* Single Divider Below Orders */}
-                <hr className='order-divider' />
+                        <div className='tracking-input'>
+    <label htmlFor={`tracking-number-${order._id}`}><strong>Input Tracking Number:</strong></label>
+    <input 
+        type='text' 
+        id={`tracking-number-${order._id}`} 
+        placeholder='Enter tracking number'
+        value={
+            trackingInput[order._id] || 
+            (order.trackingNumber && order.trackingNumber !== 'xxxxxxx' ? order.trackingNumber : '')
+        }
+        onChange={(e) => handleTrackingInputChange(order._id, e.target.value)}
+    />
+    {/* Button Submit */}
+    {showSubmit[order._id] && (
+        <button onClick={() => handleUpdateTracking(order._id)}>Submit</button>
+    )}
+</div>
+
+
+                    </div>
+                ))}
+
+                <ToastContainer
+                    position="top-center"
+                    autoClose={5000}
+                    hideProgressBar={false}
+                    newestOnTop={false}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                />
             </div>
         </div>
     );

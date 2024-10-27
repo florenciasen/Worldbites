@@ -26,8 +26,11 @@ body {
     border: 2px solid #e0e0e0;
     border-radius: 10px;
     padding: 20px;
+    height: 620px;
+    width: 60%;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-top: 3.75rem;
+    margin-top: 5rem;
+    margin-bottom: 30px;
 }
 
 .order-title {
@@ -46,14 +49,14 @@ body {
     align-items: flex-start;
 }
 
-.product-info {
+.product-info-completeorder {
     display: flex;
     align-items: center;
     max-width: 300px;
     margin-right: 1.25rem;
 }
 
-.product-image {
+.product-image-completeorder {
     width: 100px;
     height: 100px;
     border-radius: 8px;
@@ -61,12 +64,12 @@ body {
     border: 1px solid #ccc;
 }
 
-.product-description h3 {
+.product-description-complete h3 {
     margin: 0;
     font-size: 16px;
 }
 
-.product-description p {
+.product-description-complete p {
     margin: 0;
     font-weight: bold;
     color: #666;

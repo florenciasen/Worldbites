@@ -20,13 +20,13 @@ export default function CompleteOrder() {
 
                 {/* Order 1 */}
                 <div className='order-details'>
-                    <div className='product-info'>
+                    <div className='product-info-completeorder'>
                         <img 
                             src="https://example.com/stitch-plush.jpg" 
                             alt="Stitch Attacks Snacks Plush" 
-                            className='product-image'
+                            className='product-image-completeorder'
                         />
-                        <div className='product-description'>
+                        <div className='product-description-complete'>
                             <h3>Stitch Attacks Snacks Plush – Candy Apple</h3>
                             <p>IDR 550.000</p>
                         </div>
@@ -65,13 +65,13 @@ export default function CompleteOrder() {
 
                 {/* Order 2 */}
                 <div className='order-details'>
-                    <div className='product-info'>
+                    <div className='product-info-completeorder'>
                         <img 
                             src="https://example.com/another-product.jpg" 
                             alt="Another Product" 
-                            className='product-image'
+                            className='product-image-completeorder'
                         />
-                        <div className='product-description'>
+                        <div className='product-description-complete'>
                             <h3>Another Product Title</h3>
                             <p>IDR 750.000</p>
                         </div>
