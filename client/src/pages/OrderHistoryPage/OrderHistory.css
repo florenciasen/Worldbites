@@ -24,11 +24,22 @@ body {
 }
 
 
+/* Container for My Purchases and below */
+.order-history-inner-container {
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 1200px;
+    margin-top: 20px;
+}
+
+
+
 /* Each order card (container) */
 .order-card {
     gap: 1rem;
-    width: 80%;
-    max-width: 900px;
     border: 1px solid #dcdcdc;
     border-radius: 10px;
     margin-bottom: 20px;
@@ -176,7 +187,7 @@ body {
 }
 
 .tab-controls button {
-    background-color: #faf5f5;
+    background-color: #f9f9f9;
     border: none;
     border-bottom: 2px solid transparent;
     padding: 10px 20px;

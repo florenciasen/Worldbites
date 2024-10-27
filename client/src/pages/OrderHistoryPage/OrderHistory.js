@@ -53,85 +53,86 @@ export default function OrderHistory() {
         <div className="order-history-container">
             <Navbar />
 
+            {/* Add an inner container that wraps everything below My Purchases */}
+            <div className="order-history-inner-container">
+                <h2>My Purchases</h2>
 
-            <h2>My Purchases</h2>
+                {/* Tab Controls */}
+                <div className="tab-controls">
+                    <button
+                        className={activeTab === 'orders' ? 'active' : ''}
+                        onClick={() => setActiveTab('orders')}>
+                        Order
+                    </button>
+                    <button
+                        className={activeTab === 'history' ? 'active' : ''}
+                        onClick={() => setActiveTab('history')}>
+                        History
+                    </button>
+                </div>
 
-            {/* Tab Controls */}
-            <div className="tab-controls">
-                <button
-                    className={activeTab === 'orders' ? 'active' : ''}
-                    onClick={() => setActiveTab('orders')}>
-                    Order
-                </button>
-                <button
-                    className={activeTab === 'history' ? 'active' : ''}
-                    onClick={() => setActiveTab('history')}>
-                    History
-                </button>
-            </div>
+                {/* Display Loading */}
+                {isLoading && <p>Loading...</p>}
 
-            {/* Display Loading */}
-            {isLoading && <p>Loading...</p>}
+                {/* Error Handling */}
+                {error && <p>{error}</p>}
 
-            {/* Error Handling */}
-            {error && <p>{error}</p>}
-
-            {/* Display orders or history based on active tab */}
-            {activeTab === 'orders' && orders.map(order => (
-                <div key={order._id} className="order-card">
-                    <div className="order-store">
-                        <img src={`http://localhost:3011/uploads/${order.storePicture}`} alt={order.store} />
-                        <p><strong>{order.store}</strong></p>
-                    </div>
-                    <div className="order-body">  {/* Grouped order-items, order-item-quantity, and order-summary */}
-                        <div className="order-items">
-                            {order.products.map(product => (
-                                <div key={product.productId} className="order-item">
-                                    <img src={`http://localhost:3011/uploads/${product.imageUrl}`} alt={product.name} />
-                                    <div className="order-item-content">
-                                        <div className="order-item-info">
-                                            <p>{product.name}</p>
-                                            <p>IDR {product.price.toLocaleString()}</p>
+                {/* Display orders or history based on active tab */}
+                {activeTab === 'orders' && orders.map(order => (
+                    <div key={order._id} className="order-card">
+                        <div className="order-store">
+                            <img src={`http://localhost:3011/uploads/${order.storePicture}`} alt={order.store} />
+                            <p><strong>{order.store}</strong></p>
+                        </div>
+                        <div className="order-body">  {/* Grouped order-items, order-item-quantity, and order-summary */}
+                            <div className="order-items">
+                                {order.products.map(product => (
+                                    <div key={product.productId} className="order-item">
+                                        <img src={`http://localhost:3011/uploads/${product.imageUrl}`} alt={product.name} />
+                                        <div className="order-item-content">
+                                            <div className="order-item-info">
+                                                <p>{product.name}</p>
+                                                <p>IDR {product.price.toLocaleString()}</p>
+                                            </div>
+                                            <p className="order-item-quantity">{product.quantity} x</p>
                                         </div>
-                                        <p className="order-item-quantity">{product.quantity} x</p>
                                     </div>
-                                </div>
-                            ))}
-                        </div>
-                        <div className="order-summary">
-                            <p><strong>Total Items:</strong> {order.totalItems}</p>
-                            <p><strong>Total Price:</strong> IDR {order.totalPrice.toLocaleString()}</p>
-                            <p><strong>Tracking Number:</strong> {order.trackingNumber}</p>
-                            <p><strong>Status:</strong> {order.status}</p>
+                                ))}
+                            </div>
+                            <div className="order-summary">
+                                <p><strong>Total Items:</strong> {order.totalItems}</p>
+                                <p><strong>Total Price:</strong> IDR {order.totalPrice.toLocaleString()}</p>
+                                <p><strong>Tracking Number:</strong> {order.trackingNumber}</p>
+                                <p><strong>Status:</strong> {order.status}</p>
+                            </div>
                         </div>
                     </div>
-                </div>
-            ))}
+                ))}
 
-            {activeTab === 'history' && history.map(order => (
-                <div key={order._id} className="order-card">
-                    <div className="order-store">
-                        <p><strong>Store Name:</strong> {order.store}</p>
-                    </div>
-                    <div className="order-body">  {/* Grouped order-items and order-summary */}
-                        <div className="order-items">
-                            {order.products.map(product => (
-                                <div key={product.productId} className="order-item">
-                                    <img src={`http://localhost:3011/uploads/${product.imageUrl}`} alt={product.name} />
-                                    <p>{product.name} - {product.quantity} x IDR {product.price.toLocaleString()}</p>
-                                </div>
-                            ))}
+                {activeTab === 'history' && history.map(order => (
+                    <div key={order._id} className="order-card">
+                        <div className="order-store">
+                            <p><strong>Store Name:</strong> {order.store}</p>
                         </div>
-                        <div className="order-summary">
-                            <p><strong>Total Items:</strong> {order.totalItems}</p>
-                            <p><strong>Total Price:</strong> IDR {order.totalPrice.toLocaleString()}</p>
-                            <p><strong>Tracking Number:</strong> {order.trackingNumber}</p>
-                            <p><strong>Status:</strong> {order.status}</p>
+                        <div className="order-body">  {/* Grouped order-items and order-summary */}
+                            <div className="order-items">
+                                {order.products.map(product => (
+                                    <div key={product.productId} className="order-item">
+                                        <img src={`http://localhost:3011/uploads/${product.imageUrl}`} alt={product.name} />
+                                        <p>{product.name} - {product.quantity} x IDR {product.price.toLocaleString()}</p>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="order-summary">
+                                <p><strong>Total Items:</strong> {order.totalItems}</p>
+                                <p><strong>Total Price:</strong> IDR {order.totalPrice.toLocaleString()}</p>
+                                <p><strong>Tracking Number:</strong> {order.trackingNumber}</p>
+                                <p><strong>Status:</strong> {order.status}</p>
+                            </div>
                         </div>
                     </div>
-                </div>
-            ))}
-     
+                ))}
+            </div>
 
             <ToastContainer
                 position="top-center"
