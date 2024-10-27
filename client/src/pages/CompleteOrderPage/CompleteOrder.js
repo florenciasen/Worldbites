@@ -24,7 +24,7 @@ export default function CompleteOrder() {
                         <img 
                             src="https://example.com/stitch-plush.jpg" 
                             alt="Stitch Attacks Snacks Plush" 
-                            className='product-image'
+                            className='product-image-completeorder'
                         />
                         <div className='product-description'>
                             <h3>Stitch Attacks Snacks Plush – Candy Apple</h3>
@@ -69,7 +69,7 @@ export default function CompleteOrder() {
                         <img 
                             src="https://example.com/another-product.jpg" 
                             alt="Another Product" 
-                            className='product-image'
+                            className='product-image-completeorder'
                         />
                         <div className='product-description'>
                             <h3>Another Product Title</h3>
