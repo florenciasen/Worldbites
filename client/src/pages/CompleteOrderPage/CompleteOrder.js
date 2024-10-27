@@ -26,7 +26,7 @@ export default function CompleteOrder() {
                             alt="Stitch Attacks Snacks Plush" 
                             className='product-image-completeorder'
                         />
-                        <div className='product-description'>
+                        <div className='product-description-complete'>
                             <h3>Stitch Attacks Snacks Plush – Candy Apple</h3>
                             <p>IDR 550.000</p>
                         </div>
@@ -71,7 +71,7 @@ export default function CompleteOrder() {
                             alt="Another Product" 
                             className='product-image-completeorder'
                         />
-                        <div className='product-description'>
+                        <div className='product-description-complete'>
                             <h3>Another Product Title</h3>
                             <p>IDR 750.000</p>
                         </div>

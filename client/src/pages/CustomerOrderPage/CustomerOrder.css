@@ -21,13 +21,16 @@ body {
     align-items: center;
 }
 
-.order-wrapper {
+.customerorder-wrapper {
     background-color: #f8f8f8;
     border: 2px solid #e0e0e0;
     border-radius: 10px;
     padding: 20px;
+    height: 620px;
+    width: 60%;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-top: 3.75rem;
+    margin-top: 5rem;
+    margin-bottom: 30px;
 }
 
 .order-title {
@@ -44,6 +47,7 @@ body {
     padding-top: 1.25rem;
     justify-content: space-between;
     align-items: flex-start;
+    margin-top: 1rem;
 }
 
 .product-info-customerorder {
@@ -59,17 +63,6 @@ body {
     border-radius: 8px;
     margin-right: 0.9375rem;
     border: 1px solid #ccc;
-}
-
-.product-description h3 {
-    margin: 0;
-    font-size: 16px;
-}
-
-.product-description p {
-    margin: 0;
-    font-weight: bold;
-    color: #666;
 }
 
 .info-and-tracking {
@@ -90,7 +83,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    margin-left: 20px; /* Adjust the spacing to align with info-and-tracking */
+    margin-left: 20px;
 }
 
 .tracking-input label {
@@ -106,21 +99,25 @@ body {
     width: 200px;
 }
 
-.completed-button {
-    background-color: #d9534f;
-    color: white;
-    padding: 5px 10px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+.tracking-input button {
+    background-color: #B4835B; /* Warna latar belakang hijau */
+    color: white; /* Warna teks putih */
+    border: none; /* Tanpa border */
+    border-radius: 4px; /* Sudut melengkung */
+    padding: 5px 8px; /* Jarak dalam button */
+    font-size: 12px; /* Ukuran font */
+    cursor: pointer; /* Cursor menjadi pointer saat hover */
+    transition: background-color 0.3s; /* Transisi untuk efek hover */
 }
 
-.completed-button:hover {
-    background-color: #c9302c;
+.tracking-input button:hover {
+    background-color: #9a704d; /* Warna latar belakang saat hover */
 }
+
+
 
 .order-divider {
-    border: none; /* Remove default border */
-    border-top: 1px solid #ccc; /* Set the color and thickness of the line */
-    margin: 20px 0; /* Add spacing above and below the line */
+    border: none;
+    border-top: 1px solid #ccc;
+    margin: 20px 0;
 }

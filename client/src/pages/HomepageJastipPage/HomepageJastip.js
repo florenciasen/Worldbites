@@ -98,8 +98,8 @@ export default function HomepageJastip() {
                             {products.map((product, index) => (
                                 <div key={index} className="product-item">
                                     <img src={`http://localhost:3011/uploads/${product.imageUrl}`} alt="Product" className="product-image" />
-                                    <p>{product.name}</p>
-                                    <>IDR {product.price.toLocaleString()}</>
+                                    <p className="product-name-jastip">{product.name}</p>
+                                    <p>IDR {product.price}</p>
                                 </div>
                             ))}
                         </div>

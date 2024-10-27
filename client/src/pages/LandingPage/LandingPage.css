@@ -129,6 +129,7 @@ body {
     padding: 16px;
     text-align: center;
     transition: transform 0.3s ease-in-out;
+    margin-bottom: 1.25rem;
 }
 
 .product-box1:hover {
@@ -163,7 +164,9 @@ body {
     text-overflow: ellipsis; /* Adds "..." for overflowed text */
     display: -webkit-box;
     -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1; /* Limits to 1 line */
 }
+
 
 .product-price {
     font-size: 14px;
