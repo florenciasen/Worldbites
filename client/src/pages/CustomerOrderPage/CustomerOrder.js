@@ -81,7 +81,7 @@ export default function CustomerOrder() {
                             <p>IDR {order.totalPrice.toLocaleString()}</p>
                         </div>
 
-                        <div className='info-and-tracking'>
+                        <div className='info-and-tracking-customerorder'>
                             <div className='customer-info'>
                                 {order.user ? (
                                     <>

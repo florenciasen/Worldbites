@@ -32,7 +32,7 @@ export default function CompleteOrder() {
                         </div>
                     </div>
                     
-                    <div className='info-and-tracking'>
+                    <div className='info-and-tracking-completerorder'>
                         <div className='customer-info'>
                             <p><strong>Name:</strong> Michelle</p>
                             <p><strong>Phone Number:</strong> 0821231231234</p>
@@ -77,7 +77,7 @@ export default function CompleteOrder() {
                         </div>
                     </div>
                     
-                    <div className='info-and-tracking'>
+                    <div className='info-and-tracking-completerorder'>
                         <div className='customer-info'>
                             <p><strong>Name:</strong> John</p>
                             <p><strong>Phone Number:</strong> 081234567890</p>
