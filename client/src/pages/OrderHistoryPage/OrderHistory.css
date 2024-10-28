@@ -143,7 +143,7 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: flex-end; /* Ensures the content is aligned at the bottom */
-    align-self: flex-end; /* Pushes the summary to the bottom of its container */
+    align-items: flex-end;
 }
 
 .order-summary p {
@@ -204,19 +204,21 @@ body {
 }
 
 .complete-button {
+    
+    font-family: 'Amaranth', sans-serif; /* Font family */
     background-color: transparent; /* Latar belakang transparan */
     color: black; /* Warna teks sesuai border */
     border: 2px solid #B4835B; /* Border berwarna sesuai item */
-    height: 2rem; /* Tinggi tombol */
+    padding: 10px 20px; /* Jarak dalam tombol */
     width: 45%; /* Lebar tombol (atur sesuai kebutuhan) */
     text-align: center; /* Rata tengah */
+    justify-content: center;
     text-decoration: none; /* Menghilangkan garis bawah */
-    display: inline-block; /* Agar bisa diatur dengan margin */
-    font-size: 12px; /* Ukuran font lebih kecil */
-    margin: 10px 0; /* Margin atas dan bawah */
+    display: flex;
+    font-size: 1rem; /* Ukuran font */
     cursor: pointer; /* Mengubah cursor saat hover */
     border-radius: 5px; /* Sudut melingkar */
-    margin-left: 200px;
+    float: right; /* Menggeser tombol ke kanan */
 }
 
 .complete-button:hover {
