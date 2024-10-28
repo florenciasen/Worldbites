@@ -202,3 +202,31 @@ body {
 .tab-controls button:hover {
     border-bottom: 2px solid #8d553f;
 }
+
+.complete-button {
+    background-color: transparent; /* Latar belakang transparan */
+    color: black; /* Warna teks sesuai border */
+    border: 2px solid #B4835B; /* Border berwarna sesuai item */
+    height: 2rem; /* Tinggi tombol */
+    width: 45%; /* Lebar tombol (atur sesuai kebutuhan) */
+    text-align: center; /* Rata tengah */
+    text-decoration: none; /* Menghilangkan garis bawah */
+    display: inline-block; /* Agar bisa diatur dengan margin */
+    font-size: 12px; /* Ukuran font lebih kecil */
+    margin: 10px 0; /* Margin atas dan bawah */
+    cursor: pointer; /* Mengubah cursor saat hover */
+    border-radius: 5px; /* Sudut melingkar */
+    margin-left: 200px;
+}
+
+.complete-button:hover {
+    background-color: rgba(171, 132, 80, 0.1); /* Warna latar belakang saat hover (hijau transparan) */
+    color: #966d4b; /* Mengubah warna teks saat hover */
+}
+
+.complete-button:disabled {
+    background-color: transparent; /* Latar belakang transparan untuk tombol nonaktif */
+    color: #ccc; /* Warna teks untuk tombol nonaktif */
+    border: 2px solid #ccc; /* Border nonaktif */
+    cursor: not-allowed; /* Mengubah cursor untuk tombol nonaktif */
+}

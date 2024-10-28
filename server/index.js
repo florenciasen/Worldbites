@@ -51,6 +51,7 @@ mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
     totalPrice: { type: Number, required: true },  // Total price of the order
     shippingby: { type: String, required: true },  // Shipping method
     trackingNumber: { type: String, default: 'xxxxxxx' },  // Tracking number
+    trackingUpdatedAt: { type: Date },
     status: { type: String, default: 'On Progress' },  // Order status
     createdAt: { type: Date, default: Date.now }
   });
@@ -1249,12 +1250,12 @@ app.put('/orders/:orderId/trackingnumber', async (req, res) => {
           return res.status(404).json({ message: 'Order not found' });
       }
 
-      // Validasi trackingNumber
-      if (!trackingNumber || trackingNumber === 'xxxxxxxxxxxxx') {
+      if (!trackingNumber || trackingNumber === 'xxxxxxx') {
           return res.status(400).json({ message: 'Invalid tracking number' });
       }
 
-      order.trackingNumber = trackingNumber; // Simpan nomor pelacakan
+      order.trackingNumber = trackingNumber;
+      order.trackingUpdatedAt = new Date(); // Update trackingUpdatedAt dengan waktu saat ini
       await order.save();
 
       res.status(200).json({ message: 'Tracking number updated successfully' });
@@ -1263,6 +1264,8 @@ app.put('/orders/:orderId/trackingnumber', async (req, res) => {
       res.status(500).json({ message: 'Error updating tracking number' });
   }
 });
+
+
 
 app.get('/seller/orders', authenticateToken, async (req, res) => {
   try {

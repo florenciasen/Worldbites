@@ -49,6 +49,19 @@ export default function OrderHistory() {
         fetchOrderHistory();
     }, []);
 
+    const isCompleteButtonVisible = (trackingUpdatedAt) => {
+        if (!trackingUpdatedAt) return false;
+        const updateDate = new Date(trackingUpdatedAt);
+        const currentDate = new Date();
+        const differenceInMinutes = (currentDate - updateDate) / (1000 * 60); // Calculate in minutes
+        return differenceInMinutes >= 1;
+    };
+
+    const handleCompleteOrder = (orderId) => {
+        // Implement logic to complete the order here
+        toast.success(`Order ${orderId} completed!`);
+    };
+
     return (
         <div className="order-history-container">
             <Navbar />
@@ -104,6 +117,10 @@ export default function OrderHistory() {
                                 <p><strong>Total Price:</strong> IDR {order.totalPrice.toLocaleString()}</p>
                                 <p><strong>Tracking Number:</strong> {order.trackingNumber}</p>
                                 <p><strong>Status:</strong> {order.status}</p>
+                                {/* Show Complete button if trackingUpdatedAt is more than a minute ago */}
+                                {isCompleteButtonVisible(order.trackingUpdatedAt) && (
+                                    <button className="complete-button" onClick={() => handleCompleteOrder(order._id)}>Complete</button>
+                                )}
                             </div>
                         </div>
                     </div>
