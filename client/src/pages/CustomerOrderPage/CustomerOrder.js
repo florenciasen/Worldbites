@@ -14,23 +14,37 @@ export default function CustomerOrder() {
     useEffect(() => {
         const fetchOrders = async () => {
             try {
-                // Use the new endpoint to fetch orders for the current seller's store
                 const response = await axios.get('http://localhost:3011/seller/orders', {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem('token')}`
                     }
                 });
-                setOrders(response.data.orders);
+    
+                // Check if the orders exist
+                if (response.data.orders && response.data.orders.length > 0) {
+                    // Filter out orders that are not complete
+                    const activeOrders = response.data.orders.filter(order => order.status !== 'Complete');
+                    setOrders(activeOrders);
+                } else {
+                    // Handle case when no orders are found, but don't treat it as an error
+                    setOrders([]);
+                }
             } catch (error) {
-                console.error('Error fetching orders:', error);
-                toast.error('Error fetching orders.');
+                if (error.response && error.response.status === 404) {
+                    // Handle 404 error when no orders are found (if that's how your API signals it)
+                    setOrders([]);
+                } else {
+                    console.error('Error fetching orders:', error);
+                    toast.error('Failed to fetch orders. Please try again later.');
+                }
             } finally {
                 setIsLoading(false);
             }
         };
-
+    
         fetchOrders();
     }, []);
+    
 
     const handleTrackingInputChange = (orderId, value) => {
         setTrackingInput(prev => ({ ...prev, [orderId]: value }));
@@ -62,6 +76,12 @@ export default function CustomerOrder() {
             <Navbar />
             <div className='customerorder-wrapper'>
                 <h2 className='order-title'>Customer Orders</h2>
+                {!isLoading && orders.length === 0 && (
+                    <>
+                        <hr className='title-separator' /> {/* Separator line below the title */}
+                        <p className='no-orders-message'>No orders available at the moment.</p>
+                    </>
+                )}
 
                 {isLoading && <p>Loading...</p>}
 

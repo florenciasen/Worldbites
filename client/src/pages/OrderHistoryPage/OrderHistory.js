@@ -8,19 +8,28 @@ import 'react-toastify/dist/ReactToastify.css';
 export default function OrderHistory() {
     const [orders, setOrders] = useState([]);
     const [history, setHistory] = useState([]);
-    const [activeTab, setActiveTab] = useState('orders'); // Control which tab is active
-    const [isLoading, setIsLoading] = useState(true); // Loading state
-    const [error, setError] = useState(null); // Error state
+    const [activeTab, setActiveTab] = useState('orders');
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
-        const fetchOrders = async () => {
+        const fetchOrdersData = async () => {
             try {
-                const response = await axios.get('http://localhost:3011/orders', {
+                const ordersResponse = await axios.get('http://localhost:3011/orders', {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem('token')}`
                     }
                 });
-                setOrders(response.data.orders);
+                
+                const allOrders = ordersResponse.data.orders;
+
+                // Filter orders based on status
+                const incompleteOrders = allOrders.filter(order => order.status !== 'Complete');
+                const completedOrders = allOrders.filter(order => order.status === 'Complete');
+
+                setOrders(incompleteOrders); // Only orders that aren't complete
+                setHistory(completedOrders); // Only completed orders
+
             } catch (error) {
                 console.error('Error fetching orders:', error);
                 setError('Failed to fetch orders.');
@@ -30,47 +39,52 @@ export default function OrderHistory() {
             }
         };
 
-        const fetchOrderHistory = async () => {
-            try {
-                const response = await axios.get('http://localhost:3011/orders-history', {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
-                setHistory(response.data.orders);
-            } catch (error) {
-                console.error('Error fetching order history:', error);
-                setError('Failed to fetch order history.');
-                toast.error('Error fetching order history.');
-            }
-        };
-
-        fetchOrders();
-        fetchOrderHistory();
+        fetchOrdersData();
     }, []);
 
-    const isCompleteButtonVisible = (trackingUpdatedAt) => {
+    const isCompleteButtonVisible = (trackingUpdatedAt, status) => {
+        if (status === 'Complete') return false;
         if (!trackingUpdatedAt) return false;
         const updateDate = new Date(trackingUpdatedAt);
         const currentDate = new Date();
-        const differenceInMinutes = (currentDate - updateDate) / (1000 * 60); // Calculate in minutes
+        const differenceInMinutes = (currentDate - updateDate) / (1000 * 60);
         return differenceInMinutes >= 1;
     };
 
-    const handleCompleteOrder = (orderId) => {
-        // Implement logic to complete the order here
-        toast.success(`Order ${orderId} completed!`);
+    const handleCompleteOrder = async (orderId) => {
+        const userConfirmed = window.confirm("Are you sure you have received your items?");
+        if (!userConfirmed) {
+            toast.info("Order completion cancelled.");
+            return;
+        }
+    
+        try {
+            await axios.get(`http://localhost:3011/orders/${orderId}/complete`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            toast.success("Order completed!");
+    
+            // Move order to history on completion
+            const completedOrder = orders.find(order => order._id === orderId);
+    
+            setOrders(prevOrders => prevOrders.filter(order => order._id !== orderId));
+            setHistory(prevHistory => [...prevHistory, { ...completedOrder, status: 'Complete' }]);
+    
+        } catch (error) {
+            console.error("Error completing order:", error);
+            toast.error("Failed to complete order.");
+        }
     };
+    
 
     return (
         <div className="order-history-container">
             <Navbar />
-
-            {/* Add an inner container that wraps everything below My Purchases */}
             <div className="order-history-inner-container">
                 <h2>My Purchases</h2>
 
-                {/* Tab Controls */}
                 <div className="tab-controls">
                     <button
                         className={activeTab === 'orders' ? 'active' : ''}
@@ -84,20 +98,16 @@ export default function OrderHistory() {
                     </button>
                 </div>
 
-                {/* Display Loading */}
                 {isLoading && <p>Loading...</p>}
-
-                {/* Error Handling */}
                 {error && <p>{error}</p>}
 
-                {/* Display orders or history based on active tab */}
                 {activeTab === 'orders' && orders.map(order => (
                     <div key={order._id} className="order-card">
                         <div className="order-store">
                             <img src={`http://localhost:3011/uploads/${order.storePicture}`} alt={order.store} />
                             <p><strong>{order.store}</strong></p>
                         </div>
-                        <div className="order-body">  {/* Grouped order-items, order-item-quantity, and order-summary */}
+                        <div className="order-body">
                             <div className="order-items">
                                 {order.products.map(product => (
                                     <div key={product.productId} className="order-item">
@@ -117,8 +127,7 @@ export default function OrderHistory() {
                                 <p><strong>Total Price:</strong> IDR {order.totalPrice.toLocaleString()}</p>
                                 <p><strong>Tracking Number:</strong> {order.trackingNumber}</p>
                                 <p><strong>Status:</strong> {order.status}</p>
-                                {/* Show Complete button if trackingUpdatedAt is more than a minute ago */}
-                                {isCompleteButtonVisible(order.trackingUpdatedAt) && (
+                                {isCompleteButtonVisible(order.trackingUpdatedAt, order.status) && (
                                     <button className="complete-button" onClick={() => handleCompleteOrder(order._id)}>Complete</button>
                                 )}
                             </div>
@@ -131,7 +140,7 @@ export default function OrderHistory() {
                         <div className="order-store">
                             <p><strong>Store Name:</strong> {order.store}</p>
                         </div>
-                        <div className="order-body">  {/* Grouped order-items and order-summary */}
+                        <div className="order-body">
                             <div className="order-items">
                                 {order.products.map(product => (
                                     <div key={product.productId} className="order-item">
