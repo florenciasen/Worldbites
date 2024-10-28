@@ -1,112 +1,97 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './CompleteOrder.css'; 
 import Navbar from '../../components/Navbar/Navbar';
 
 export default function CompleteOrder() {
-    const [trackingNumbers, setTrackingNumbers] = useState(['TRK123456', 'TRK987654']); // Initialize with pre-filled tracking numbers
-    const [isCompleted, setIsCompleted] = useState([true, true]); // Track completion status for each order
+    const [completedOrders, setCompletedOrders] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const handleInputChange = (index, value) => {
-        const newTrackingNumbers = [...trackingNumbers];
-        newTrackingNumbers[index] = value;
-        setTrackingNumbers(newTrackingNumbers);
-    };
+    useEffect(() => {
+        const fetchCompletedOrders = async () => {
+            try {
+                const response = await axios.get('http://localhost:3011/seller/orders', {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                const orders = response.data.orders;
+
+                // Mengecek status "Complete" untuk setiap order
+                const completedOrderPromises = orders.map(async (order) => {
+                    const completeCheck = await axios.get(`http://localhost:3011/orders/${order._id}/complete`, {
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem('token')}`
+                        }
+                    });
+                    return completeCheck.data.order;
+                });
+
+                const completedOrders = await Promise.all(completedOrderPromises);
+                setCompletedOrders(completedOrders.filter(order => order.status === 'Complete'));
+            } catch (error) {
+                console.error('Error fetching completed orders:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchCompletedOrders();
+    }, []);
 
     return (
         <div className='container-completeorder'>
             <Navbar />
-            <div className='order-wrapper'>
-                <h2 className='order-title'>Complete Order</h2>
+            <div className='completeorder-wrapper'>
+                <h2 className='order-title'>Complete Orders</h2>
+                {completedOrders.length === 0 && !isLoading && (
+                    <>
+                        <hr className='separator-line' />
+                        <p className='no-history'>No history</p>
+                    </>
+                )}
 
-                {/* Order 1 */}
-                <div className='order-details'>
-                    <div className='product-info-completeorder'>
-                        <img 
-                            src="https://example.com/stitch-plush.jpg" 
-                            alt="Stitch Attacks Snacks Plush" 
-                            className='product-image-completeorder'
-                        />
-                        <div className='product-description-complete'>
-                            <h3>Stitch Attacks Snacks Plush – Candy Apple</h3>
-                            <p>IDR 550.000</p>
+                {isLoading && <p>Loading...</p>}
+
+                {completedOrders.map((order) => (
+                    <div key={order._id} className='order-details'>
+                        <div className='product-info-completeorder'>
+                            {order.products.map((product) => (
+                                <React.Fragment key={product.productId}>
+                                    <img
+                                        src={`http://localhost:3011/uploads/${product.imageUrl}`}
+                                        alt={product.name}
+                                        className='product-image-completeorder'
+                                    />
+                                    <h3>{product.name}</h3>
+                                </React.Fragment>
+                            ))}
+                            <p>IDR {order.totalPrice.toLocaleString()}</p>
                         </div>
-                    </div>
-                    
-                    <div className='info-and-tracking-completerorder'>
-                        <div className='customer-info'>
-                            <p><strong>Name:</strong> Michelle</p>
-                            <p><strong>Phone Number:</strong> 0821231231234</p>
-                            <p><strong>Address:</strong> Jalan Wonocolo no. 20, Kuningan, 
-                                Kota Jakarta Selatan, DKI Jakarta, 12950</p>
-                            <p><strong>Shipping:</strong> JNT Express</p>
-                            <p><strong>Total Payment:</strong> IDR 561.000</p>
+
+                        <div className='info-and-tracking-completeorder'>
+                            <div className='customer-info'>
+                                {order.user ? (
+                                    <>
+                                        <p><strong>Name:</strong> {order.user.name}</p>
+                                        <p><strong>Phone Number:</strong> {order.user.phoneNumber}</p>
+                                        <p><strong>Address:</strong> {order.user.address}</p>
+                                    </>
+                                ) : (
+                                    <p>Loading user info...</p>
+                                )}
+                                <p><strong>Shipping:</strong> {order.shippingby}</p>
+                                <p><strong>Total Payment:</strong> IDR {order.totalPrice.toLocaleString()}</p>
+                            </div>  
                         </div>
-                    </div>
-                    
-                    {/* Tracking Input Section for Order 1 */}
-                    <div className='tracking-input'>
-                        <label htmlFor='tracking-number-1'><strong>Tracking Number:</strong></label>
-                        <input 
-                            type='text' 
-                            id='tracking-number-1' 
-                            value={trackingNumbers[0]}
-                            onChange={(e) => handleInputChange(0, e.target.value)}
-                            placeholder='Enter tracking number'
-                            readOnly // Make the input read-only
-                        />
-                        {isCompleted[0] && (
+
+                        <div className='tracking-status'>
+                            <p className='trackingnumber-completeorder'><strong>Tracking Number:</strong> {order.trackingNumber || 'N/A'}</p>
                             <span className='completed-message'>Completed</span>
-                        )}
-                    </div>
-                </div>
-
-                {/* Space Between Orders */}
-                <div style={{ margin: '20px 0' }}></div>
-
-                {/* Order 2 */}
-                <div className='order-details'>
-                    <div className='product-info-completeorder'>
-                        <img 
-                            src="https://example.com/another-product.jpg" 
-                            alt="Another Product" 
-                            className='product-image-completeorder'
-                        />
-                        <div className='product-description-complete'>
-                            <h3>Another Product Title</h3>
-                            <p>IDR 750.000</p>
                         </div>
                     </div>
-                    
-                    <div className='info-and-tracking-completerorder'>
-                        <div className='customer-info'>
-                            <p><strong>Name:</strong> John</p>
-                            <p><strong>Phone Number:</strong> 081234567890</p>
-                            <p><strong>Address:</strong> Jalan Raya no. 1, Kuningan, 
-                                Jakarta, 12950</p>
-                            <p><strong>Shipping:</strong> JNE</p>
-                            <p><strong>Total Payment:</strong> IDR 800.000</p>
-                        </div>
-                    </div>
-                    
-                    {/* Tracking Input Section for Order 2 */}
-                    <div className='tracking-input'>
-                        <label htmlFor='tracking-number-2'><strong>Tracking Number:</strong></label>
-                        <input 
-                            type='text' 
-                            id='tracking-number-2' 
-                            value={trackingNumbers[1]}
-                            onChange={(e) => handleInputChange(1, e.target.value)}
-                            placeholder='Enter tracking number'
-                            readOnly // Make the input read-only
-                        />
-                        {isCompleted[1] && (
-                            <span className='completed-message'>Completed</span>
-                        )}
-                    </div>
-                </div>
-
-                {/* Single Divider Below Orders */}
-                <hr className='order-divider' />
+                ))}
             </div>
         </div>
     );

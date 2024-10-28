@@ -1287,7 +1287,25 @@ app.get('/seller/orders', authenticateToken, async (req, res) => {
   }
 });
 
+// Endpoint untuk menandai pesanan sebagai complete
+app.get('/orders/:orderId/complete', authenticateToken, async (req, res) => {
+  try {
+    const { orderId } = req.params;
 
+    // Mencari pesanan berdasarkan ID dan memperbarui statusnya menjadi 'Complete'
+    const order = await Order.findByIdAndUpdate(orderId, { status: 'Complete' }, { new: true });
+
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    // Mengirimkan pesan sukses beserta data pesanan terbaru
+    res.status(200).json({ message: 'Order completed successfully', order });
+  } catch (error) {
+    console.error('Error completing order:', error);
+    res.status(500).json({ message: 'Error completing order', error: error.message });
+  }
+});
 
 // Basic route for testing
 app.get('/', (req, res) => {
