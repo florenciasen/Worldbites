@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './CompleteOrder.css'; 
+import './CompleteOrder.css';
 import Navbar from '../../components/Navbar/Navbar';
 
 export default function CompleteOrder() {
@@ -10,26 +10,14 @@ export default function CompleteOrder() {
     useEffect(() => {
         const fetchCompletedOrders = async () => {
             try {
-                const response = await axios.get('http://localhost:3011/seller/orders', {
+                const response = await axios.get('http://localhost:3011/seller/completed-orders', {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem('token')}`
                     }
                 });
 
-                const orders = response.data.orders;
-
-                // Mengecek status "Complete" untuk setiap order
-                const completedOrderPromises = orders.map(async (order) => {
-                    const completeCheck = await axios.get(`http://localhost:3011/orders/${order._id}/complete`, {
-                        headers: {
-                            Authorization: `Bearer ${localStorage.getItem('token')}`
-                        }
-                    });
-                    return completeCheck.data.order;
-                });
-
-                const completedOrders = await Promise.all(completedOrderPromises);
-                setCompletedOrders(completedOrders.filter(order => order.status === 'Complete'));
+                // Set the completed orders to state
+                setCompletedOrders(response.data.orders);
             } catch (error) {
                 console.error('Error fetching completed orders:', error);
             } finally {
@@ -44,21 +32,16 @@ export default function CompleteOrder() {
         <div className='container-completeorder'>
             <Navbar />
             <div className='completeorder-wrapper'>
-                <h2 className='order-title'>Complete Orders</h2>
-                {completedOrders.length === 0 && !isLoading && (
-                    <>
-                        <hr className='separator-line' />
-                        <p className='no-history'>No history</p>
-                    </>
-                )}
+                <h2 className='order-title'>Completed Orders</h2>
 
                 {isLoading && <p>Loading...</p>}
 
+                {/* Render completed orders */}
                 {completedOrders.map((order) => (
                     <div key={order._id} className='order-details'>
                         <div className='product-info-completeorder'>
                             {order.products.map((product) => (
-                                <React.Fragment key={product.productId}>
+                                <React.Fragment key={product.productId._id}>
                                     <img
                                         src={`http://localhost:3011/uploads/${product.imageUrl}`}
                                         alt={product.name}

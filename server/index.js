@@ -1226,20 +1226,6 @@ app.get('/orders', authenticateToken, async (req, res) => {
   }
 });
 
-app.get('/orders-history', authenticateToken, async (req, res) => {
-  try {
-      const userId = req.user.userId;
-
-      // Fetch orders related to this user that are considered "history" (you can define the logic)
-      const historyOrders = await Order.find({ user: userId, status: 'Completed' });
-
-      res.status(200).json({ orders: historyOrders });
-  } catch (error) {
-      console.error('Error fetching order history:', error.message);
-      res.status(500).json({ message: 'Error fetching order history', error: error.message });
-  }
-});
-
 app.put('/orders/:orderId/trackingnumber', async (req, res) => {
   const { orderId } = req.params;
   const { trackingNumber } = req.body;
@@ -1287,25 +1273,49 @@ app.get('/seller/orders', authenticateToken, async (req, res) => {
   }
 });
 
-// Endpoint untuk menandai pesanan sebagai complete
+// Endpoint for completing a specific order by its orderId
 app.get('/orders/:orderId/complete', authenticateToken, async (req, res) => {
   try {
     const { orderId } = req.params;
 
-    // Mencari pesanan berdasarkan ID dan memperbarui statusnya menjadi 'Complete'
-    const order = await Order.findByIdAndUpdate(orderId, { status: 'Complete' }, { new: true });
+    // Find and update the order by its ID
+    const updatedOrder = await Order.findByIdAndUpdate(orderId, { status: 'Completed' }, { new: true });
 
-    if (!order) {
+    if (!updatedOrder) {
       return res.status(404).json({ message: 'Order not found' });
     }
 
-    // Mengirimkan pesan sukses beserta data pesanan terbaru
-    res.status(200).json({ message: 'Order completed successfully', order });
+    // Send success response with the updated order details
+    res.status(200).json({ message: 'Order marked as complete', order: updatedOrder });
   } catch (error) {
-    console.error('Error completing order:', error);
+    console.error('Error completing the order:', error);
     res.status(500).json({ message: 'Error completing order', error: error.message });
   }
 });
+
+// Endpoint to fetch completed orders for a specific seller
+app.get('/seller/completed-orders', authenticateToken, async (req, res) => {
+  try {
+    const sellerId = req.user.userId;  // Seller's user ID from the token
+
+    // Find orders where the seller matches and the status is "Complete"
+    const completedOrders = await Order.find({ seller: sellerId, status: 'Completed' })
+      .populate('user') // Populate the buyer's user info
+      .populate('products.productId'); // Optionally populate product details
+
+    if (completedOrders.length === 0) {
+      return res.status(404).json({ message: 'No completed orders found for this seller.' });
+    }
+
+    // Respond with all completed orders for the seller
+    res.status(200).json({ message: 'Completed orders fetched successfully', orders: completedOrders });
+  } catch (error) {
+    console.error('Error fetching completed orders:', error);
+    res.status(500).json({ message: 'Error fetching completed orders', error: error.message });
+  }
+});
+
+
 
 // Basic route for testing
 app.get('/', (req, res) => {
