@@ -24,7 +24,7 @@ import Checkout from './pages/CheckoutPage/Checkout';
 import OrderHistory from './pages/OrderHistoryPage/OrderHistory';
 import CustomerOrder from './pages/CustomerOrderPage/CustomerOrder'
 import CompleteOrder from './pages/CompleteOrderPage/CompleteOrder';
-
+import NetIncome from './pages/NetIncomePage/NetIncome';
 
 
 function App() {
@@ -54,6 +54,7 @@ function App() {
         <Route path="/orderhistory" element={<OrderHistory />} />
         <Route path="/customerorder" element={<CustomerOrder />}/>
         <Route path="/completeorder" element={<CompleteOrder/>}/>
+        <Route path="/netincome" element={<NetIncome/>}/>
       </Routes>
     </Router>
   );

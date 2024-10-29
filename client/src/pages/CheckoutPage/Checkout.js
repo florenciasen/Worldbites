@@ -152,7 +152,8 @@ export default function Checkout() {
 
     const handleCheckout = async () => {
         try {
-            // Prepare the data to be sent to the backend
+            
+
             const checkoutData = {
                 store: 'Store Name', // Replace with dynamic store name
                 products: buyNowProduct ? [{
@@ -169,8 +170,10 @@ export default function Checkout() {
                     imageUrl: item.imageUrl
                 })),
                 totalItems: buyNowProduct ? 1 : cartItems.length,
-                totalPrice: calculateSubtotal(),
+                subtotalPrice: calculateSubtotal(),
                 courier: courier,
+                shippingCost: cost[0].costs[0].cost[0].value,
+                totalPrice: calculateFinalTotal(),
             };
     
     

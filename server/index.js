@@ -11,6 +11,7 @@ const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const Fuse = require('fuse.js');
 const axios = require('axios');
+const moment = require('moment');
 
 
 // JWT secret key
@@ -48,11 +49,13 @@ mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
       imageUrl: { type: String, required: true }
     }],
     totalItems: { type: Number, required: true },  // Total number of items
-    totalPrice: { type: Number, required: true },  // Total price of the order
+    subtotalPrice: { type: Number, required: true },  // Subtotal price
     shippingby: { type: String, required: true },  // Shipping method
     trackingNumber: { type: String, default: 'xxxxxxx' },  // Tracking number
     trackingUpdatedAt: { type: Date },
     status: { type: String, default: 'On Progress' },  // Order status
+    shippingCost: { type: Number, required: true },  // Shipping cost
+    totalPrice: { type: Number, required: true },  // Total price
     createdAt: { type: Date, default: Date.now }
   });
 
@@ -1167,7 +1170,7 @@ app.post('/checkout', authenticateToken, async (req, res) => {
     const buyerId = req.user.userId;
 
     // Extract products, totalItems, totalPrice, and courier from the request body
-    const { products, totalItems, totalPrice, courier } = req.body;
+    const { products, totalItems, courier, totalPrice, shippingCost, subtotalPrice } = req.body;
 
     if (!courier) {
       return res.status(400).json({ message: 'Please select a shipping courier' });
@@ -1192,11 +1195,13 @@ app.post('/checkout', authenticateToken, async (req, res) => {
       seller: firstProductSeller._id,  // Store the seller's unique user ID
       products: products,  // Products being ordered
       totalItems: totalItems,  // Total number of items
-      totalPrice: totalPrice,  // Total price
+      subtotalPrice: subtotalPrice,  // Subtotal price
       shippingby: courier,  // Shipping method
       trackingNumber: "xxxxxxx",  // Default tracking number
       status: "On Progress",  // Default order status
-      createdAt: new Date()  // Current date and time
+      createdAt: new Date(),  // Current date and time
+      shippingCost: shippingCost, // Shipping cost
+      totalPrice: totalPrice,  // Total price
     });
 
     // Save the new order
@@ -1312,6 +1317,43 @@ app.get('/seller/completed-orders', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Error fetching completed orders:', error);
     res.status(500).json({ message: 'Error fetching completed orders', error: error.message });
+  }
+});
+// Net income endpoint to get all completed orders' subtotal for the current month
+app.get('/netincome', authenticateToken, async (req, res) => {
+  try {
+      const sellerId = req.user.userId;  // Get seller's ID from the token
+
+      // Get the current month and year
+      const currentMonth = moment().month(); // Gets the current month (0-11)
+      const currentYear = moment().year();   // Gets the full year
+
+      // Find all completed orders for the current seller
+      const completedOrders = await Order.find({
+          seller: sellerId,
+          status: 'Completed'
+      });
+
+      // Filter orders based on the current month and year
+      const ordersThisMonth = completedOrders.filter(order => {
+          const orderMonth = moment(order.createdAt).month(); // Month of the order
+          const orderYear = moment(order.createdAt).year();   // Year of the order
+
+          return orderMonth === currentMonth && orderYear === currentYear;
+      });
+
+      // Calculate total revenue by summing up the `subtotalPrice` of the completed orders
+      const totalRevenue = ordersThisMonth.reduce((acc, order) => acc + (order.subtotalPrice || 0), 0);
+
+      // Send the total revenue as the response
+      res.status(200).json({
+          message: 'Net income for the current month fetched successfully',
+          totalRevenue
+      });
+
+  } catch (error) {
+      console.error('Error fetching net income:', error);
+      res.status(500).json({ message: 'Error fetching net income', error: error.message });
   }
 });
 

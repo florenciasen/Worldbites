@@ -55,16 +55,9 @@ body {
 .product-info-customerorder {
     display: flex;
     flex-direction: column;
-    flex-direction: column;
     align-items: center;
     text-align: center;
-    text-align: center;
-    max-width: 300px;
-    margin-right: 1.25rem;
-    height: 200px;
-    width: 300px;
-    height: 200px;
-    width: 300px;
+    width: 30%; /* Adjusted width for better layout */
 }
 
 .product-image-customerorder {

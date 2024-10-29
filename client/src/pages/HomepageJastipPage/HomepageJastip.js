@@ -71,6 +71,10 @@ export default function HomepageJastip() {
         navigate('/completeorder');
     }
 
+    const handleNetIncome = () => {
+        navigate('/netincome');
+    }
+
     return (
         <div className='container-homepagejastip'>
             <Navbar />
@@ -125,7 +129,7 @@ export default function HomepageJastip() {
                     <img src={CompleteOrderImage} alt="Order Completed" className="order-completed-image" />
                     <h3>Complete Order</h3>
                 </div>
-                <div className='container-small'>
+                <div className='container-small' onClick={() => handleNetIncome()}>
                     <img src={NetIncomeImage} alt="Net Income" className="net-income-image" />
                     <h3>Net Income</h3>
                 </div>
