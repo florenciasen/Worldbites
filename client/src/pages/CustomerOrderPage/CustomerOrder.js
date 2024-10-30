@@ -23,7 +23,7 @@ export default function CustomerOrder() {
                 // Check if the orders exist
                 if (response.data.orders && response.data.orders.length > 0) {
                     // Filter out orders that are not complete
-                    const activeOrders = response.data.orders.filter(order => order.status !== 'Complete');
+                    const activeOrders = response.data.orders.filter(order => order.status !== 'Completed');
                     setOrders(activeOrders);
                 } else {
                     // Handle case when no orders are found, but don't treat it as an error
