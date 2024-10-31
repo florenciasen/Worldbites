@@ -84,7 +84,18 @@ body {
     color: #B4835B;
 }
 
-select, input {
+
+.bank-input select {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    margin-top: 5px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    font-family: 'Amaranth', sans-serif;
+}
+
+.account-input input {
     width: 100%;
     padding: 10px;
     font-size: 1rem;
