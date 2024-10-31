@@ -4,6 +4,7 @@ import './OrderHistory.css';
 import Navbar from '../../components/Navbar/Navbar';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom';
 
 export default function OrderHistory() {
     const [orders, setOrders] = useState([]);
@@ -11,6 +12,7 @@ export default function OrderHistory() {
     const [activeTab, setActiveTab] = useState('orders');
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
+    const navigate = useNavigate();
 
     // State for controlling modal
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -24,7 +26,7 @@ export default function OrderHistory() {
                         Authorization: `Bearer ${localStorage.getItem('token')}`
                     }
                 });
-                
+
                 const allOrders = ordersResponse.data.orders;
 
                 // Filter orders based on status
@@ -90,6 +92,40 @@ export default function OrderHistory() {
         setIsModalOpen(false); // Close the modal
     };
 
+
+    const handleChatWithSeller = async (sellerId) => {
+        if (!sellerId) {
+            console.error('Seller ID is missing');
+            toast.error('Cannot initiate chat without a valid seller.');
+            return;
+        }
+
+        try {
+            // Start or fetch a chat with the seller
+            const response = await axios.post('http://localhost:3011/chat/startOrFetchChat', { otherUserId: sellerId }, {
+                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+            });
+
+            if (response.status === 201 || response.status === 200) {
+                const chat = response.data;
+
+                // If chat creation, wait briefly to ensure data is fully available
+                if (response.status === 201) {
+                    await new Promise(resolve => setTimeout(resolve, 500)); // wait 500ms
+                }
+
+                console.log('Chat started/fetched:', chat);
+                navigate('/chat', { state: { sellerId, chatId: chat._id } }); // Pass chatId if needed
+            } else {
+                throw new Error('Chat creation/fetch unsuccessful');
+            }
+        } catch (error) {
+            console.error('Error starting chat with seller:', error);
+            toast.error('Failed to start chat with seller.');
+        }
+    };
+
+
     return (
         <div className="order-history-container">
             <Navbar />
@@ -141,6 +177,7 @@ export default function OrderHistory() {
                                 {isCompleteButtonVisible(order.trackingUpdatedAt, order.status) && (
                                     <button className="complete-button" onClick={() => openCompleteModal(order._id)}>Complete</button>
                                 )}
+                                <button className="chat-button" onClick={() => handleChatWithSeller(order.seller)}>Chat with Seller</button>
                             </div>
                         </div>
                     </div>

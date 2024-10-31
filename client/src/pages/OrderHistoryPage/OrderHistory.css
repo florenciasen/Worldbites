@@ -292,6 +292,34 @@ body {
     opacity: 0.9;
 }
 
+.chat-button {
+    font-family: 'Amaranth', sans-serif;
+    background-color: #8B5E34; /* Dark brown color */
+    color: #ffffff; /* White text color */
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.chat-button:hover {
+    background-color: #A67645; /* Slightly lighter shade for hover effect */
+}
+
+.chat-button:active {
+    background-color: #744622; /* Darker shade for active state */
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.chat-button:focus {
+    outline: none;
+    box-shadow: 0px 0px 0px 3px rgba(139, 94, 52, 0.4); /* Outline on focus */
+}
+
 
 /* Fade-in effect for overlay */
 @keyframes fadeIn {

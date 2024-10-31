@@ -36,47 +36,47 @@ mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
   .catch(err => console.error('MongoDB connection error:', err));
 
 
-  const orderSchema = new mongoose.Schema({
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Buyer's user ID
-    store: { type: String, required: true },  // Store name
-    storePicture: { type: String, required: true },  // Store picture URL
-    seller: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Seller's user ID
-    products: [{
-      productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
-      name: { type: String, required: true },
-      quantity: { type: Number, required: true },
-      price: { type: Number, required: true },
-      imageUrl: { type: String, required: true }
-    }],
-    totalItems: { type: Number, required: true },  // Total number of items
-    subtotalPrice: { type: Number, required: true },  // Subtotal price
-    shippingby: { type: String, required: true },  // Shipping method
-    trackingNumber: { type: String, default: 'xxxxxxx' },  // Tracking number
-    trackingUpdatedAt: { type: Date },
-    status: { type: String, default: 'On Progress' },  // Order status
-    shippingCost: { type: Number, required: true },  // Shipping cost
-    totalPrice: { type: Number, required: true },  // Total price
-    createdAt: { type: Date, default: Date.now }
-  });
+const orderSchema = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Buyer's user ID
+  store: { type: String, required: true },  // Store name
+  storePicture: { type: String, required: true },  // Store picture URL
+  seller: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Seller's user ID
+  products: [{
+    productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
+    name: { type: String, required: true },
+    quantity: { type: Number, required: true },
+    price: { type: Number, required: true },
+    imageUrl: { type: String, required: true }
+  }],
+  totalItems: { type: Number, required: true },  // Total number of items
+  subtotalPrice: { type: Number, required: true },  // Subtotal price
+  shippingby: { type: String, required: true },  // Shipping method
+  trackingNumber: { type: String, default: 'xxxxxxx' },  // Tracking number
+  trackingUpdatedAt: { type: Date },
+  status: { type: String, default: 'On Progress' },  // Order status
+  shippingCost: { type: Number, required: true },  // Shipping cost
+  totalPrice: { type: Number, required: true },  // Total price
+  createdAt: { type: Date, default: Date.now }
+});
 
 const Order = mongoose.model('Order', orderSchema);
 
 
 const cartSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    brand: { type: String, required: true },
-    category: { type: String, required: true },
-    price: { type: Number, required: true },
-    details: { type: String, required: true },
-    imageUrl: { type: String, required: true },
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    quantity: { type: Number, default: 1 },
-    productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
-    isChecked: { type: Boolean, required: true }
-  });
-  
-  const Cart = mongoose.model('Cart', cartSchema);
-  
+  name: { type: String, required: true },
+  brand: { type: String, required: true },
+  category: { type: String, required: true },
+  price: { type: Number, required: true },
+  details: { type: String, required: true },
+  imageUrl: { type: String, required: true },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  quantity: { type: Number, default: 1 },
+  productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+  isChecked: { type: Boolean, required: true }
+});
+
+const Cart = mongoose.model('Cart', cartSchema);
+
 // Create a User model
 const userSchema = new mongoose.Schema({
   name: { type: String, default: null }, // Name can be null initially
@@ -120,6 +120,22 @@ const batchSchema = new mongoose.Schema({
 });
 
 const Batch = mongoose.model('Batch', batchSchema);
+
+
+const chatSchema = new mongoose.Schema({
+  participants: [
+    { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
+  ],
+  messages: [
+    {
+      sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+      text: { type: String, required: true },
+      timestamp: { type: Date, default: Date.now }
+    }
+  ]
+});
+
+const Chat = mongoose.model('Chat', chatSchema);
 
 // Registration endpoint
 app.post('/register', async (req, res) => {
@@ -247,20 +263,20 @@ app.post('/filter', async (req, res) => {
 
   // Build the filter object dynamically based on the selected filters
   if (selectedCategories.length > 0) {
-      filter.category = { $in: selectedCategories }; // Find products that match the selected categories
+    filter.category = { $in: selectedCategories }; // Find products that match the selected categories
   }
 
   if (selectedBrands.length > 0) {
-      filter.brand = { $in: selectedBrands }; // Find products that match the selected brands
+    filter.brand = { $in: selectedBrands }; // Find products that match the selected brands
   }
 
   try {
-      // Fetch products based on the selected filters
-      const products = await Product.find(filter);
-      res.json(products);
+    // Fetch products based on the selected filters
+    const products = await Product.find(filter);
+    res.json(products);
   } catch (error) {
-      console.error('Error fetching filtered products:', error);
-      res.status(500).json({ error: 'Server error' });
+    console.error('Error fetching filtered products:', error);
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
@@ -269,31 +285,31 @@ app.post('/search', async (req, res) => {
   const { query } = req.body;
 
   try {
-      // Fetch all products from the database (can be optimized by fetching specific fields)
-      const products = await Product.find({});
+    // Fetch all products from the database (can be optimized by fetching specific fields)
+    const products = await Product.find({});
 
-      // Define options for Fuse.js to perform fuzzy search
-      const options = {
-          keys: ['name'], // Search by the 'name' field
-          threshold: 0.4, // This controls how fuzzy the search is (lower is stricter, higher is more fuzzy)
-      };
+    // Define options for Fuse.js to perform fuzzy search
+    const options = {
+      keys: ['name'], // Search by the 'name' field
+      threshold: 0.4, // This controls how fuzzy the search is (lower is stricter, higher is more fuzzy)
+    };
 
-      // Initialize Fuse with the products list and options
-      const fuse = new Fuse(products, options);
+    // Initialize Fuse with the products list and options
+    const fuse = new Fuse(products, options);
 
-      // Perform the fuzzy search
-      const result = fuse.search(query);
+    // Perform the fuzzy search
+    const result = fuse.search(query);
 
-      // Extract the actual products from the Fuse.js result
-      const filteredProducts = result.map(res => res.item);
+    // Extract the actual products from the Fuse.js result
+    const filteredProducts = result.map(res => res.item);
 
-      // Sort the filtered products alphabetically
-      filteredProducts.sort((a, b) => a.name.localeCompare(b.name));
+    // Sort the filtered products alphabetically
+    filteredProducts.sort((a, b) => a.name.localeCompare(b.name));
 
-      res.json(filteredProducts);
+    res.json(filteredProducts);
   } catch (error) {
-      console.error('Error searching products:', error);
-      res.status(500).json({ error: 'Server error' });
+    console.error('Error searching products:', error);
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
@@ -911,71 +927,71 @@ app.post('/cart/add', authenticateToken, async (req, res) => {
   console.log('Quantity:', quantity);
 
   try {
-      const product = await Product.findById(productId);
-      if (!product) return res.status(404).send('Product not found');
+    const product = await Product.findById(productId);
+    if (!product) return res.status(404).send('Product not found');
 
-      // Check if the product already exists in the user's cart
-      const existingCartItem = await Cart.findOne({
-          createdBy: req.user.userId, // Correctly reference user ID
-          productId: productId // Make sure this field exists in your Cart schema
-      });
+    // Check if the product already exists in the user's cart
+    const existingCartItem = await Cart.findOne({
+      createdBy: req.user.userId, // Correctly reference user ID
+      productId: productId // Make sure this field exists in your Cart schema
+    });
 
-      if (existingCartItem) {
-          // If it exists, update the quantity
-          existingCartItem.quantity += quantity; // Increment the quantity
-          await existingCartItem.save(); // Save the updated cart item
-          return res.status(200).json(existingCartItem); // Respond with updated item
-      }
+    if (existingCartItem) {
+      // If it exists, update the quantity
+      existingCartItem.quantity += quantity; // Increment the quantity
+      await existingCartItem.save(); // Save the updated cart item
+      return res.status(200).json(existingCartItem); // Respond with updated item
+    }
 
-      // Create a new cart item if it doesn't exist
-      const cart = new Cart({
-          name: product.name,
-          brand: product.brand,
-          category: product.category,
-          price: product.price,
-          details: product.details,
-          imageUrl: product.imageUrl,
-          createdBy: req.user.userId,
-          quantity: quantity, // Set initial quantity
-          productId: productId, // Ensure productId is included in the Cart schema
-          isChecked: true
-      });
+    // Create a new cart item if it doesn't exist
+    const cart = new Cart({
+      name: product.name,
+      brand: product.brand,
+      category: product.category,
+      price: product.price,
+      details: product.details,
+      imageUrl: product.imageUrl,
+      createdBy: req.user.userId,
+      quantity: quantity, // Set initial quantity
+      productId: productId, // Ensure productId is included in the Cart schema
+      isChecked: true
+    });
 
-      await cart.save();
-      await User.findByIdAndUpdate(req.user.userId, { $push: { cartId: cart._id } });
+    await cart.save();
+    await User.findByIdAndUpdate(req.user.userId, { $push: { cartId: cart._id } });
 
-      res.status(201).json(cart); // Respond with the new cart item
+    res.status(201).json(cart); // Respond with the new cart item
   } catch (error) {
-      console.error('Error adding to cart:', error);
-      res.status(500).json({ message: 'Error adding to cart', error: error.message });
+    console.error('Error adding to cart:', error);
+    res.status(500).json({ message: 'Error adding to cart', error: error.message });
   }
 });
 
 // In your Express server
 app.get('/getcart', authenticateToken, async (req, res) => {
   try {
-      const cartItems = await Cart.find({ createdBy: req.user.userId });
-      res.status(200).json(cartItems);
+    const cartItems = await Cart.find({ createdBy: req.user.userId });
+    res.status(200).json(cartItems);
   } catch (error) {
-      console.error('Error fetching cart items:', error);
-      res.status(500).json({ message: 'Error fetching cart items', error: error.message });
+    console.error('Error fetching cart items:', error);
+    res.status(500).json({ message: 'Error fetching cart items', error: error.message });
   }
 });
 
 
 app.delete('/cart/remove/:id', authenticateToken, async (req, res) => {
   try {
-      const { id } = req.params;
+    const { id } = req.params;
 
-      // Remove the item from the Cart collection
-      const result = await Cart.findByIdAndDelete(id);
-      
-      if (!result) return res.status(404).json({ message: 'Item not found' });
-      
-      res.status(200).json({ message: 'Item removed from cart' });
+    // Remove the item from the Cart collection
+    const result = await Cart.findByIdAndDelete(id);
+
+    if (!result) return res.status(404).json({ message: 'Item not found' });
+
+    res.status(200).json({ message: 'Item removed from cart' });
   } catch (error) {
-      console.error('Error removing item from cart:', error);
-      res.status(500).json({ message: 'Error removing item from cart' });
+    console.error('Error removing item from cart:', error);
+    res.status(500).json({ message: 'Error removing item from cart' });
   }
 });
 
@@ -986,18 +1002,18 @@ app.put('/updatecartquantity/:id', authenticateToken, async (req, res) => {
 
 
   try {
-      // Update the quantity in the database
-      const updatedItem = await Cart.findByIdAndUpdate(id, { quantity }, { new: true });
-      
-      if (!updatedItem) {
-          console.error(`Item with ID: ${id} not found.`);
-          return res.status(404).json({ message: 'Item not found' });
-      }
+    // Update the quantity in the database
+    const updatedItem = await Cart.findByIdAndUpdate(id, { quantity }, { new: true });
 
-      res.json(updatedItem);
+    if (!updatedItem) {
+      console.error(`Item with ID: ${id} not found.`);
+      return res.status(404).json({ message: 'Item not found' });
+    }
+
+    res.json(updatedItem);
   } catch (error) {
-      console.error('Error updating quantity:', error);
-      res.status(500).json({ message: 'Failed to update quantity', error: error.message });
+    console.error('Error updating quantity:', error);
+    res.status(500).json({ message: 'Failed to update quantity', error: error.message });
   }
 });
 
@@ -1008,7 +1024,7 @@ app.put('/cart/updateIsChecked/:id', authenticateToken, async (req, res) => {
   try {
     // Update the isChecked status in the database
     const updatedItem = await Cart.findByIdAndUpdate(id, { isChecked }, { new: true });
-    
+
     if (!updatedItem) {
       console.error(`Item with ID: ${id} not found.`);
       return res.status(404).json({ message: 'Item not found' });
@@ -1026,7 +1042,7 @@ app.put('/cart/updateIsChecked/:id', authenticateToken, async (req, res) => {
 app.get('/get-store-profile', authenticateToken, async (req, res) => {
 
   try {
-  
+
     const user = await User.findById(req.user.userId);
 
     if (!user) {
@@ -1115,7 +1131,7 @@ app.post('/ongkir', authenticateToken, async (req, res) => {
       weight, // Example: 1000 (in grams)
       courier // Example: 'jne', 'pos', 'tiki'
     }, {
-      headers: { 
+      headers: {
         key: '687ec21839595a49d2e828450438be1c'
       }
     });
@@ -1135,32 +1151,32 @@ app.post('/buy-now', authenticateToken, async (req, res) => {
   console.log('Quantity:', quantity);
 
   try {
-      const product = await Product.findById(productId);
-      if (!product) return res.status(404).send('Product not found');
+    const product = await Product.findById(productId);
+    if (!product) return res.status(404).send('Product not found');
 
-      // You don't save the product to the cart for "Buy Now".
-      // Instead, directly return the product details with the specified quantity.
-      
-      const checkoutProduct = {
-          name: product.name,
-          brand: product.brand,
-          category: product.category,
-          price: product.price,
-          details: product.details,
-          imageUrl: product.imageUrl,
-          quantity: quantity, // Set quantity for immediate checkout
-          productId: productId,
-      };
+    // You don't save the product to the cart for "Buy Now".
+    // Instead, directly return the product details with the specified quantity.
 
-      // Send the product details for the checkout process without saving them
-      return res.status(200).json({
-          success: true,
-          message: 'Proceed to checkout',
-          product: checkoutProduct // Return the product details
-      });
+    const checkoutProduct = {
+      name: product.name,
+      brand: product.brand,
+      category: product.category,
+      price: product.price,
+      details: product.details,
+      imageUrl: product.imageUrl,
+      quantity: quantity, // Set quantity for immediate checkout
+      productId: productId,
+    };
+
+    // Send the product details for the checkout process without saving them
+    return res.status(200).json({
+      success: true,
+      message: 'Proceed to checkout',
+      product: checkoutProduct // Return the product details
+    });
   } catch (error) {
-      console.error('Error during Buy Now:', error);
-      res.status(500).json({ message: 'Error processing Buy Now', error: error.message });
+    console.error('Error during Buy Now:', error);
+    res.status(500).json({ message: 'Error processing Buy Now', error: error.message });
   }
 });
 
@@ -1218,16 +1234,16 @@ app.post('/checkout', authenticateToken, async (req, res) => {
 
 app.get('/orders', authenticateToken, async (req, res) => {
   try {
-      // Get the authenticated user's ID
-      const userId = req.user.userId;
+    // Get the authenticated user's ID
+    const userId = req.user.userId;
 
-      // Fetch orders related to this user
-      const orders = await Order.find({ user: userId });
+    // Fetch orders related to this user
+    const orders = await Order.find({ user: userId });
 
-      res.status(200).json({ orders });
+    res.status(200).json({ orders });
   } catch (error) {
-      console.error('Error fetching orders:', error.message);
-      res.status(500).json({ message: 'Error fetching orders', error: error.message });
+    console.error('Error fetching orders:', error.message);
+    res.status(500).json({ message: 'Error fetching orders', error: error.message });
   }
 });
 
@@ -1236,23 +1252,23 @@ app.put('/orders/:orderId/trackingnumber', async (req, res) => {
   const { trackingNumber } = req.body;
 
   try {
-      const order = await Order.findById(orderId);
-      if (!order) {
-          return res.status(404).json({ message: 'Order not found' });
-      }
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
 
-      if (!trackingNumber || trackingNumber === 'xxxxxxx') {
-          return res.status(400).json({ message: 'Invalid tracking number' });
-      }
+    if (!trackingNumber || trackingNumber === 'xxxxxxx') {
+      return res.status(400).json({ message: 'Invalid tracking number' });
+    }
 
-      order.trackingNumber = trackingNumber;
-      order.trackingUpdatedAt = new Date(); // Update trackingUpdatedAt dengan waktu saat ini
-      await order.save();
+    order.trackingNumber = trackingNumber;
+    order.trackingUpdatedAt = new Date(); // Update trackingUpdatedAt dengan waktu saat ini
+    await order.save();
 
-      res.status(200).json({ message: 'Tracking number updated successfully' });
+    res.status(200).json({ message: 'Tracking number updated successfully' });
   } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Error updating tracking number' });
+    console.error(error);
+    res.status(500).json({ message: 'Error updating tracking number' });
   }
 });
 
@@ -1322,41 +1338,137 @@ app.get('/seller/completed-orders', authenticateToken, async (req, res) => {
 // Net income endpoint to get all completed orders' subtotal for the current month
 app.get('/netincome', authenticateToken, async (req, res) => {
   try {
-      const sellerId = req.user.userId;  // Get seller's ID from the token
+    const sellerId = req.user.userId;  // Get seller's ID from the token
 
-      // Get the current month and year
-      const currentMonth = moment().month(); // Gets the current month (0-11)
-      const currentYear = moment().year();   // Gets the full year
+    // Get the current month and year
+    const currentMonth = moment().month(); // Gets the current month (0-11)
+    const currentYear = moment().year();   // Gets the full year
 
-      // Find all completed orders for the current seller
-      const completedOrders = await Order.find({
-          seller: sellerId,
-          status: 'Completed'
-      });
+    // Find all completed orders for the current seller
+    const completedOrders = await Order.find({
+      seller: sellerId,
+      status: 'Completed'
+    });
 
-      // Filter orders based on the current month and year
-      const ordersThisMonth = completedOrders.filter(order => {
-          const orderMonth = moment(order.createdAt).month(); // Month of the order
-          const orderYear = moment(order.createdAt).year();   // Year of the order
+    // Filter orders based on the current month and year
+    const ordersThisMonth = completedOrders.filter(order => {
+      const orderMonth = moment(order.createdAt).month(); // Month of the order
+      const orderYear = moment(order.createdAt).year();   // Year of the order
 
-          return orderMonth === currentMonth && orderYear === currentYear;
-      });
+      return orderMonth === currentMonth && orderYear === currentYear;
+    });
 
-      // Calculate total revenue by summing up the `subtotalPrice` of the completed orders
-      const totalRevenue = ordersThisMonth.reduce((acc, order) => acc + (order.subtotalPrice || 0), 0);
+    // Calculate total revenue by summing up the `subtotalPrice` of the completed orders
+    const totalRevenue = ordersThisMonth.reduce((acc, order) => acc + (order.subtotalPrice || 0), 0);
 
-      // Send the total revenue as the response
-      res.status(200).json({
-          message: 'Net income for the current month fetched successfully',
-          totalRevenue
-      });
+    // Send the total revenue as the response
+    res.status(200).json({
+      message: 'Net income for the current month fetched successfully',
+      totalRevenue
+    });
 
   } catch (error) {
-      console.error('Error fetching net income:', error);
-      res.status(500).json({ message: 'Error fetching net income', error: error.message });
+    console.error('Error fetching net income:', error);
+    res.status(500).json({ message: 'Error fetching net income', error: error.message });
   }
 });
 
+
+app.post('/chat/sendMessage', authenticateToken, async (req, res) => {
+  try {
+    const senderId = req.user.userId;
+    const { receiverId, text } = req.body;
+
+    if (!receiverId || !text) {
+      return res.status(400).json({ message: 'Receiver ID and text are required' });
+    }
+
+    let chat = await Chat.findOne({
+      participants: { $all: [senderId, receiverId] }
+    });
+
+    if (!chat) {
+      return res.status(404).json({ message: 'Chat not found' });
+    }
+
+    const message = { sender: senderId, text, timestamp: new Date() };
+    chat.messages.push(message);
+    await chat.save();
+
+    res.status(200).json(message);
+  } catch (error) {
+    console.error('Error sending message:', error);
+    res.status(500).json({ message: 'Error sending message', error: error.message });
+  }
+});
+
+
+
+app.post('/chat/startOrFetchChat', authenticateToken, async (req, res) => {
+  try {
+    const currentUserId = req.user.userId;
+    const { otherUserId } = req.body;
+
+    if (!otherUserId) {
+      return res.status(400).json({ message: 'Seller ID is required.' });
+    }
+
+    // Find or create a chat with both participants
+    let chat = await Chat.findOne({
+      participants: { $all: [currentUserId, otherUserId] }
+    }).populate('participants', 'name profilePicture storeName storePicture');
+
+    if (!chat) {
+      // If no chat exists, create a new one
+      chat = new Chat({
+        participants: [currentUserId, otherUserId],
+        messages: []
+      });
+
+      // Save the new chat and ensure immediate population of participants
+      await chat.save();
+      chat = await Chat.findById(chat._id).populate('participants', 'name profilePicture storeName storePicture');
+
+      console.log('New chat created and populated:', chat);
+    } else {
+      console.log('Existing chat found:', chat);
+    }
+
+    res.status(201).json(chat);
+  } catch (error) {
+    console.error('Error initiating or fetching chat:', error);
+    res.status(500).json({ message: 'Error initiating or fetching chat', error: error.message });
+  }
+});
+
+
+// Fetch all unique participants the user has chatted with
+app.get('/chat/participants', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    // Find all unique chats where the user is a participant
+    const chats = await Chat.find({
+      participants: userId
+    }).populate('participants', 'name profilePicture storeName storePicture'); // Include storeName and storePicture here
+
+    // Extract participants from each chat, excluding the user themselves
+    const participants = [];
+    chats.forEach(chat => {
+      chat.participants.forEach(participant => {
+        if (participant._id.toString() !== userId.toString() &&
+          !participants.some(p => p._id.toString() === participant._id.toString())) {
+          participants.push(participant);
+        }
+      });
+    });
+
+    res.status(200).json(participants);
+  } catch (error) {
+    console.error('Error fetching participants:', error);
+    res.status(500).json({ message: 'Error fetching participants', error: error.message });
+  }
+});
 
 
 // Basic route for testing
