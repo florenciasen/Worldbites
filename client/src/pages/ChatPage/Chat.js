@@ -8,6 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 export default function Chat() {
     const [conversations, setConversations] = useState([]);
+    const [filteredConversations, setFilteredConversations] = useState([]); // New state for filtered conversations
     const [selectedConversation, setSelectedConversation] = useState(null);
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
@@ -32,7 +33,8 @@ export default function Chat() {
                 headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
                 params: { isSellerMode }
             });
-            setConversations(response.data);
+            setConversations(response.data); // Set original conversations
+            setFilteredConversations(response.data); // Initialize filtered conversations
         } catch (error) {
             console.error('Error fetching conversations:', error);
             toast.error('Failed to load conversations.');
@@ -54,6 +56,20 @@ export default function Chat() {
     const selectConversation = (conversation) => {
         setSelectedConversation(conversation);
         fetchMessages(conversation._id);
+    };
+
+    const handleSearch = (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        if (searchTerm.trim() === "") {
+            setFilteredConversations(conversations); // Reset to all conversations if search is cleared
+        } else {
+            const filtered = conversations.filter(convo =>
+                isSellerMode
+                    ? convo.buyer?.name?.toLowerCase().includes(searchTerm)
+                    : convo.seller?.storeName?.toLowerCase().includes(searchTerm)
+            );
+            setFilteredConversations(filtered);
+        }
     };
 
     const handleSendMessage = async () => {
@@ -83,18 +99,10 @@ export default function Chat() {
                         type="text"
                         className="search-input"
                         placeholder="Search"
-                        onChange={(e) => {
-                            const searchTerm = e.target.value.toLowerCase();
-                            const filtered = conversations.filter(convo =>
-                                isSellerMode
-                                    ? convo.buyer?.name?.toLowerCase().includes(searchTerm)
-                                    : convo.seller?.storeName?.toLowerCase().includes(searchTerm)
-                            );
-                            setConversations(filtered);
-                        }}
+                        onChange={handleSearch} // Use the new search handler
                     />
                     <div className="user-list">
-                        {conversations.map((convo) => (
+                        {filteredConversations.map((convo) => (
                             <div key={convo._id} className="user-item" onClick={() => selectConversation(convo)}>
                                 <img
                                     src={`http://localhost:3011/uploads/${isSellerMode ? convo.buyer?.profilePicture : convo.seller?.storePicture}`}
