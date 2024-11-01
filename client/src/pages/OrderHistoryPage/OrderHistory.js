@@ -194,7 +194,13 @@ export default function OrderHistory() {
                                 {order.products.map(product => (
                                     <div key={product.productId} className="order-item">
                                         <img src={`http://localhost:3011/uploads/${product.imageUrl}`} alt={product.name} />
-                                        <p>{product.name} - {product.quantity} x IDR {product.price.toLocaleString()}</p>
+                                        <div className="order-item-content">
+                                            <div className="order-item-info">
+                                                <p>{product.name}</p>
+                                                <p>IDR {product.price.toLocaleString()}</p>
+                                            </div>
+                                            <p className="order-item-quantity">{product.quantity} x</p>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
