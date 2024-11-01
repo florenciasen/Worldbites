@@ -102,7 +102,7 @@ export default function ProductInfo() {
 
                     {/* Store Reviews */}
                     <div className="product-reviews">
-                        <img src={`http://localhost:3011/uploads/${store.profilePicture}`} alt="Store" className="store-profile-picture" />
+                        <img src={`http://localhost:3011/uploads/${store.storePicture}`} alt="Store" className="store-profile-picture" />
                         <div className='store-name-rating-container'>
                                 <span>{store.name}</span>
                             <div className="store-rating">

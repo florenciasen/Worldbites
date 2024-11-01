@@ -909,7 +909,7 @@ app.get('/productinfo/:id', async (req, res) => {
       },
       store: {
         name: user.storeName,
-        profilePicture: user.profilePicture,
+        storePicture: user.storePicture
       },
       batch: {
         startDate: batch.startDate,
