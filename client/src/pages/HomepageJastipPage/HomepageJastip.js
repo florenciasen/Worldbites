@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './HomepageJastip.css'; 
+import './HomepageJastip.css';
 import Navbar from '../../components/Navbar/Navbar';
 import AddProductImage from '../../assets/addproduct.svg';
 import CustomerOrderImage from '../../assets/customerorder.svg';
@@ -52,7 +52,7 @@ export default function HomepageJastip() {
     }, []);
 
     const handleProductJastip = () => {
-        navigate('/productjastip'); 
+        navigate('/productjastip');
     };
 
     const handleEditStore = () => {
@@ -85,9 +85,9 @@ export default function HomepageJastip() {
                 <div className="store-info-section">
                     <div className="store-info">
                         {/* Dynamic store picture */}
-                        <img 
-                            src={`http://localhost:3011/uploads/${storeInfo.storePicture}`} 
-                            className="store-icon" 
+                        <img
+                            src={`http://localhost:3011/uploads/${storeInfo.storePicture}`}
+                            className="store-icon"
                             onClick={handleViewStore}
                             style={{ cursor: 'pointer' }}
                         />
@@ -109,9 +109,9 @@ export default function HomepageJastip() {
                         </div>
                     </div>
                     <div className='arrow-view-store'>
-                                <img src={Arrow} style={{ cursor:'pointer' }}alt="Arrow" className="arrow-icon" onClick={handleViewStore} />
-                                <p className="view-store-btn" onClick={handleViewStore}>View Store</p>
-                            </div>
+                        <img src={Arrow} style={{ cursor: 'pointer' }} alt="Arrow" className="arrow-icon" onClick={handleViewStore} />
+                        <p className="view-store-btn" onClick={handleViewStore}>View Store</p>
+                    </div>
                 </div>
             </div>
 
@@ -121,11 +121,11 @@ export default function HomepageJastip() {
                     <img src={AddProductImage} alt="Add Product" className="small-container-image" />
                     <h3>Add Product</h3>
                 </div>
-                <div className='container-small'onClick={() => handleCustomerOrder()}>
+                <div className='container-small' onClick={() => handleCustomerOrder()}>
                     <img src={CustomerOrderImage} alt="Customer Order" className="small-container-image" />
                     <h3>Customer Order</h3>
                 </div>
-                <div className='container-small'onClick={() => handleCompleteOrder()}>
+                <div className='container-small' onClick={() => handleCompleteOrder()}>
                     <img src={CompleteOrderImage} alt="Order Completed" className="order-completed-image" />
                     <h3>Complete Order</h3>
                 </div>
