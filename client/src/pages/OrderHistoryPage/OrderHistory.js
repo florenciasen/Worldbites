@@ -95,37 +95,29 @@ export default function OrderHistory() {
 
     const handleChatWithSeller = async (sellerId) => {
         if (!sellerId) {
-            console.error('Seller ID is missing');
-            toast.error('Cannot initiate chat without a valid seller.');
-            return;
+          console.error('Seller ID is missing');
+          toast.error('Cannot initiate chat without a valid seller.');
+          return;
         }
-
+      
         try {
-            // Start or fetch a chat with the seller
-            const response = await axios.post('http://localhost:3011/chat/startOrFetchChat', { otherUserId: sellerId }, {
-                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-            });
-
-            if (response.status === 201 || response.status === 200) {
-                const chat = response.data;
-
-                // If chat creation, wait briefly to ensure data is fully available
-                if (response.status === 201) {
-                    await new Promise(resolve => setTimeout(resolve, 500)); // wait 500ms
-                }
-
-                console.log('Chat started/fetched:', chat);
-                navigate('/chat', { state: { sellerId, chatId: chat._id } }); // Pass chatId if needed
-            } else {
-                throw new Error('Chat creation/fetch unsuccessful');
-            }
+          const response = await axios.post('http://localhost:3011/chat/startOrFetchChat', 
+            { otherUserId: sellerId },
+            { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+          );
+      
+          if (response.status === 201 || response.status === 200) {
+            const chat = response.data;
+            navigate('/chat', { state: { sellerId, chatId: chat._id } });
+          } else {
+            throw new Error('Chat creation/fetch unsuccessful');
+          }
         } catch (error) {
-            console.error('Error starting chat with seller:', error);
-            toast.error('Failed to start chat with seller.');
+          console.error('Error starting chat with seller:', error);
+          toast.error('Failed to start chat with seller.');
         }
-    };
-
-
+      };
+      
     return (
         <div className="order-history-container">
             <Navbar />

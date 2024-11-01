@@ -3,112 +3,74 @@ import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import './Chat.css';
 import Navbar from '../../components/Navbar/Navbar';
-import { useLocation } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import stringSimilarity from 'string-similarity'; // Import string-similarity for typo-tolerant search
 
 export default function Chat() {
-    const location = useLocation();
-    const [participants, setParticipants] = useState([]);
-    const [filteredParticipants, setFilteredParticipants] = useState([]);
-    const [selectedUser, setSelectedUser] = useState(null);
+    const [conversations, setConversations] = useState([]);
+    const [selectedConversation, setSelectedConversation] = useState(null);
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
     const [loggedInUserId, setLoggedInUserId] = useState(null);
-    const [searchTerm, setSearchTerm] = useState('');
+    const [isSellerMode, setIsSellerMode] = useState(false);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
+        const isJastipLoggedIn = localStorage.getItem('isJastipLoggedIn') === 'true';
+        setIsSellerMode(isJastipLoggedIn);
+
         if (token) {
             const decodedToken = jwtDecode(token);
             setLoggedInUserId(decodedToken.userId);
+            fetchConversations(isJastipLoggedIn);
         }
-
-        // Fetch all participants initially
-        const fetchParticipants = async () => {
-            try {
-                const response = await axios.get('http://localhost:3011/chat/participants', {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                setParticipants(response.data);
-                setFilteredParticipants(response.data); // Initialize filtered list
-            } catch (error) {
-                console.error('Error fetching participants:', error);
-            }
-        };
-
-        fetchParticipants();
     }, []);
-    const handleSearch = (e) => {
-        const term = e.target.value.toLowerCase();
-        setSearchTerm(term);
-    
-        if (term.trim() === '') {
-            setFilteredParticipants(participants); // Reset to all participants if search term is empty
-            return;
-        }
-    
-        // First, filter by substring match for more specific results
-        let filtered = participants.filter(user => 
-            user.storeName.toLowerCase().includes(term)
-        );
-    
-        // If no exact substring matches, use similarity-based filtering
-        if (filtered.length === 0) {
-            filtered = participants.filter(user => {
-                const similarity = stringSimilarity.compareTwoStrings(user.storeName.toLowerCase(), term);
-                return similarity > 0.4; // Set a threshold for typo tolerance
+
+    const fetchConversations = async (isSellerMode) => {
+        try {
+            const response = await axios.get(`http://localhost:3011/chat/conversations`, {
+                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+                params: { isSellerMode }
             });
+            setConversations(response.data);
+        } catch (error) {
+            console.error('Error fetching conversations:', error);
+            toast.error('Failed to load conversations.');
         }
-    
-        setFilteredParticipants(filtered);
     };
 
-    const startOrFetchChat = async (otherUserId) => {
+    const fetchMessages = async (chatId) => {
         try {
-            const response = await axios.post('http://localhost:3011/chat/startOrFetchChat', {
-                otherUserId
-            }, {
+            const response = await axios.get(`http://localhost:3011/chat/${chatId}/messages`, {
                 headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
             });
-
-            const chat = response.data;
-            const otherUser = chat.participants.find(participant => participant._id !== loggedInUserId);
-
-            if (otherUser) {
-                setSelectedUser(otherUser);
-                setMessages(chat.messages);
-            } else {
-                console.error("Other user not found in chat participants");
-            }
+            setMessages(response.data);
         } catch (error) {
-            console.error('Error initiating or fetching chat:', error);
-            toast.error('Failed to initiate or fetch chat');
+            console.error('Error fetching messages:', error);
+            toast.error('Failed to load messages.');
         }
+    };
+
+    const selectConversation = (conversation) => {
+        setSelectedConversation(conversation);
+        fetchMessages(conversation._id);
     };
 
     const handleSendMessage = async () => {
         if (newMessage.trim() === '') return;
 
         try {
-            const response = await axios.post('http://localhost:3011/chat/sendMessage', {
-                receiverId: selectedUser?._id,
-                text: newMessage
-            }, {
-                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-            });
+            const response = await axios.post(`http://localhost:3011/chat/${selectedConversation._id}/sendMessage`, 
+                { message: newMessage },
+                { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+            );
 
-            const sentMessage = response.data;
-            setMessages([...messages, {
-                ...sentMessage,
-                timestamp: new Date().toISOString(),
-                sender: loggedInUserId,
-            }]);
+            // Add the new message to the messages array with the correct sender
+            setMessages([...messages, { ...response.data.message, sender: { _id: loggedInUserId } }]);
             setNewMessage('');
         } catch (error) {
             console.error('Error sending message:', error);
-            toast.error('Failed to send message');
+            toast.error('Failed to send message.');
         }
     };
 
@@ -120,16 +82,30 @@ export default function Chat() {
                     <input
                         type="text"
                         className="search-input"
-                        placeholder="Search by store name"
-                        value={searchTerm}
-                        onChange={handleSearch}
+                        placeholder="Search"
+                        onChange={(e) => {
+                            const searchTerm = e.target.value.toLowerCase();
+                            const filtered = conversations.filter(convo =>
+                                isSellerMode
+                                    ? convo.buyer?.name?.toLowerCase().includes(searchTerm)
+                                    : convo.seller?.storeName?.toLowerCase().includes(searchTerm)
+                            );
+                            setConversations(filtered);
+                        }}
                     />
                     <div className="user-list">
-                        {filteredParticipants.map((user) => (
-                            <div key={user._id} className="user-item" onClick={() => startOrFetchChat(user._id)}>
-                                <img src={`http://localhost:3011/uploads/${user.storePicture}`} alt="avatar" className="user-avatar" />
+                        {conversations.map((convo) => (
+                            <div key={convo._id} className="user-item" onClick={() => selectConversation(convo)}>
+                                <img
+                                    src={`http://localhost:3011/uploads/${isSellerMode ? convo.buyer?.profilePicture : convo.seller?.storePicture}`}
+                                    alt="avatar"
+                                    className="user-avatar"
+                                />
                                 <div className="user-info">
-                                    <p className="user-name">{user.storeName}</p>
+                                    <p className="user-name">
+                                        {isSellerMode ? convo.buyer?.name : convo.seller?.storeName}
+                                    </p>
+                                    <p className="user-last-message">{convo.lastMessage}</p>
                                 </div>
                             </div>
                         ))}
@@ -137,18 +113,18 @@ export default function Chat() {
                 </div>
 
                 <div className="chat-content">
-                    {selectedUser ? (
+                    {selectedConversation ? (
                         <>
                             <h2 className="chat-header">
-                                Messages with {selectedUser.storeName || "Unnamed Store"}
+                                Messages with {isSellerMode ? selectedConversation.buyer?.name : selectedConversation.seller?.storeName}
                             </h2>
                             <div className="message-list">
                                 {messages.map((msg, index) => (
                                     <div
                                         key={index}
-                                        className={`chat-message ${msg.sender === loggedInUserId ? 'sent' : 'received'}`}
+                                        className={`chat-message ${msg.sender._id === loggedInUserId ? 'sent' : 'received'}`}
                                     >
-                                        <p>{msg.text}</p>
+                                        <p>{msg.message}</p>
                                         <span className="message-time">
                                             {new Date(msg.timestamp).toLocaleTimeString()}
                                         </span>
@@ -170,7 +146,7 @@ export default function Chat() {
                     )}
                 </div>
             </div>
-            <ToastContainer 
+            <ToastContainer
                 position="top-center"
                 autoClose={3000}
                 hideProgressBar={false}

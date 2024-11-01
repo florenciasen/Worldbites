@@ -122,17 +122,22 @@ const batchSchema = new mongoose.Schema({
 const Batch = mongoose.model('Batch', batchSchema);
 
 
+// Chat schema to manage buyer-seller communication
 const chatSchema = new mongoose.Schema({
-  participants: [
-    { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
-  ],
+  order: { type: mongoose.Schema.Types.ObjectId, ref: 'Order', required: false }, // Reference to the order, optional
+  buyer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },  // Buyer's user ID
+  seller: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },  // Seller's user ID
   messages: [
     {
-      sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-      text: { type: String, required: true },
-      timestamp: { type: Date, default: Date.now }
+      sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // ID of the message sender
+      message: { type: String, required: true }, // Message text
+      timestamp: { type: Date, default: Date.now } // Timestamp of the message
     }
-  ]
+  ],
+  lastMessage: { type: String }, // Last message for preview
+  lastMessageTimestamp: { type: Date, default: Date.now }, // Timestamp of the last message
+  createdAt: { type: Date, default: Date.now }, // Chat start date
+  updatedAt: { type: Date, default: Date.now } // Chat last updated timestamp
 });
 
 const Chat = mongoose.model('Chat', chatSchema);
@@ -1374,101 +1379,113 @@ app.get('/netincome', authenticateToken, async (req, res) => {
 });
 
 
-app.post('/chat/sendMessage', authenticateToken, async (req, res) => {
+app.get('/chat/:chatId/messages', authenticateToken, async (req, res) => {
+  const { chatId } = req.params;
+  const userId = req.user.userId;
+
   try {
-    const senderId = req.user.userId;
-    const { receiverId, text } = req.body;
+      // Fetch the chat by ID
+      const chat = await Chat.findById(chatId).populate('messages.sender', 'profilePicture name');
+      
+      if (!chat) return res.status(404).json({ error: 'Chat not found' });
+      
+      // Check if the logged-in user is either the buyer or the seller in this chat
+      if (chat.buyer.toString() !== userId && chat.seller.toString() !== userId) {
+          return res.status(403).json({ error: 'Unauthorized access' });
+      }
 
-    if (!receiverId || !text) {
-      return res.status(400).json({ message: 'Receiver ID and text are required' });
-    }
-
-    let chat = await Chat.findOne({
-      participants: { $all: [senderId, receiverId] }
-    });
-
-    if (!chat) {
-      return res.status(404).json({ message: 'Chat not found' });
-    }
-
-    const message = { sender: senderId, text, timestamp: new Date() };
-    chat.messages.push(message);
-    await chat.save();
-
-    res.status(200).json(message);
+      res.json(chat.messages); // Return the messages array
   } catch (error) {
-    console.error('Error sending message:', error);
-    res.status(500).json({ message: 'Error sending message', error: error.message });
+      console.error('Error fetching messages:', error);
+      res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+
+app.get('/chat/conversations', authenticateToken, async (req, res) => {
+  const userId = req.user.userId;
+  const isSellerMode = req.query.isSellerMode === 'true'; // Check the seller mode from query
+
+  try {
+      let conversations;
+      if (isSellerMode) {
+          // Fetch conversations where the user is the seller
+          conversations = await Chat.find({ seller: userId })
+              .populate('buyer', 'name profilePicture')
+              .sort({ lastMessageTimestamp: -1 });
+      } else {
+          // Fetch conversations where the user is the buyer
+          conversations = await Chat.find({ buyer: userId })
+              .populate('seller', 'storeName storePicture')
+              .sort({ lastMessageTimestamp: -1 });
+      }
+
+      res.json(conversations);
+  } catch (error) {
+      console.error('Error fetching conversations:', error);
+      res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
 
 
 
 app.post('/chat/startOrFetchChat', authenticateToken, async (req, res) => {
+  const { otherUserId } = req.body;
+  const userId = req.user.userId; // Ensure `req.user.userId` is set by your authentication middleware
+
   try {
-    const currentUserId = req.user.userId;
-    const { otherUserId } = req.body;
-
-    if (!otherUserId) {
-      return res.status(400).json({ message: 'Seller ID is required.' });
-    }
-
-    // Find or create a chat with both participants
-    let chat = await Chat.findOne({
-      participants: { $all: [currentUserId, otherUserId] }
-    }).populate('participants', 'name profilePicture storeName storePicture');
+    // Try to find an existing chat between the buyer and seller
+    let chat = await Chat.findOne({ buyer: userId, seller: otherUserId });
 
     if (!chat) {
       // If no chat exists, create a new one
       chat = new Chat({
-        participants: [currentUserId, otherUserId],
-        messages: []
+        buyer: userId,
+        seller: otherUserId,
+        messages: [],
+        lastMessage: "",
+        lastMessageTimestamp: Date.now()
       });
-
-      // Save the new chat and ensure immediate population of participants
       await chat.save();
-      chat = await Chat.findById(chat._id).populate('participants', 'name profilePicture storeName storePicture');
-
-      console.log('New chat created and populated:', chat);
+      res.status(201).json(chat); // Respond with new chat created
     } else {
-      console.log('Existing chat found:', chat);
+      res.status(200).json(chat); // Respond with existing chat
     }
-
-    res.status(201).json(chat);
   } catch (error) {
-    console.error('Error initiating or fetching chat:', error);
-    res.status(500).json({ message: 'Error initiating or fetching chat', error: error.message });
+    console.error('Error starting or fetching chat:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
+app.post('/chat/:chatId/sendMessage', authenticateToken, async (req, res) => {
+  const { chatId } = req.params;
+  const { message } = req.body;
+  const senderId = req.user.userId;
 
-// Fetch all unique participants the user has chatted with
-app.get('/chat/participants', authenticateToken, async (req, res) => {
   try {
-    const userId = req.user.userId;
+      const chat = await Chat.findById(chatId);
+      if (!chat) return res.status(404).json({ error: 'Chat not found' });
 
-    // Find all unique chats where the user is a participant
-    const chats = await Chat.find({
-      participants: userId
-    }).populate('participants', 'name profilePicture storeName storePicture'); // Include storeName and storePicture here
+      const newMessage = {
+          sender: senderId,
+          message,
+          timestamp: Date.now()
+      };
 
-    // Extract participants from each chat, excluding the user themselves
-    const participants = [];
-    chats.forEach(chat => {
-      chat.participants.forEach(participant => {
-        if (participant._id.toString() !== userId.toString() &&
-          !participants.some(p => p._id.toString() === participant._id.toString())) {
-          participants.push(participant);
-        }
-      });
-    });
+      chat.messages.push(newMessage);
+      chat.lastMessage = message;
+      chat.lastMessageTimestamp = newMessage.timestamp;
+      await chat.save();
 
-    res.status(200).json(participants);
+      res.status(200).json({ message: newMessage });
   } catch (error) {
-    console.error('Error fetching participants:', error);
-    res.status(500).json({ message: 'Error fetching participants', error: error.message });
+      console.error('Error sending message:', error);
+      res.status(500).json({ error: 'Internal server error' });
   }
 });
+
 
 
 // Basic route for testing
