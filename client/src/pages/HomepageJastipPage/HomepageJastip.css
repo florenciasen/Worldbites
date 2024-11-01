@@ -71,7 +71,7 @@ h1 {
 .product-list {
     display: flex;
     justify-content: flex-start;
-    gap: 3rem;
+    gap: 1.5rem;
     margin-top: 10px;
 }
 
@@ -185,4 +185,16 @@ h1 {
 
 h3 {
     font-family: 'Gabriela', serif;;
+}
+
+.product-name-jastip {
+    font-size: 16px;
+    font-weight: 400;
+    text-align: center;
+    margin-top: 8px;
+    overflow: hidden; /* Prevents overflow */
+    text-overflow: ellipsis; /* Adds "..." for overflowed text */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1; /* Limits to 1 line */
 }

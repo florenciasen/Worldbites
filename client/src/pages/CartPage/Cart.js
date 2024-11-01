@@ -2,6 +2,7 @@ import './Cart.css';
 import Navbar from '../../components/Navbar/Navbar';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom'
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -9,6 +10,7 @@ export default function Cart() {
     const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [checkedItems, setCheckedItems] = useState([]);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchCartItems = async () => {
@@ -33,11 +35,12 @@ export default function Cart() {
 
     const calculateTotalPrice = () => {
         return cartItems.reduce((total, item) => {
-            if (checkedItems.includes(item._id)) {
+            // Only include the item in the total if it is checked
+            if (item.isChecked) {
                 return total + item.price * item.quantity;
             }
             return total;
-        }, 0);
+        }, 0);  // Start with a total of 0
     };
 
     const updateQuantity = async (id, action) => {
@@ -75,14 +78,49 @@ export default function Cart() {
     };
 
 
-    const handleCheckboxChange = (id) => {
-        setCheckedItems((prevCheckedItems) => {
-            if (prevCheckedItems.includes(id)) {
-                return prevCheckedItems.filter(itemId => itemId !== id);
-            } else {
-                return [...prevCheckedItems, id];
+    const handleCheckboxChange = async (id) => {
+        // Update the local state first to reflect changes immediately in the UI
+        const updatedItems = cartItems.map(item => {
+            if (item._id === id) {
+                return { ...item, isChecked: !item.isChecked };  // Toggle isChecked value
             }
+            return item;
         });
+    
+        setCartItems(updatedItems);  // Update state locally for immediate UI feedback
+    
+        // Find the updated item with the new isChecked value
+        const updatedItem = updatedItems.find(item => item._id === id);
+    
+        // Now send the updated isChecked value to the backend
+        try {
+            await axios.put(`http://localhost:3011/cart/updateIsChecked/${id}`, {
+                isChecked: updatedItem.isChecked  // Send the updated isChecked value
+            }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                },
+            });
+            toast.success('Item selection updated');
+        } catch (error) {
+            console.error('Error updating checkbox status:', error);
+            toast.error('Failed to update checkbox status');
+        }
+    };
+
+
+    const checkoutHandle = () => {
+        // Check if there are any checked items
+        const hasCheckedItems = cartItems.some(item => item.isChecked);
+        
+        if (!hasCheckedItems) {
+            // If no items are checked, show an error and prevent checkout
+            toast.error('Please select at least one item to proceed to checkout');
+            return;
+        }
+
+        // Proceed to the checkout page if items are checked
+        navigate('/checkout');
     };
 
     const removeItem = async (id) => {
@@ -105,6 +143,7 @@ export default function Cart() {
         return <div>Loading...</div>;
     }
 
+
     return (
         <div className="container-cart">
             <Navbar />
@@ -126,7 +165,7 @@ export default function Cart() {
                                     className="checkbox"
                                     type="checkbox"
                                     onChange={() => handleCheckboxChange(item._id)}
-                                    checked={checkedItems.includes(item._id)}
+                                    checked={item.isChecked}
                                 />
                             </div>
                             <div className="cart-image">
@@ -151,7 +190,7 @@ export default function Cart() {
                     ))}
                     <div className="cart-summary">
                         <p>Total: IDR {calculateTotalPrice().toLocaleString()}</p>
-                        <button className="checkout-btn">CHECKOUT</button>
+                        <button className="checkout-btn" onClick={checkoutHandle}>Checkout</button>
                     </div>
                 </div>
             </div>

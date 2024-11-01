@@ -43,6 +43,11 @@ body {
     width: 100%;
 }
 
+.cart-image {
+    display: flex;
+    justify-content: center;
+}
+
 .cart-header {
     display: grid;
     grid-template-columns: 0.5fr 0.7fr 1.5fr 1fr 1fr 1fr; /* Smaller for checklist and picture */

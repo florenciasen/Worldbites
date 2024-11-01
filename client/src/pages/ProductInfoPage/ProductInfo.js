@@ -6,11 +6,13 @@ import 'react-toastify/dist/ReactToastify.css';
 import Navbar from '../../components/Navbar/Navbar';
 import Cartlogo from '../../assets/cartlogo.svg';
 import './ProductInfo.css';
+import { useNavigate } from 'react-router-dom';
 
 export default function ProductInfo() {
     const { id } = useParams(); // Get productId from URL params
     const [productInfo, setProductInfo] = useState(null);
     const [quantity, setQuantity] = useState(1); // State for quantity
+    const Navigate = useNavigate();
 
     const fetchProductInfo = async () => {
         try {
@@ -62,6 +64,28 @@ export default function ProductInfo() {
         }
     };
 
+    const buyNow = async () => {
+        try {
+            const response = await axios.post('http://localhost:3011/buy-now', {
+                productId: id, // The current product ID
+                quantity: quantity // The selected quantity
+            }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+    
+            // Navigate to the checkout page with the product details
+            const product = response.data.product;
+            Navigate('/checkout', { state: { product } });
+    
+        } catch (error) {
+            console.error('Error in Buy Now:', error);
+            toast.error('Error processing Buy Now action.');
+        }
+    };
+    
+
     return (
         <div className="container-productinfo">
             <Navbar />
@@ -78,7 +102,7 @@ export default function ProductInfo() {
 
                     {/* Store Reviews */}
                     <div className="product-reviews">
-                        <img src={`http://localhost:3011/uploads/${store.profilePicture}`} alt="Store" className="store-profile-picture" />
+                        <img src={`http://localhost:3011/uploads/${store.storePicture}`} alt="Store" className="store-profile-picture" />
                         <div className='store-name-rating-container'>
                                 <span>{store.name}</span>
                             <div className="store-rating">
@@ -107,7 +131,7 @@ export default function ProductInfo() {
 
                     {/* Product Price */}
                     <div className="product-price">
-                        <h3>IDR {product.price}</h3>
+                        <h3>IDR {product.price.toLocaleString()}</h3>
                     </div>
 
                     {/* Quantity Selector and Buy Now Button */}
@@ -120,7 +144,7 @@ export default function ProductInfo() {
                     </div>
 
                     <div className="buybutton-cart">
-                        <button className="buy-now-button">BUY NOW</button>
+                        <button className="buy-now-button" onClick={buyNow}>Buy Now</button>
                         <img src={Cartlogo} 
                         alt="Add to Cart" 
                         className="cart-logo"
