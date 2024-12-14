@@ -186,6 +186,11 @@ export default function Checkout() {
     
             // Handle success
             toast.success('Order created successfully!');
+            
+            setTimeout(() => {
+                Navigate('/orderhistory'); // Redirect to orders page
+            }, 1000);
+
             console.log('Order created:', response.data.order);
     
     
